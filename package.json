@@ -4,9 +4,14 @@
   "private": true,
   "description": "The home appliance's shared look: tokens, components and the header, copied into each app.",
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node scripts/build.mjs && node --test tests/"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
   }
 }
