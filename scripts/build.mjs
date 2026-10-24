@@ -49,4 +49,5 @@ fs.mkdirSync(out, { recursive: true });
 fs.writeFileSync(path.join(out, 'tokens.css'), css);
 fs.writeFileSync(path.join(out, 'tokens.h'), h);
 fs.writeFileSync(path.join(out, 'tokens.json'), JSON.stringify(t, null, 2) + '\n');
-console.log(`built ${path.relative(process.cwd(), out) || out}: tokens.css, tokens.h, tokens.json (v${t.version})`);
+fs.writeFileSync(path.join(out, 'components.css'), `/* ${banner} */\n` + fs.readFileSync(path.join(root, 'src/components.css'), 'utf8'));
+console.log(`built ${path.relative(process.cwd(), out) || out}: tokens.css, tokens.h, tokens.json, components.css (v${t.version})`);
