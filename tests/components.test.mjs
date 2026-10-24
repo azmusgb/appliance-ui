@@ -19,6 +19,7 @@ test('components.css defines the shared classes using only --ui-* colours', () =
     assert.match(css, new RegExp(`\\.${cls}[\\s{.,:>]`), cls);
   }
   assert.match(css, /:focus-visible\{[^}]*outline:2px solid var\(--ui-accent\)/);
+  assert.match(css, /\.ui-field\{[^}]*box-sizing:border-box/, 'a full-width field stays inside its card');
   const code = css.replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(code, /#[0-9a-f]{3,8}\b/i, 'no literal hex colours');
   assert.doesNotMatch(code, /\brgba?\(/i, 'no literal rgb colours');

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>appliance-ui demo</title>
+<link rel="stylesheet" href="../dist/tokens.css">
+<link rel="stylesheet" href="../dist/components.css">
+<script src="../dist/appliance-header.js"></script>
+<style>
+  body{margin:0;background:var(--ui-bg);color:var(--ui-text);font-family:var(--ui-font)}
+  main{max-width:960px;margin:0 auto;padding:24px 16px;display:grid;gap:16px}
+  h1{font-size:var(--ui-fs-6);margin:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+  .muted{color:var(--ui-muted);font-size:var(--ui-fs-2)}
+  .big{font-size:var(--ui-fs-7);font-weight:700;letter-spacing:-.02em}
+  .row-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .toggle{position:fixed;right:16px;bottom:16px}
+</style>
+</head>
+<body>
+<appliance-header app="home" attention="2"></appliance-header>
+<main>
+  <h1>Overview</h1>
+  <p class="muted">Every shared component, in the theme of this device. The button at the bottom right switches theme.</p>
+  <div class="grid">
+    <section class="ui-card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><strong>Workshop</strong><span class="ui-chip ui-chip--ok">Printing</span></div>
+      <div class="big">42%</div>
+      <span class="ui-meter"><i style="width:42%"></i></span>
+      <p class="muted">1 h 05 min left · done at 2:10 AM</p>
+      <div class="row-btns"><button class="ui-btn ui-btn--primary">Pause print</button><button class="ui-btn ui-btn--ghost">Open camera</button></div>
+    </section>
+    <section class="ui-card">
+      <strong>Status</strong>
+      <p><span class="ui-chip ui-chip--ok">Healthy</span> <span class="ui-chip ui-chip--warn">Needs a look</span> <span class="ui-chip ui-chip--bad">Down</span> <span class="ui-chip ui-chip--unknown">Unknown</span></p>
+      <div class="ui-row"><span>Movies drive</span><span class="ui-chip ui-chip--ok" style="margin-left:auto">Connected</span></div>
+      <div class="ui-row"><span>Windows PC</span><span class="ui-chip ui-chip--warn" style="margin-left:auto">Asleep</span></div>
+      <button class="ui-btn ui-btn--danger">Restart the Pi</button>
+    </section>
+    <section class="ui-card">
+      <label for="f"><strong>Add to the shopping list</strong></label>
+      <p><input id="f" class="ui-field" placeholder="Oat milk"></p>
+      <button class="ui-btn">Add</button>
+      <div class="ui-empty">Nothing on the list yet.</div>
+    </section>
+  </div>
+</main>
+<button class="ui-btn ui-btn--ghost toggle" onclick="const r=document.documentElement;r.dataset.theme=r.dataset.theme==='light'?'dark':'light'">Switch theme</button>
+</body>
+</html>

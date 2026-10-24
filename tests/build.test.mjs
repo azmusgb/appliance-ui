@@ -34,6 +34,7 @@ test('tokens.css has dark on :root, light by device and by data-theme, and the h
   assert.match(css, /@media \(max-width:719px\)\{:root\{--ui-header-h:44px;\}\}/);
   assert.match(css, /--ui-surface-2:/);
   assert.match(css, /--ui-accent-text:/);
+  assert.match(css, /@font-face\{font-family:Figtree;src:url\(figtree-latin-wght-normal\.woff2\) format\("woff2"\)/);
 });
 
 test('tokens.h has RGB565 colour constants', () => {

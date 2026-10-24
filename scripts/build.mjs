@@ -34,6 +34,7 @@ const fixed = [
   `--ui-space:${t.space.unit}px;`, `--ui-header-h:${t.headerHeight.wide}px;`,
 ].join('');
 const css = `/* ${banner} */\n`
+  + '@font-face{font-family:Figtree;src:url(figtree-latin-wght-normal.woff2) format("woff2");font-weight:300 900;font-display:swap}\n'
   + `:root{${fixed}${vars('dark')}color-scheme:dark;}\n`
   + `@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){${vars('light')}color-scheme:light;}}\n`
   + `[data-theme="light"]{${vars('light')}color-scheme:light;}\n`
