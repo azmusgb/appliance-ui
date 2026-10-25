@@ -124,6 +124,8 @@
 
 ### Task 5: Adopt in Local AI and make `main` green
 
+> **Superseded (25 Oct 2026)** by Pi Hub's one home, step 5 (`pi-hub/docs/superpowers/plans/2026-10-25-one-home-step-5-look.md`): the app takes the kit's colours and no `<appliance-header>` (one home made Pi Hub the front door).
+
 **Files:**
 - Create: `app/public/ui/*` (via sync), `tests/appliance-ui.test.cjs`
 - Modify: `app/public/index.html` (load `/ui/tokens.css`, `/ui/components.css`, `/ui/appliance-header.js`; `<appliance-header app="assistant">` replaces `<appliance-nav current="hub">`; remove `<script src="/appliance-nav.js">` and the rail `.brand`), `app/public/app.css` (at the `--ds-*` block, line ~764: alias each `--ds-*` colour to its `--ui-*` match; the app's sticky top bar uses `top: var(--ui-header-h)`), `app/public/sw.js` (shell lists `/ui/*`, cache name suffix `-ui1`), `app/server.js` (remove unused `materialsClient`, line ~104), `tests/budgets.test.cjs` (new total = measured, with a dated comment), visual baselines `tests/visual/darwin/*.png`
@@ -150,6 +152,8 @@
 ## Phase 3: Home (repo `~/dev/pi-hub`, branch `feat/appliance-ui`)
 
 ### Task 7: Adopt in Pi Hub
+
+> **Superseded (25 Oct 2026)** by Pi Hub's one home, step 5 (`pi-hub/docs/superpowers/plans/2026-10-25-one-home-step-5-look.md`): the app takes the kit's colours and no `<appliance-header>` (one home made Pi Hub the front door).
 
 **Files:**
 - Create: `hub/static/ui/*` (via sync), `tests/test_appliance_ui.py`
