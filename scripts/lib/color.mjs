@@ -25,4 +25,10 @@ export function rgb565(hex) {
   return '0x' + (((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3)).toString(16).toUpperCase().padStart(4, '0');
 }
 
+// CSS color-mix(in srgb, a p%, b) over an opaque b: the tint a chip or button sits on.
+export function mix(a, b, p) {
+  const [x, y] = [channels(a), channels(b)];
+  return '#' + x.map((v, i) => Math.round(v * p + y[i] * (1 - p)).toString(16).padStart(2, '0')).join('');
+}
+
 export const isHex = v => /^#[0-9a-f]{6}$/i.test(v);

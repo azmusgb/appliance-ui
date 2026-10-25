@@ -68,3 +68,34 @@ test('the build refuses tokens below AA and names the pair', () => {
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /dark muted on bg/);
 });
+
+// One home, step 5: chips, the danger button and the header badge are status text on a tint of itself; field borders
+// are a UI boundary (3:1). The gate covers both, in both modes.
+const withColors = (over) => {
+  const t = JSON.parse(fs.readFileSync(path.join(root, 'tokens.json'), 'utf8'));
+  for (const [k, v] of Object.entries(over)) t.color[k] = { ...t.color[k], ...v };
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-gate-'));
+  fs.writeFileSync(path.join(dir, 'tokens.json'), JSON.stringify(t));
+  return build(['--tokens', path.join(dir, 'tokens.json'), '--out', path.join(dir, 'dist')]);
+};
+
+test('the gate refuses 1.0 light status colours on their own tints, and faint field borders', () => {
+  const r = withColors({ bad: { light: '#c9372c' }, fieldLine: { dark: '#5b6c82', light: '#c6d0dc' } });
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /light bad chip on bg: 3\.68 < 4\.5/);
+  assert.match(r.stderr, /light bad danger on surface/);
+  assert.match(r.stderr, /light fieldLine on bg: 1\.45 < 3/);
+});
+
+test('1.1 tokens pass the wider gate and ship --ui-field-line and --ui-header-total', () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
+  const r = build(['--out', out]);
+  assert.equal(r.status, 0, r.stderr);
+  const css = fs.readFileSync(path.join(out, 'tokens.css'), 'utf8');
+  assert.match(css, /:root\{[^}]*--ui-field-line:#5b6c82;/);
+  assert.match(css, /\[data-theme="light"\]\{[^}]*--ui-field-line:#7f8b9b;[^}]*/);
+  assert.match(css, /\[data-theme="light"\]\{[^}]*--ui-bad:#b02a20;/);
+  assert.match(css, /--ui-header-total:calc\(var\(--ui-header-h\) \+ env\(safe-area-inset-top, 0px\)\);/);
+  const t = JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8'));
+  assert.equal(t.version, '1.1.0');
+});

@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { contrast, rgb565, isHex } from './lib/color.mjs';
+import { contrast, mix, rgb565, isHex } from './lib/color.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const arg = (name, fallback) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; };
@@ -22,6 +22,18 @@ for (const mode of ['dark', 'light']) {
     const ratio = contrast(t.color[fg][mode], t.color[bg][mode]);
     if (ratio < 4.5) failures.push(`${mode} ${fg} on ${bg}: ${ratio.toFixed(2)} < 4.5`);
   }
+  // Status text on a tint of itself: chips and the header badge (18%), the danger button (16%).
+  for (const [kind, colours, p] of [['chip', ['ok', 'warn', 'bad', 'unknown'], 0.18], ['danger', ['bad'], 0.16]]) {
+    for (const fg of colours) for (const bg of ['bg', 'surface']) {
+      const c = t.color[fg][mode], ratio = contrast(c, mix(c, t.color[bg][mode], p));
+      if (ratio < 4.5) failures.push(`${mode} ${fg} ${kind} on ${bg}: ${ratio.toFixed(2)} < 4.5`);
+    }
+  }
+  // A field's border is a UI boundary: 3:1 against what is around it.
+  for (const bg of ['bg', 'surface']) {
+    const ratio = contrast(t.color.fieldLine[mode], t.color[bg][mode]);
+    if (ratio < 3) failures.push(`${mode} fieldLine on ${bg}: ${ratio.toFixed(2)} < 3`);
+  }
 }
 if (failures.length) { console.error('Contrast below WCAG AA:\n' + failures.join('\n')); process.exit(1); }
 
@@ -32,6 +44,7 @@ const fixed = [
   ...Object.entries(t.size).map(([k, v]) => `--ui-fs-${k.slice(2)}:${v}px;`),
   ...Object.entries(t.radius).map(([k, v]) => `--ui-r-${k.slice(1)}:${v}px;`),
   `--ui-space:${t.space.unit}px;`, `--ui-header-h:${t.headerHeight.wide}px;`,
+  '--ui-header-total:calc(var(--ui-header-h) + env(safe-area-inset-top, 0px));',
 ].join('');
 const css = `/* ${banner} */\n`
   + '@font-face{font-family:Figtree;src:url(figtree-latin-wght-normal.woff2) format("woff2");font-weight:300 900;font-display:swap}\n'

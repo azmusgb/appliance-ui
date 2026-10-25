@@ -10,7 +10,7 @@
 .ui-chip--warn{background:color-mix(in srgb,var(--ui-warn) 18%,transparent);color:var(--ui-warn)}
 .ui-chip--bad{background:color-mix(in srgb,var(--ui-bad) 18%,transparent);color:var(--ui-bad)}
 .ui-chip--unknown{background:color-mix(in srgb,var(--ui-unknown) 18%,transparent);color:var(--ui-unknown)}
-.ui-field{display:block;box-sizing:border-box;width:100%;min-height:40px;padding:0 12px;border-radius:var(--ui-r-2);border:1px solid var(--ui-line-2);background:var(--ui-bg);color:var(--ui-text);font:400 var(--ui-fs-4) var(--ui-font)}
+.ui-field{display:block;box-sizing:border-box;width:100%;min-height:40px;padding:0 12px;border-radius:var(--ui-r-2);border:1px solid var(--ui-field-line);background:var(--ui-bg);color:var(--ui-text);font:400 var(--ui-fs-4) var(--ui-font)}
 .ui-field::placeholder{color:var(--ui-muted)}
 .ui-meter{display:block;height:6px;border-radius:999px;background:var(--ui-surface-2);overflow:hidden}
 .ui-meter>i{display:block;height:100%;background:var(--ui-accent)}
