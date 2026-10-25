@@ -25,6 +25,7 @@ at 4.5:1, and field borders (`fieldLine`) at 3:1. Light values that changed in 1
 | `warn` (light) | `#946000` | `#815300` | chip on the canvas was 3.91 |
 | `bad` (light) | `#c9372c` | `#b02a20` | chip 3.68, danger button 3.80 |
 | `unknown` (light) | `#5b6878` | `#505c6b` | chip on the canvas was 4.18 |
+| `accentText` (light, 1.1.1) | `#1a6dba` | `#1866b0` | a selected tab on its accent tint was 4.45 |
 | `fieldLine` (new) | `line2` | dark `#5b6c82`, light `#7f8b9b` | field borders were 1.45–1.71 |
 
 `--ui-header-total` is the header's height plus the notch (`env(safe-area-inset-top)`): offset sticky content by it.

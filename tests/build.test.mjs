@@ -97,5 +97,11 @@ test('1.1 tokens pass the wider gate and ship --ui-field-line and --ui-header-to
   assert.match(css, /\[data-theme="light"\]\{[^}]*--ui-bad:#b02a20;/);
   assert.match(css, /--ui-header-total:calc\(var\(--ui-header-h\) \+ env\(safe-area-inset-top, 0px\)\);/);
   const t = JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8'));
-  assert.equal(t.version, '1.1.0');
+  assert.match(t.version, /^1\.1\.\d+$/);
+});
+
+test('accent text on the accent tint (a selected tab) passes too', () => {
+  const r = withColors({ accentText: { light: '#1a6dba' } });
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /light accentText tab on bg: 4\.\d\d < 4\.5/);
 });

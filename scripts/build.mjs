@@ -29,6 +29,11 @@ for (const mode of ['dark', 'light']) {
       if (ratio < 4.5) failures.push(`${mode} ${fg} ${kind} on ${bg}: ${ratio.toFixed(2)} < 4.5`);
     }
   }
+  // A selected tab or chip in the accent: accent text on a 14% accent tint.
+  for (const bg of ['bg', 'surface']) {
+    const ratio = contrast(t.color.accentText[mode], mix(t.color.accent[mode], t.color[bg][mode], 0.14));
+    if (ratio < 4.5) failures.push(`${mode} accentText tab on ${bg}: ${ratio.toFixed(2)} < 4.5`);
+  }
   // A field's border is a UI boundary: 3:1 against what is around it.
   for (const bg of ['bg', 'surface']) {
     const ratio = contrast(t.color.fieldLine[mode], t.color[bg][mode]);
