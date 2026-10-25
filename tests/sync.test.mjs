@@ -52,6 +52,7 @@ test('--status lists each copy against this version', () => {
   node([path.join(root, 'scripts/sync.mjs'), repo, '--dir', 'web/ui']);
   const r = node([path.join(root, 'scripts/sync.mjs'), '--status', `${repo}:web/ui`, `${repo}:missing`]);
   assert.equal(r.status, 0, r.stderr);
-  assert.match(r.stdout, /web\/ui\s+1\.0\.0\s+1\.0\.0/);
-  assert.match(r.stdout, /missing\s+none\s+1\.0\.0/);
+  const v = JSON.parse(fs.readFileSync(path.join(root, 'tokens.json'), 'utf8')).version.replace(/\./g, '\\.');
+  assert.match(r.stdout, new RegExp(`web/ui\\s+${v}\\s+${v}`));
+  assert.match(r.stdout, new RegExp(`missing\\s+none\\s+${v}`));
 });

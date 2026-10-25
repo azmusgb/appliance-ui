@@ -37,7 +37,7 @@ test('home network: the current app links to /, the others to their home address
   assert.equal(l.home.href, '/');
   assert.equal(l.assistant.href, 'https://10.0.0.21/');
   assert.equal(l.workshop.href, 'http://10.0.0.124/');
-  assert.equal(l.materials.href, 'https://filamentinventory.netlify.app/');
+  assert.equal(l.materials.href, 'http://10.0.0.30:8000/inventory');  // Bambuddy since 24 Oct 2026
   assert.ok(Object.values(l).every(x => !x.disabled && !x.away));
   await page.close();
 });
