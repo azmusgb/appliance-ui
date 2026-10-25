@@ -87,21 +87,44 @@ test('the gate refuses 1.0 light status colours on their own tints, and faint fi
   assert.match(r.stderr, /light fieldLine on bg: 1\.45 < 3/);
 });
 
-test('1.1 tokens pass the wider gate and ship --ui-field-line and --ui-header-total', () => {
+test('shipped tokens pass the wider gate and ship --ui-field-line and --ui-header-total', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
   const r = build(['--out', out]);
   assert.equal(r.status, 0, r.stderr);
   const css = fs.readFileSync(path.join(out, 'tokens.css'), 'utf8');
-  assert.match(css, /:root\{[^}]*--ui-field-line:#5b6c82;/);
-  assert.match(css, /\[data-theme="light"\]\{[^}]*--ui-field-line:#7f8b9b;[^}]*/);
-  assert.match(css, /\[data-theme="light"\]\{[^}]*--ui-bad:#b02a20;/);
+  assert.match(css, /:root\{[^}]*--ui-field-line:#5d6e84;/);
+  assert.match(css, /\[data-theme="light"\]\{[^}]*--ui-field-line:#7d8999;[^}]*/);
+  assert.match(css, /\[data-theme="light"\]\{[^}]*--ui-bad:#a7281e;/);
   assert.match(css, /--ui-header-total:calc\(var\(--ui-header-h\) \+ env\(safe-area-inset-top, 0px\)\);/);
-  const t = JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8'));
-  assert.match(t.version, /^1\.1\.\d+$/);
 });
 
 test('accent text on the accent tint (a selected tab) passes too', () => {
   const r = withColors({ accentText: { light: '#1a6dba' } });
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /light accentText tab on bg: 4\.\d\d < 4\.5/);
+});
+
+// The well (surface2) and the real accent tint (accentSoft, an rgba over the background) are in the gate too.
+test('flatten lays an rgba colour over an opaque background', async () => {
+  const { flatten } = await import('../scripts/lib/color.mjs');
+  assert.equal(flatten('rgba(255,255,255,.5)', '#000000'), '#808080');
+  assert.equal(flatten('#123456', '#ffffff'), '#123456');
+});
+
+test('the gate covers the well and the real accent tint: 1.1.1 colours fail there', () => {
+  const r = withColors({
+    accentText: { light: '#1866b0' }, bad: { dark: '#ff6b63', light: '#b02a20' },
+    unknown: { dark: '#93a1b3' }, fieldLine: { dark: '#5b6c82' },
+  });
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /light accentText on accentSoft over surface2: 4\.47 < 4\.5/);
+  assert.match(r.stderr, /dark bad chip on surface2: 4\.33 < 4\.5/);
+  assert.match(r.stderr, /dark fieldLine on surface2: 2\.92 < 3/);
+});
+
+test('1.2 tokens pass on the well', () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
+  const r = build(['--out', out]);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^1\.2\.\d+$/);
 });

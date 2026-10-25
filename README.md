@@ -28,6 +28,20 @@ at 4.5:1, and field borders (`fieldLine`) at 3:1. Light values that changed in 1
 | `accentText` (light, 1.1.1) | `#1a6dba` | `#1866b0` | a selected tab on its accent tint was 4.45 |
 | `fieldLine` (new) | `line2` | dark `#5b6c82`, light `#7f8b9b` | field borders were 1.45–1.71 |
 
+Since 1.2.0 every check also runs on the well (`surface2`, behind buttons and meters), and accent text is checked on
+`accentSoft` as the apps lay it (an rgba over the background), not only on a 14% accent mix. Values that changed:
+
+| Token | 1.1 | 1.2 | Why |
+|---|---|---|---|
+| `accentText` (light) | `#1866b0` | `#1761a7` | on `accentSoft` over the well was 4.47 |
+| `ok` (light) | `#126a45` | `#126743` | chip on the well was 4.33 |
+| `warn` (light) | `#815300` | `#7d5100` | chip on the well was 4.34 |
+| `bad` (light) | `#b02a20` | `#a7281e` | chip on the well 4.20, danger button 4.34 |
+| `fieldLine` (light) | `#7f8b9b` | `#7d8999` | on the well was 2.94 |
+| `bad` (dark) | `#ff6b63` | `#ff736c` | chip on the well was 4.33, danger button 4.49 |
+| `unknown` (dark) | `#93a1b3` | `#97a5b6` | chip on the well was 4.33 |
+| `fieldLine` (dark) | `#5b6c82` | `#5d6e84` | on the well was 2.92 |
+
 `--ui-header-total` is the header's height plus the notch (`env(safe-area-inset-top)`): offset sticky content by it.
 
 ## Use

@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { contrast, mix, rgb565, isHex } from './lib/color.mjs';
+import { contrast, flatten, mix, rgb565, isHex } from './lib/color.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const arg = (name, fallback) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; };
@@ -14,8 +14,9 @@ const t = JSON.parse(fs.readFileSync(tokensPath, 'utf8'));
 const kebab = s => s.replace(/([a-z])([A-Z0-9])/g, '$1-$2').toLowerCase();
 const snake = s => kebab(s).replace(/-/g, '_').toUpperCase();
 
-// Text colours on the two backgrounds they sit on, and the accent's own label.
-const PAIRS = [...['text', 'muted', 'accentText', 'ok', 'warn', 'bad'].flatMap(fg => ['bg', 'surface'].map(bg => [fg, bg])), ['onAccent', 'accent']];
+// Text colours on the three backgrounds they sit on (the page, a card, the well), and the accent's own label.
+const BGS = ['bg', 'surface', 'surface2'];
+const PAIRS = [...['text', 'muted', 'accentText', 'ok', 'warn', 'bad', 'unknown'].flatMap(fg => BGS.map(bg => [fg, bg])), ['onAccent', 'accent']];
 const failures = [];
 for (const mode of ['dark', 'light']) {
   for (const [fg, bg] of PAIRS) {
@@ -24,18 +25,21 @@ for (const mode of ['dark', 'light']) {
   }
   // Status text on a tint of itself: chips and the header badge (18%), the danger button (16%).
   for (const [kind, colours, p] of [['chip', ['ok', 'warn', 'bad', 'unknown'], 0.18], ['danger', ['bad'], 0.16]]) {
-    for (const fg of colours) for (const bg of ['bg', 'surface']) {
+    for (const fg of colours) for (const bg of BGS) {
       const c = t.color[fg][mode], ratio = contrast(c, mix(c, t.color[bg][mode], p));
       if (ratio < 4.5) failures.push(`${mode} ${fg} ${kind} on ${bg}: ${ratio.toFixed(2)} < 4.5`);
     }
   }
-  // A selected tab or chip in the accent: accent text on a 14% accent tint.
-  for (const bg of ['bg', 'surface']) {
-    const ratio = contrast(t.color.accentText[mode], mix(t.color.accent[mode], t.color[bg][mode], 0.14));
-    if (ratio < 4.5) failures.push(`${mode} accentText tab on ${bg}: ${ratio.toFixed(2)} < 4.5`);
+  // A selected tab or chip in the accent: accent text on a 14% accent tint, and on accentSoft as the apps lay it.
+  for (const bg of BGS) {
+    const B = t.color[bg][mode];
+    const tab = contrast(t.color.accentText[mode], mix(t.color.accent[mode], B, 0.14));
+    if (tab < 4.5) failures.push(`${mode} accentText tab on ${bg}: ${tab.toFixed(2)} < 4.5`);
+    const soft = contrast(t.color.accentText[mode], flatten(t.color.accentSoft[mode], B));
+    if (soft < 4.5) failures.push(`${mode} accentText on accentSoft over ${bg}: ${soft.toFixed(2)} < 4.5`);
   }
   // A field's border is a UI boundary: 3:1 against what is around it.
-  for (const bg of ['bg', 'surface']) {
+  for (const bg of BGS) {
     const ratio = contrast(t.color.fieldLine[mode], t.color[bg][mode]);
     if (ratio < 3) failures.push(`${mode} fieldLine on ${bg}: ${ratio.toFixed(2)} < 3`);
   }

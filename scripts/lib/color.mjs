@@ -32,3 +32,11 @@ export function mix(a, b, p) {
 }
 
 export const isHex = v => /^#[0-9a-f]{6}$/i.test(v);
+
+// An rgba(r,g,b,a) colour laid over an opaque background, as #rrggbb; a #rrggbb colour comes back as it is.
+export function flatten(color, bg) {
+  const m = /^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)$/.exec(color);
+  if (!m) return channels(color) && color;
+  const top = '#' + m.slice(1, 4).map(v => (+v).toString(16).padStart(2, '0')).join('');
+  return mix(top, bg, +m[4]);
+}
