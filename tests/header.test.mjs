@@ -37,7 +37,7 @@ test('home network: the current app links to /, the others to their home address
   assert.equal(l.home.href, '/');
   assert.equal(l.assistant.href, 'https://10.0.0.21/');
   assert.equal(l.workshop.href, 'http://10.0.0.124/');
-  assert.equal(l.materials.href, 'http://10.0.0.30:8000/inventory');  // Bambuddy since 24 Oct 2026
+  assert.equal(l.materials.href, 'https://bambuddy.home.arpa/inventory');  // through the gate since step 6
   assert.ok(Object.values(l).every(x => !x.disabled && !x.away));
   await page.close();
 });
@@ -58,7 +58,7 @@ test('hosts outside the Tailscale range get home-network links', async () => {
   for (const host of ['100.200.1.1', '100.63.255.255', 'pi', 'localhost', '10.0.0.21']) {
     const l = byId(await links(page, host, 'assistant'));
     assert.equal(l.workshop.disabled, false, host);
-    assert.equal(l.home.href, 'http://10.0.0.30/', host);
+    assert.equal(l.home.href, 'https://home.home.arpa/', host);
   }
   await page.close();
 });
