@@ -126,5 +126,15 @@ test('1.2 tokens pass on the well', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
   const r = build(['--out', out]);
   assert.equal(r.status, 0, r.stderr);
-  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^1\.2\.\d+$/);
+  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^1\.3\.\d+$/);
+});
+
+// One home, step 6 (lock): the old IP:port addresses are retired, so the suite links the gate names.
+test('suite links name the gate, not the Pi\'s old ports', () => {
+  const suite = JSON.parse(fs.readFileSync(path.join(root, 'suite.json'), 'utf8'));
+  const byId = Object.fromEntries(suite.apps.map(a => [a.id, a]));
+  for (const a of suite.apps) assert.doesNotMatch(String(a.lan), /10\.0\.0\.30/, a.id);
+  assert.equal(byId.home.lan, 'https://home.home.arpa/');
+  assert.equal(byId.materials.lan, 'https://bambuddy.home.arpa/inventory');
+  assert.equal(byId.materials.tailnet, 'https://bambuddy.home.arpa/inventory');
 });

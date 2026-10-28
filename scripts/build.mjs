@@ -77,4 +77,6 @@ const header = fs.readFileSync(path.join(root, 'src/appliance-header.js'), 'utf8
 fs.writeFileSync(path.join(out, 'appliance-header.js'), `// ${banner}\n` + header);
 fs.writeFileSync(path.join(out, 'appliance-header.lite.js'), `// ${banner} (lite: links only, no phone sheet)\n` + header.replace('/*LITE*/false', 'true'));
 fs.writeFileSync(path.join(out, 'components.css'), `/* ${banner} */\n` + fs.readFileSync(path.join(root, 'src/components.css'), 'utf8'));
-console.log(`built ${path.relative(process.cwd(), out) || out}: tokens.css, tokens.h, tokens.json, components.css, appliance-header.js (v${t.version})`);
+fs.writeFileSync(path.join(out, 'needs.css'), `/* ${banner} */\n` + fs.readFileSync(path.join(root, 'src/needs.css'), 'utf8'));
+fs.writeFileSync(path.join(out, 'needs.js'), `// ${banner}\n` + fs.readFileSync(path.join(root, 'src/needs.js'), 'utf8'));
+console.log(`built ${path.relative(process.cwd(), out) || out}: tokens.css, tokens.h, tokens.json, components.css, needs.js, needs.css, appliance-header.js (v${t.version})`);
