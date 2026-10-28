@@ -24,4 +24,7 @@ test('components.css defines the shared classes using only --ui-* colours', () =
   const code = css.replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(code, /#[0-9a-f]{3,8}\b/i, 'no literal hex colours');
   assert.doesNotMatch(code, /\brgba?\(/i, 'no literal rgb colours');
+  const needs = fs.readFileSync(path.join(out, 'needs.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.doesNotMatch(needs, /#[0-9a-f]{3,8}\b/i, 'needs.css: no literal hex colours');
+  assert.doesNotMatch(needs, /\brgba?\(/i, 'needs.css: no literal rgb colours');
 });

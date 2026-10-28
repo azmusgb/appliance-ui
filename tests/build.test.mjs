@@ -126,7 +126,7 @@ test('1.2 tokens pass on the well', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
   const r = build(['--out', out]);
   assert.equal(r.status, 0, r.stderr);
-  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^1\.2\.\d+$/);
+  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^1\.3\.\d+$/);
 });
 
 // One home, step 6 (lock): the old IP:port addresses are retired, so the suite links the gate names.
