@@ -1,4 +1,5 @@
 // ApplianceNeeds: draws the "Needs you" list the same way in every app. Item data goes in through textContent only.
+// renderList option dense: true makes one-line rows (no source line) for tight tiles.
 // item: {id, source, tone: "bad"|"attention"|"warn", title, detail, link?, action?: {key, link}, urgent?, as_of?}
 (() => {
   const PHRASES = {
@@ -71,7 +72,7 @@
     const doc = o.doc || document;
     const list = items || [];
     if (!list.length) return el(doc, 'p', 'ui-needs__empty', o.empty || EMPTY);
-    const ul = el(doc, 'ul', 'ui-needs');
+    const ul = el(doc, 'ul', o.dense ? 'ui-needs ui-needs--dense' : 'ui-needs');
     const shown = o.max > 0 ? list.slice(0, o.max) : list;
     for (const it of shown) ul.append(render(it, o));
     const more = o.more && shown.length < list.length ? safeLink(o.more.href, { resolve: l => l, here: hereOf(o, doc) }) : null;

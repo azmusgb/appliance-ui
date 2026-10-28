@@ -164,3 +164,26 @@ test('tricky more.href values never produce a link off the origin', async () => 
   assert.deepEqual(r, [null, null, 'http://10.0.0.30']);
   await page.close();
 });
+
+test('dense lists add the class, hide the source line, keep rows 44px+ and keep the action and arrow', async () => {
+  const page = await open();
+  const r = await page.evaluate(h => {
+    const N = window.ApplianceNeeds;
+    const items = [{ id: 'a', source: 'Printer', tone: 'warn', title: 'Clear the plate', detail: 'Finished hex-tile E-021 · 1 h 4 min', link: '/workshop', action: { key: 'look', link: '/workshop' } },
+      { id: 'b', source: 'Bambuddy', tone: 'bad', title: 'Judge the print', detail: 'x'.repeat(200), link: 'tool:b' }];
+    const o = { resolve: l => (l === 'tool:b' ? 'https://b.example/' : l), here: new URL(h), self: 'Pi Hub' };
+    const plain = N.renderList(items, o), dense = N.renderList(items, { ...o, dense: true });
+    document.getElementById('host').append(dense);
+    const li = [...dense.querySelectorAll('.ui-need')];
+    return { plain: plain.className, dense: dense.className, metaShown: li.map(x => getComputedStyle(x.querySelector('.ui-need__meta') || x).display),
+      hasMeta: li.map(x => !!x.querySelector('.ui-need__meta')), heights: li.map(x => x.getBoundingClientRect().height), rowW: dense.getBoundingClientRect().width,
+      linkW: li.map(x => x.querySelector('.ui-need__link').scrollWidth - x.querySelector('.ui-need__link').clientWidth),
+      actions: li.map(x => x.querySelector('.ui-need__action')?.textContent) };
+  }, here);
+  assert.equal(r.plain, 'ui-needs'); assert.equal(r.dense, 'ui-needs ui-needs--dense');
+  assert.deepEqual(r.metaShown.map((d, i) => r.hasMeta[i] ? d : 'none'), ['none', 'none']);
+  assert.ok(r.heights.every(h => h >= 44 && h < 60), r.heights.join());
+  assert.ok(r.linkW.every(w => w <= 0), 'long detail ellipsizes, no overflow');
+  assert.equal(r.actions[0], 'Look at the printer'); assert.equal(r.actions[1], '↗');
+  await page.close();
+});
