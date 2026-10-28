@@ -57,3 +57,13 @@ test('dot-segment and double-slash tricks never yield a link that leaves the ori
 test('a throwing resolver means no link', () => {
   assert.equal(safeLink('tool:x', { resolve: () => { throw new Error('boom'); }, here }), null);
 });
+
+test('userinfo is stripped from every emitted href', () => {
+  for (const r of [resolve, resolveTool]) {
+    const a = safeLink('http://evil.com@10.0.0.30/x', { resolve: r, here });
+    assert.ok(a && !a.href.includes('@'), JSON.stringify(a));
+    assert.equal(a.external, false);
+  }
+  const b = safeLink('x', { resolve: () => 'https://u:p@bambuddy.home.arpa/y', here });
+  assert.deepEqual(b, { href: 'https://bambuddy.home.arpa/y', external: true });
+});

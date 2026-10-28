@@ -69,8 +69,10 @@ The "Needs you" list is drawn by `needs.js` and `needs.css` (load them after `to
 `ApplianceNeeds.renderList(items, {resolve, here, self, max, more, empty})` returns a `<ul class="ui-needs">` and
 `ApplianceNeeds.render(item, opts)` one `<li class="ui-need">`. An item is `{id, source, tone: "bad"|"attention"|"warn",
 title, detail, link?, action?: {key, link}}`; `action.key` is a phrase key and the renderer supplies the words
-(`ApplianceNeeds.PHRASES`). Text goes in as text. `opts.resolve(link)` runs first and its result is linked only if it is a
-same-origin path, a `#hash`, or an `http(s)` URL the resolver made; a link to another origin opens in a new tab and shows "↗".
+(`ApplianceNeeds.PHRASES`). Text goes in as text. Links are judged by the kit: an input starting with `/`, `#` or a backslash, or with `http(s):`, is kept only if it is
+same-origin with `opts.here` (default: the page), and is emitted as an absolute URL with any userinfo removed. Any other
+input (e.g. `tool:x`, `hub:x`) goes to `opts.resolve(link)`, which must return an absolute http(s) URL; a relative result
+gives no link. A resolved link to another origin opens in a new tab and shows "↗".
 
 Change a colour or a link here, never in an app's copy: `tokens.json` and `suite.json`, then `npm test`, bump
 `version` in `tokens.json` (patch: a value; minor: a new component; major: a renamed variable or a header contract
