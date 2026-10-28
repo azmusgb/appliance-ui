@@ -66,7 +66,7 @@ test('an external link gets the arrow, target=_blank and rel=noopener; a local o
   assert.equal(r.rel, 'noopener noreferrer');
   assert.equal(r.action, 'Open Bambuddy ↗');
   assert.equal(r.meta, 'bambuddy');
-  assert.equal(r.lhref, '/workshop');
+  assert.equal(r.lhref, 'http://10.0.0.30/workshop');
   assert.equal(r.ltarget, null);
   assert.equal(r.laction, 'Look at the printer');
   assert.equal(r.lmeta, null);
@@ -89,7 +89,7 @@ test('renderList caps at max, adds the more link; empty shows the phrase', async
   }, here);
   assert.equal(r.tag, 'UL'); assert.equal(r.cls, 'ui-needs');
   assert.equal(r.n, 2);
-  assert.equal(r.more, 'See all 4'); assert.equal(r.moreHref, '/needs');
+  assert.equal(r.more, 'See all 4'); assert.equal(r.moreHref, 'http://10.0.0.30/needs');
   assert.equal(r.fullMore, false);
   assert.equal(r.empty, 'Nothing needs you right now.');
   assert.equal(r.emptyTag, 'P'); assert.equal(r.emptyCls, 'ui-needs__empty');
@@ -149,5 +149,18 @@ test('an unsafe more.href drops the more link', async () => {
     return window.ApplianceNeeds.renderList(items, { here: new URL(h), max: 1, more: { href: 'javascript:x', label: 'More' } }).querySelectorAll('.ui-needs__more').length;
   }, here);
   assert.equal(r, 0);
+  await page.close();
+});
+
+test('tricky more.href values never produce a link off the origin', async () => {
+  const page = await open();
+  const r = await page.evaluate(h => {
+    const items = [1, 2].map(i => ({ id: 'i' + i, source: 'home', tone: 'warn', title: 'T', detail: 'd' }));
+    return ['/..//evil.com', '/%2e%2e//evil.com', '/needs'].map(href => {
+      const a = window.ApplianceNeeds.renderList(items, { here: new URL(h), max: 1, more: { href, label: 'More' } }).querySelector('.ui-needs__more a');
+      return a ? new URL(a.getAttribute('href'), h).origin : null;
+    });
+  }, here);
+  assert.deepEqual(r, [null, null, 'http://10.0.0.30']);
   await page.close();
 });

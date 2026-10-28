@@ -24,9 +24,9 @@ const norm = l => l.replace(/[\t\n\r]/g, '').trim();
 const resolveTool = l => (l === 'tool:bambuddy' ? 'https://bambuddy.home.arpa/' : l);
 
 test('safeLink keeps same-origin paths, hashes, same-origin absolutes and resolver-produced URLs', () => {
-  assert.deepEqual(safeLink('/workshop', { resolve, here }), { href: '/workshop', external: false });
-  assert.deepEqual(safeLink('#printLab?e=E-1', { resolve, here }), { href: '#printLab?e=E-1', external: false });
-  assert.deepEqual(safeLink('http://10.0.0.30/x?a=1#h', { resolve, here }), { href: '/x?a=1#h', external: false });
+  assert.deepEqual(safeLink('/workshop', { resolve, here }), { href: 'http://10.0.0.30/workshop', external: false });
+  assert.deepEqual(safeLink('#printLab?e=E-1', { resolve, here }), { href: 'http://10.0.0.30/home#printLab?e=E-1', external: false });
+  assert.deepEqual(safeLink('http://10.0.0.30/x?a=1#h', { resolve, here }), { href: 'http://10.0.0.30/x?a=1#h', external: false });
   assert.deepEqual(safeLink('bambuddy', { resolve, here }), { href: 'https://bambuddy.home.arpa/', external: true });
   assert.deepEqual(safeLink('tool:bambuddy', { resolve: resolveTool, here }), { href: 'https://bambuddy.home.arpa/', external: true });
 });
@@ -38,4 +38,22 @@ test('safeLink drops anything else', () => {
   }
   assert.equal(safeLink('x', { resolve: () => 'javascript:alert(1)', here }), null);
   assert.equal(safeLink('x', { resolve: () => 42, here }), null);
+});
+
+const tricks = ['/..//evil.com', '/.//evil.com', '/x/..//evil.com', '/./\\evil.com', '\\..\\\\evil.com', '/%2e%2e//evil.com', '/%2e//evil.com',
+  'http://10.0.0.30//evil.com/x', '#', ' # '];
+
+test('dot-segment and double-slash tricks never yield a link that leaves the origin', () => {
+  for (const l of tricks) {
+    for (const r of [resolve, trim, norm]) {
+      const out = safeLink(l, { resolve: r, here });
+      assert.ok(out === null || new URL(out.href, here).origin === here.origin, JSON.stringify(l));
+      assert.ok(out === null || !/^\/[\/\\]/.test(new URL(out.href, here).pathname), JSON.stringify(l));
+    }
+  }
+  assert.equal(safeLink('#', { resolve, here }), null);
+});
+
+test('a throwing resolver means no link', () => {
+  assert.equal(safeLink('tool:x', { resolve: () => { throw new Error('boom'); }, here }), null);
 });
