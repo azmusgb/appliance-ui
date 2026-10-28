@@ -63,7 +63,7 @@ test('an external link gets the arrow, target=_blank and rel=noopener; a local o
   }, here);
   assert.equal(r.href, 'https://bambuddy.home.arpa/');
   assert.equal(r.target, '_blank');
-  assert.equal(r.rel, 'noopener');
+  assert.equal(r.rel, 'noopener noreferrer');
   assert.equal(r.action, 'Open Bambuddy ↗');
   assert.equal(r.meta, 'bambuddy');
   assert.equal(r.lhref, '/workshop');
@@ -120,9 +120,34 @@ test('needs.css has no literal colours and only gated --ui-* colour tokens', () 
   const css = fs.readFileSync(path.join(root, 'dist/needs.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
   assert.doesNotMatch(css, /\brgba?\(|\bhsla?\(/i);
-  const allowed = new Set(['--ui-bad', '--ui-warn', '--ui-muted', '--ui-text', '--ui-surface', '--ui-line', '--ui-fs-1', '--ui-fs-2', '--ui-accent']);
+  const allowed = new Set(['--ui-bad', '--ui-warn', '--ui-muted', '--ui-text', '--ui-surface', '--ui-line', '--ui-fs-1', '--ui-fs-2']);
+  const nonColour = /^--ui-(space|r-\d+|font)$/;
   for (const [, v] of css.matchAll(/var\((--ui-[a-z0-9-]+)/g)) {
-    if (/^--ui-(space|r-\d|font|header-h)/.test(v)) continue;
+    if (nonColour.test(v)) continue;
     assert.ok(allowed.has(v), v);
   }
+});
+
+test('odd keys and tones do not crash render; they fall back', async () => {
+  const page = await open();
+  const r = await page.evaluate(h => {
+    const N = window.ApplianceNeeds, o = { resolve: l => l, here: new URL(h), self: 'home' };
+    return ['constructor', '__proto__', 'toString'].map(k => {
+      const li = N.render({ id: 'a', source: 'home', tone: k, title: 't', detail: 'd', link: '/x', action: { key: k, link: '/x' } }, o);
+      return { tone: li.dataset.tone, action: li.querySelector('.ui-need__action')?.textContent ?? null };
+    }).concat([(() => { const li = N.render({ id: 'a', source: '', tone: 'bad', title: 't', detail: 'd', action: { key: 'not_answering' } }, o); return { tone: li.dataset.tone, action: li.querySelector('.ui-need__action')?.textContent ?? null }; })()]);
+  }, here);
+  for (const x of r) assert.equal(x.action, null);
+  assert.deepEqual(r.map(x => x.tone), ['warn', 'warn', 'warn', 'bad']);
+  await page.close();
+});
+
+test('an unsafe more.href drops the more link', async () => {
+  const page = await open();
+  const r = await page.evaluate(h => {
+    const items = [1, 2].map(i => ({ id: 'i' + i, source: 'home', tone: 'warn', title: 'T', detail: 'd' }));
+    return window.ApplianceNeeds.renderList(items, { here: new URL(h), max: 1, more: { href: 'javascript:x', label: 'More' } }).querySelectorAll('.ui-needs__more').length;
+  }, here);
+  assert.equal(r, 0);
+  await page.close();
 });

@@ -19,15 +19,22 @@ test('PHRASES has the eight keys and texts', () => {
   });
 });
 
-test('safeLink keeps same-origin paths, hashes and resolver-produced URLs', () => {
+const trim = l => l.trim();
+const norm = l => l.replace(/[\t\n\r]/g, '').trim();
+const resolveTool = l => (l === 'tool:bambuddy' ? 'https://bambuddy.home.arpa/' : l);
+
+test('safeLink keeps same-origin paths, hashes, same-origin absolutes and resolver-produced URLs', () => {
   assert.deepEqual(safeLink('/workshop', { resolve, here }), { href: '/workshop', external: false });
   assert.deepEqual(safeLink('#printLab?e=E-1', { resolve, here }), { href: '#printLab?e=E-1', external: false });
+  assert.deepEqual(safeLink('http://10.0.0.30/x?a=1#h', { resolve, here }), { href: '/x?a=1#h', external: false });
   assert.deepEqual(safeLink('bambuddy', { resolve, here }), { href: 'https://bambuddy.home.arpa/', external: true });
+  assert.deepEqual(safeLink('tool:bambuddy', { resolve: resolveTool, here }), { href: 'https://bambuddy.home.arpa/', external: true });
 });
 
 test('safeLink drops anything else', () => {
-  for (const l of ['javascript:x', 'data:x', '//evil.com', 'https://evil.com', '/\\evil.com', '', null, undefined]) {
-    assert.equal(safeLink(l, { resolve, here }), null, String(l));
+  for (const l of ['javascript:x', 'data:x', '//evil.com', 'https://evil.com', '/\\evil.com', '/\t/evil.com', '/\n/evil.com', '/\r\\evil.com',
+    ' https://evil.com', '\t//evil.com', 'HTTPS://evil.com', '', null, undefined]) {
+    for (const r of [resolve, trim, norm]) assert.equal(safeLink(l, { resolve: r, here }), null, JSON.stringify(l));
   }
   assert.equal(safeLink('x', { resolve: () => 'javascript:alert(1)', here }), null);
   assert.equal(safeLink('x', { resolve: () => 42, here }), null);
