@@ -1,7 +1,8 @@
 # appliance-ui
 
 The home appliance's shared look — colours, type, components and the `<appliance-header>` — as one source that is
-copied into each app: Home (Pi Hub), Assistant (Local AI), Workshop (Workshop OS) and Materials (Filament Inventory).
+copied into each app: Home (Pi Hub), Assistant (Local AI) and Workshop (Workshop OS). Materials is Bambuddy's inventory
+(Filament Inventory is retired), which the header links to but which takes no copy.
 
 Design: [`docs/superpowers/specs/2026-10-24-shared-look-design.md`](docs/superpowers/specs/2026-10-24-shared-look-design.md),
 with the look replaced in 1.4.0 by [Faceplate](docs/superpowers/specs/2026-11-01-faceplate-design.md): graphite and
@@ -73,15 +74,14 @@ Since 1.2.0 every check also runs on the well (`surface2`, behind buttons and me
 npm ci && npm test                      # build dist/ and run every check
 node scripts/sync.mjs <app-repo> --dir <folder>   # copy into an app (writes <folder>/VERSION)
 node scripts/sync.mjs --status ~/dev/pi-hub:hub/static/ui ~/dev/ai-harness/LocalAI:app/public/ui \
-  ~/dev/filamentinventory:ui ~/dev/bambuhelper-smart-display:assets/ui
+  ~/dev/bambuhelper-smart-display:assets/ui
 ```
 
 | App | Folder | Its test runs |
 |---|---|---|
 | Home (Pi Hub) | `hub/static/ui` | `python3 hub/static/ui/verify.py hub/static/ui` |
 | Assistant (Local AI) | `app/public/ui` | `node app/public/ui/verify.mjs app/public/ui` |
-| Materials | `ui` | `node ui/verify.mjs ui` |
-| Workshop OS | `assets/ui` | `python3 assets/ui/verify.py assets/ui` |
+| Workshop OS | `assets/ui` | `python3 assets/ui/verify.py assets/ui` (staged: the portal and firmware don't load it yet) |
 
 In a page: load `tokens.css`, `components.css` and `appliance-header.js` from that folder, then put
 `<appliance-header app="home|assistant|workshop|materials"></appliance-header>` first in `<body>`. Set the app's
