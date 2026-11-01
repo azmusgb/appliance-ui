@@ -29,6 +29,9 @@ if (have && newer(have, version)) { console.error(`${dest} has v${have}, newer t
 if (!fs.existsSync(path.join(root, 'dist/tokens.css'))) { console.error('Run npm run build first.'); process.exit(1); }
 
 fs.mkdirSync(dest, { recursive: true });
+// Files the last copy shipped that this version no longer does (a replaced font, say) are removed, so nothing stale lingers.
+let before = {};
+try { before = JSON.parse(fs.readFileSync(path.join(dest, 'VERSION'), 'utf8')).files || {}; } catch { /* first copy */ }
 const sources = [...fs.readdirSync(path.join(root, 'dist')).map(f => ['dist', f]), ...fs.readdirSync(path.join(root, 'fonts')).map(f => ['fonts', f]),
   ['check', 'verify.mjs'], ['check', 'verify.py']];
 const files = {};
@@ -37,5 +40,7 @@ for (const [from, name] of sources) {
   fs.writeFileSync(path.join(dest, name), body);
   files[name] = crypto.createHash('sha256').update(body).digest('hex');
 }
+const gone = Object.keys(before).filter(name => !(name in files) && path.basename(name) === name);
+for (const name of gone) fs.rmSync(path.join(dest, name), { force: true });
 fs.writeFileSync(path.join(dest, 'VERSION'), JSON.stringify({ version, files }, null, 2) + '\n');
-console.log(`synced appliance-ui v${version} to ${dest} (${Object.keys(files).length} files)`);
+console.log(`synced appliance-ui v${version} to ${dest} (${Object.keys(files).length} files${gone.length ? `; removed ${gone.join(', ')}` : ''})`);

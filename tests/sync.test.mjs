@@ -18,7 +18,7 @@ test('sync copies dist, fonts and both checkers, and writes VERSION with checksu
   assert.equal(r.status, 0, r.stderr);
   const v = JSON.parse(fs.readFileSync(path.join(dir, 'VERSION'), 'utf8'));
   assert.equal(v.version, JSON.parse(fs.readFileSync(path.join(root, 'tokens.json'))).version);
-  for (const f of ['tokens.css', 'components.css', 'appliance-header.js', 'appliance-header.lite.js', 'tokens.h', 'tokens.json', 'verify.mjs', 'verify.py', 'figtree-latin-wght-normal.woff2']) {
+  for (const f of ['tokens.css', 'components.css', 'appliance-header.js', 'appliance-header.lite.js', 'tokens.h', 'tokens.json', 'verify.mjs', 'verify.py', 'archivo-latin-ui.woff2', 'OFL-Archivo.txt']) {
     assert.ok(fs.existsSync(path.join(dir, f)), f);
   }
   assert.match(v.files['tokens.css'], /^[0-9a-f]{64}$/);
@@ -55,4 +55,24 @@ test('--status lists each copy against this version', () => {
   const v = JSON.parse(fs.readFileSync(path.join(root, 'tokens.json'), 'utf8')).version.replace(/\./g, '\\.');
   assert.match(r.stdout, new RegExp(`web/ui\\s+${v}\\s+${v}`));
   assert.match(r.stdout, new RegExp(`missing\\s+none\\s+${v}`));
+});
+
+test('a file the last copy shipped and this version does not is removed; other app files stay', () => {
+  const { repo, dir } = target();
+  assert.equal(node([path.join(root, 'scripts/sync.mjs'), repo, '--dir', 'web/ui']).status, 0);
+  const v = JSON.parse(fs.readFileSync(path.join(dir, 'VERSION'), 'utf8'));
+  fs.writeFileSync(path.join(dir, 'figtree-latin-wght-normal.woff2'), 'old font');
+  fs.writeFileSync(path.join(dir, 'app-own.css'), 'mine');
+  v.files['figtree-latin-wght-normal.woff2'] = '0'.repeat(64);
+  v.files['../escape.txt'] = '0'.repeat(64);
+  v.version = '1.0.0';
+  fs.writeFileSync(path.join(dir, 'VERSION'), JSON.stringify(v));
+  fs.writeFileSync(path.join(repo, 'web/escape.txt'), 'outside');
+  const r = node([path.join(root, 'scripts/sync.mjs'), repo, '--dir', 'web/ui']);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /removed figtree-latin-wght-normal\.woff2/);
+  assert.ok(!fs.existsSync(path.join(dir, 'figtree-latin-wght-normal.woff2')));
+  assert.ok(fs.existsSync(path.join(dir, 'app-own.css')), 'files the kit never listed are left alone');
+  assert.ok(fs.existsSync(path.join(repo, 'web/escape.txt')), 'a listed name with a path is never followed');
+  assert.equal(node([path.join(dir, 'verify.mjs'), dir]).status, 0);
 });

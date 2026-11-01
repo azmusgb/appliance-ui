@@ -5,46 +5,116 @@
 <title>appliance-ui demo</title>
 <link rel="stylesheet" href="../dist/tokens.css">
 <link rel="stylesheet" href="../dist/components.css">
+<link rel="stylesheet" href="../dist/needs.css">
 <script src="../dist/appliance-header.js"></script>
+<script src="../dist/needs.js"></script>
 <style>
-  body{margin:0;background:var(--ui-bg);color:var(--ui-text);font-family:var(--ui-font)}
-  main{max-width:960px;margin:0 auto;padding:24px 16px;display:grid;gap:16px}
-  h1{font-size:var(--ui-fs-6);margin:0}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-  .muted{color:var(--ui-muted);font-size:var(--ui-fs-2)}
-  .big{font-size:var(--ui-fs-7);font-weight:700;letter-spacing:-.02em}
-  .row-btns{display:flex;gap:8px;flex-wrap:wrap}
-  .toggle{position:fixed;right:16px;bottom:16px}
+  /* In an app the font sits beside tokens.css (sync copies both into one folder); here it is in ../fonts. */
+  @font-face{font-family:Archivo;src:url(../fonts/archivo-latin-ui.woff2) format("woff2");font-weight:400 750;font-stretch:75% 100%;font-display:swap}
+  /* Demo layout only: the kit's components carry the look. */
+  body{margin:0;background:var(--ui-bg);color:var(--ui-text);font:400 var(--ui-fs-3)/1.5 var(--ui-font)}
+  main{max-width:1080px;margin:0 auto;padding:calc(var(--ui-space)*6) 16px calc(var(--ui-space)*10);display:grid;gap:calc(var(--ui-space)*8)}
+  h1{margin:0;font:650 var(--ui-fs-6)/1.15 var(--ui-font);font-stretch:var(--ui-stretch-heading)}
+  .lede{margin:calc(var(--ui-space)*1) 0 0;color:var(--ui-muted);max-width:60ch}
+  .split{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:calc(var(--ui-space)*4);align-items:start}
+  .stack{display:grid;gap:calc(var(--ui-space)*3)}
+  .head{display:flex;align-items:center;justify-content:space-between;gap:calc(var(--ui-space)*3)}
+  .reading{display:flex;align-items:baseline;gap:calc(var(--ui-space)*5);flex-wrap:wrap}
+  .reading p{margin:0;color:var(--ui-muted)}
+  .muted{color:var(--ui-muted)}
+  .actions{display:flex;gap:calc(var(--ui-space)*2);flex-wrap:wrap}
+  .slots{display:grid;gap:0;margin:0;padding:0;list-style:none}
+  .swatch{flex:none;width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ui-text) 25%,transparent)}
+  .slot-name{display:flex;align-items:center;gap:calc(var(--ui-space)*2);min-width:0}
+  .slot-right{display:grid;justify-items:end;gap:2px}
+  section>h2.ui-title{margin-bottom:calc(var(--ui-space)*2)}
+  .states{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:calc(var(--ui-space)*4);align-items:start}
+  .wait{display:grid;gap:calc(var(--ui-space)*2)}
+  label{display:block;margin-bottom:calc(var(--ui-space)*2);font-weight:600}
+  .hint{margin:calc(var(--ui-space)*1) 0 0;color:var(--ui-bad);font-size:var(--ui-fs-2)}
+  .form-row{display:flex;gap:calc(var(--ui-space)*2)}
+  .form-row .ui-field{flex:1}
+  .toggle{justify-self:start}
+  @media (max-width:820px){ .split{grid-template-columns:minmax(0,1fr)} }
 </style>
 </head>
 <body>
 <appliance-header app="home" attention="2"></appliance-header>
 <main>
-  <h1>Overview</h1>
-  <p class="muted">Every shared component, in the theme of this device. The button at the bottom right switches theme.</p>
-  <div class="grid">
-    <section class="ui-card">
-      <div style="display:flex;justify-content:space-between;align-items:center"><strong>Workshop</strong><span class="ui-chip ui-chip--ok">Printing</span></div>
-      <div class="big">42%</div>
-      <span class="ui-meter"><i style="width:42%"></i></span>
-      <p class="muted">1 h 05 min left · done at 2:10 AM</p>
-      <div class="row-btns"><button class="ui-btn ui-btn--primary">Pause print</button><button class="ui-btn ui-btn--ghost">Open camera</button></div>
+  <div>
+    <h1>Home</h1>
+    <p class="lede">Every shared component, with the household's own content, in this device's theme. The button at the end switches theme.</p>
+  </div>
+
+  <div class="split">
+    <section class="ui-card stack" aria-labelledby="workshop-h">
+      <div class="head"><h2 class="ui-title" id="workshop-h">Workshop</h2><span class="ui-chip ui-chip--ok ui-chip--live">Printing</span></div>
+      <div class="reading">
+        <p class="ui-readout">42<span class="ui-readout__unit">%</span></p>
+        <p class="ui-readout ui-readout--md">1 h 05<span class="ui-readout__unit">left</span></p>
+      </div>
+      <span class="ui-meter" role="meter" aria-label="Print progress" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100"><i style="width:42%"></i></span>
+      <p class="muted" style="margin:0">Spool holder v3 on the X2D. Done at 2:10 AM. Nozzle 220 °C, bed 60 °C.</p>
+      <div class="actions"><button class="ui-btn ui-btn--primary" type="button">Pause print</button><button class="ui-btn ui-btn--ghost" type="button">Open camera</button></div>
     </section>
-    <section class="ui-card">
-      <strong>Status</strong>
-      <p><span class="ui-chip ui-chip--ok">Healthy</span> <span class="ui-chip ui-chip--warn">Needs a look</span> <span class="ui-chip ui-chip--bad">Down</span> <span class="ui-chip ui-chip--unknown">Unknown</span></p>
-      <div class="ui-row"><span>Movies drive</span><span class="ui-chip ui-chip--ok" style="margin-left:auto">Connected</span></div>
-      <div class="ui-row"><span>Windows PC</span><span class="ui-chip ui-chip--warn" style="margin-left:auto">Asleep</span></div>
-      <button class="ui-btn ui-btn--danger">Restart the Pi</button>
-    </section>
-    <section class="ui-card">
-      <label for="f"><strong>Add to the shopping list</strong></label>
-      <p><input id="f" class="ui-field" placeholder="Oat milk"></p>
-      <button class="ui-btn">Add</button>
-      <div class="ui-empty">Nothing on the list yet.</div>
+
+    <section class="ui-card" aria-labelledby="materials-h">
+      <h2 class="ui-title" id="materials-h">Filament loaded</h2>
+      <ul class="slots">
+        <li class="ui-row"><span class="slot-name"><span class="swatch" style="background:#3b3d3c"></span>PLA Matte Charcoal</span><span class="slot-right"><span class="ui-readout ui-readout--sm">812<span class="ui-readout__unit">g</span></span></span></li>
+        <li class="ui-row"><span class="slot-name"><span class="swatch" style="background:#e9e4d8"></span>PLA Bone White</span><span class="slot-right"><span class="ui-readout ui-readout--sm">540<span class="ui-readout__unit">g</span></span></span></li>
+        <li class="ui-row"><span class="slot-name"><span class="swatch" style="background:#2e8f86"></span>PETG Translucent Teal</span><span class="slot-right"><span class="ui-readout ui-readout--sm">164<span class="ui-readout__unit">g</span></span><span class="ui-chip ui-chip--warn">Running low</span></span></li>
+        <li class="ui-row"><span class="slot-name"><span class="swatch" style="background:transparent"></span><span class="muted">Slot 4 is empty</span></span><span class="slot-right"><span class="ui-chip ui-chip--unknown">No spool</span></span></li>
+      </ul>
     </section>
   </div>
+
+  <div class="split">
+    <section aria-labelledby="needs-h">
+      <h2 class="ui-title" id="needs-h">Needs you</h2>
+      <div id="needs"></div>
+    </section>
+    <section aria-labelledby="status-h">
+      <h2 class="ui-title" id="status-h">Around the house</h2>
+      <div class="ui-row"><span>Pi Hub</span><span class="ui-chip ui-chip--ok">Healthy</span></div>
+      <div class="ui-row"><span>Movies drive</span><span class="ui-chip ui-chip--ok">Connected</span></div>
+      <div class="ui-row"><span>Windows PC</span><span class="ui-chip ui-chip--warn">Asleep</span></div>
+      <div class="ui-row"><span>Paperless</span><span class="ui-chip ui-chip--bad">Down</span></div>
+      <div class="ui-row"><span>Backups of the family photo library to the external drive in the garage</span><span class="ui-chip ui-chip--unknown">Not checked yet</span></div>
+    </section>
+  </div>
+
+  <section aria-labelledby="states-h">
+    <h2 class="ui-title" id="states-h">States</h2>
+    <div class="states">
+      <div class="ui-card stack">
+        <label for="shop">Add to the shopping list</label>
+        <div class="form-row"><input id="shop" class="ui-field" placeholder="Oat milk"><button class="ui-btn" type="button">Add</button></div>
+        <div class="ui-empty">Nothing on the list. Add what runs out as you notice it.</div>
+      </div>
+      <div class="ui-card stack" aria-busy="true" aria-label="Printer, loading">
+        <div class="head"><h3 class="ui-title">Printer</h3><span class="ui-chip">Checking</span></div>
+        <div class="wait"><span class="ui-skeleton" style="width:40%;height:34px"></span><span class="ui-skeleton" style="height:8px"></span><span class="ui-skeleton" style="width:70%"></span></div>
+      </div>
+      <div class="ui-card stack">
+        <p class="ui-notice ui-notice--bad">Bambuddy did not answer at 2:04 PM. The figures above are from 2:01 PM; it keeps trying.</p>
+        <p class="ui-notice ui-notice--warn">The Windows PC is asleep, so the Assistant answers from the Pi until it wakes.</p>
+      </div>
+      <div class="ui-card stack">
+        <label for="code">Door code</label>
+        <input id="code" class="ui-field" value="12a4" aria-invalid="true" aria-describedby="code-hint">
+        <p class="hint" id="code-hint">Use digits only, 4 to 8 of them.</p>
+        <div class="actions"><button class="ui-btn ui-btn--primary" type="button" disabled>Save code</button><button class="ui-btn ui-btn--danger" type="button">Restart the Pi</button></div>
+      </div>
+    </div>
+  </section>
+  <button class="ui-btn ui-btn--ghost toggle" type="button" onclick="const r=document.documentElement;r.dataset.theme=(r.dataset.theme||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'))==='light'?'dark':'light'">Switch theme</button>
 </main>
-<button class="ui-btn ui-btn--ghost toggle" onclick="const r=document.documentElement;r.dataset.theme=r.dataset.theme==='light'?'dark':'light'">Switch theme</button>
+<script>
+  document.getElementById('needs').append(ApplianceNeeds.renderList([
+    { id: 'spool', source: 'Materials', tone: 'attention', title: 'PETG Translucent Teal is running low', detail: '164 g left; the next print needs about 210 g.', link: '#materials-h' },
+    { id: 'paperless', source: 'Pi Hub', tone: 'bad', title: 'Paperless is down', detail: 'Scans wait in the inbox until it is back.', link: '#status-h' },
+  ], { here: location.href }));
+</script>
 </body>
 </html>

@@ -37,7 +37,7 @@ test('home network: the current app links to /, the others to their home address
   assert.equal(l.home.href, '/');
   assert.equal(l.assistant.href, 'https://10.0.0.21/');
   assert.equal(l.workshop.href, 'http://10.0.0.124/');
-  assert.equal(l.materials.href, 'https://bambuddy.home.arpa/inventory');  // through the gate since step 6
+  assert.equal(l.materials.href, 'https://bambuddy.rahe-home.duckdns.org/inventory');  // through the gate since step 6
   assert.ok(Object.values(l).every(x => !x.disabled && !x.away));
   await page.close();
 });
@@ -58,7 +58,7 @@ test('hosts outside the Tailscale range get home-network links', async () => {
   for (const host of ['100.200.1.1', '100.63.255.255', 'pi', 'localhost', '10.0.0.21']) {
     const l = byId(await links(page, host, 'assistant'));
     assert.equal(l.workshop.disabled, false, host);
-    assert.equal(l.home.href, 'https://home.home.arpa/', host);
+    assert.equal(l.home.href, 'https://hub.rahe-home.duckdns.org/', host);
   }
   await page.close();
 });
@@ -110,7 +110,7 @@ test('phone: a Switch app button opens a dialog of the four apps; Esc closes it 
 test('the header follows the page data-theme, not the device', async () => {
   const { page } = await open({ scheme: 'dark', theme: 'light' });
   const bg = await page.evaluate(() => getComputedStyle(document.querySelector('appliance-header').shadowRoot.querySelector('header')).backgroundColor);
-  assert.equal(bg, 'rgb(255, 255, 255)');
+  assert.equal(bg, 'rgb(251, 251, 250)'); // the light bar, #fbfbfa
   await page.close();
 });
 

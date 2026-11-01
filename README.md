@@ -3,7 +3,27 @@
 The home appliance's shared look — colours, type, components and the `<appliance-header>` — as one source that is
 copied into each app: Home (Pi Hub), Assistant (Local AI), Workshop (Workshop OS) and Materials (Filament Inventory).
 
-Design: [`docs/superpowers/specs/2026-10-24-shared-look-design.md`](docs/superpowers/specs/2026-10-24-shared-look-design.md).
+Design: [`docs/superpowers/specs/2026-10-24-shared-look-design.md`](docs/superpowers/specs/2026-10-24-shared-look-design.md),
+with the look replaced in 1.4.0 by [Faceplate](docs/superpowers/specs/2026-11-01-faceplate-design.md): graphite and
+coolant teal, Archivo with narrow readouts and headings, status lamps, low-radius panels under rounder controls.
+
+## Components (1.4)
+
+| Class | Use |
+|---|---|
+| `ui-card` | A panel: something you work in. Lists and readings sit on the page without one. |
+| `ui-title` | A section or panel heading (narrow). |
+| `ui-readout`, `--md`, `--sm`, `__unit` | A reading: `<p class="ui-readout">42<span class="ui-readout__unit">%</span></p>`. |
+| `ui-chip`, `--ok`/`--warn`/`--bad`/`--unknown`, `--live` | A status lamp: dot plus word. `--live` for something running now. |
+| `ui-btn`, `--primary`/`--ghost`/`--danger` | Buttons; one primary per panel. |
+| `ui-field` | Text input; `aria-invalid="true"` and `disabled` are styled. |
+| `ui-meter` | Progress: `<span class="ui-meter"><i style="width:42%"></i></span>`. |
+| `ui-row` | A list row; its last child sits at the end. |
+| `ui-notice`, `--bad`/`--warn` | An error or warning, said where it happened. |
+| `ui-skeleton` | A loading placeholder. |
+| `ui-empty` | An empty list, with what to do next. |
+
+`npm run screens` rebuilds and retakes `demo/screens/`.
 
 ## Values changed from the spec
 
@@ -27,6 +47,9 @@ at 4.5:1, and field borders (`fieldLine`) at 3:1. Light values that changed in 1
 | `unknown` (light) | `#5b6878` | `#505c6b` | chip on the canvas was 4.18 |
 | `accentText` (light, 1.1.1) | `#1a6dba` | `#1866b0` | a selected tab on its accent tint was 4.45 |
 | `fieldLine` (new) | `line2` | dark `#5b6c82`, light `#7f8b9b` | field borders were 1.45–1.71 |
+
+In 1.4.0 the whole palette changed (Faceplate); every value passes the same gate, and the older gate tests run on the
+1.3 backgrounds they were measured on.
 
 Since 1.2.0 every check also runs on the well (`surface2`, behind buttons and meters), and accent text is checked on
 `accentSoft` as the apps lay it (an rgba over the background), not only on a 14% accent mix. Values that changed:
