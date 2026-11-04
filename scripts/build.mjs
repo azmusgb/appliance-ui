@@ -89,4 +89,6 @@ for (const f of ['appliance-header.js', 'appliance-header.lite.js']) fs.rmSync(p
 fs.writeFileSync(path.join(out, 'components.css'), `/* ${banner} */\n` + fs.readFileSync(path.join(root, 'src/components.css'), 'utf8'));
 fs.writeFileSync(path.join(out, 'needs.css'), `/* ${banner} */\n` + fs.readFileSync(path.join(root, 'src/needs.css'), 'utf8'));
 fs.writeFileSync(path.join(out, 'needs.js'), `// ${banner}\n` + fs.readFileSync(path.join(root, 'src/needs.js'), 'utf8'));
-console.log(`built ${path.relative(process.cwd(), out) || out}: tokens.css, tokens.h, tokens.json, components.css, needs.js, needs.css, tools.js, tools.h (v${t.version})`);
+fs.writeFileSync(path.join(out, 'palette.css'), `/* ${banner} */\n` + fs.readFileSync(path.join(root, 'src/palette.css'), 'utf8'));
+fs.writeFileSync(path.join(out, 'palette.js'), `// ${banner}\n` + fs.readFileSync(path.join(root, 'src/palette.js'), 'utf8'));
+console.log(`built ${path.relative(process.cwd(), out) || out}: tokens.css, tokens.h, tokens.json, components.css, needs.js, needs.css, palette.js, palette.css, tools.js, tools.h (v${t.version})`);

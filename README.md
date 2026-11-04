@@ -99,6 +99,37 @@ duplicate id, a host off the real name outside D4, an unknown area or field, and
   `toolsFor(area)`, an area's "Open in …↗" row without the D4 hosts.
 - `tools.h` (C, the Workshop display; used from step 8): `UI_TOOL_<ID>_HOST`, `_NAME`, `_BOUNDARY`, `UI_TOOL_COUNT`.
 
+## Palette (2.1)
+
+`palette.js` and `palette.css` are the one ⌘K palette (platform spec section 8.1, step 7 Decision 7). Each app registers
+its own providers; there is no central search, so Pi Hub works while the PC sleeps and the Assistant works without the Pi.
+Load `palette.css` after `tokens.css` and `components.css`, and `palette.js` as a classic script (it sets
+`window.AppliancePalette`):
+
+```js
+const palette = AppliancePalette.create({
+  providers: [{ name: 'Pi Hub', down: 'The PC is off or asleep', timeout: 4000, find: (query, { signal }) => results }],
+  navigate: href => router.go(href),          // same-origin links; default location.assign
+  confirm: (question, result) => askSheet(question),  // default window.confirm
+  recentKey: 'pihub.palette.recent',          // localStorage key for "recent pages first"
+  label: 'Search and go', placeholder: 'Search or go to…',
+});
+searchButton.onclick = () => palette.open();  // the phone header's search icon; open(query) prefills
+```
+
+- **Opens** with ⌘K or Ctrl+K anywhere and "/" when not typing, in a native modal `<dialog>` (the page behind is inert);
+  focus returns to whatever opened it. The input is a `combobox` over a `listbox`.
+- **Keys:** arrows move (and wrap), Enter runs, Esc closes. The open animation runs only without `prefers-reduced-motion`.
+- **A result** is `{kind, label, hint?, area?, href | run, confirm?, at?}`, `kind` one of `go`, `do`, `find`, `ask`,
+  `search`. `href` is a same-origin path or an absolute http(s) URL (another origin opens in a new tab with "↗"); anything
+  else is dropped. `run` is a function; `confirm` (true or the question) asks first. Labels go in as text.
+- **Order:** an exact `do` match, then `go`, `do`, `find`, `ask`, `search`; ties by `at` (newest first), then as given.
+  An empty query shows the recent pages first; on a phone (≤760 px) at most eight rows.
+- **A provider that throws, rejects or passes its `timeout`** shows one line, its `down` text or "{name} isn't
+  answering", never an empty list. The other providers' results still show.
+
+Approving an Assistant run is never a palette action (spec section 8.2): a provider returns a `go` to the approval sheet.
+
 The "Needs you" list is drawn by `needs.js` and `needs.css` (load them after `tokens.css`):
 `ApplianceNeeds.renderList(items, {resolve, here, self, max, more, empty})` returns a `<ul class="ui-needs">` and
 `ApplianceNeeds.render(item, opts)` one `<li class="ui-need">`. An item is `{id, source, tone: "bad"|"attention"|"warn",
@@ -114,4 +145,4 @@ Change a colour or a tool here, never in an app's copy: `tokens.json` and `tools
 `version` in `tokens.json` and `package.json` (patch: a value; minor: a new component; major: a renamed variable, a removed file or a registry contract
 change), and sync each app. Each app's copy fails its tests if edited by hand.
 
-`demo/index.html` shows every component; `demo/screens/` has it at phone and desktop width in both themes.
+`demo/index.html` shows every component and the palette (⌘K, with a provider that is down); `demo/screens/` has it at phone and desktop width in both themes.
