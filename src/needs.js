@@ -5,6 +5,9 @@
   const PHRASES = {
     judge: 'Judge the print', approve: 'Approve or drop', send: 'Send it to the printer', fix_plan: 'Fix the plan',
     look: 'Look at the printer', open_bambuddy: 'Open Bambuddy', check_pc: 'Check the PC', not_answering: "{name} isn't answering",
+    // The platform's terms (spec section 9), the same on every surface.
+    pc_off: 'The PC is off or asleep', assistant_down: "The Assistant isn't answering", source_down: "{name} isn't answering",
+    unknown_release: 'Not reported',
   };
   const EMPTY = 'Nothing needs you right now.';
   const TONES = { bad: 1, attention: 1, warn: 1 };
