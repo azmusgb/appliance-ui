@@ -1,6 +1,6 @@
 {
   "name": "appliance-ui",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "The home appliance's shared look: tokens, components, the Needs-you renderer and the tool registry, copied into each app.",
   "type": "module",

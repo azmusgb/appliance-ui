@@ -7,6 +7,8 @@
 <link rel="stylesheet" href="../dist/components.css">
 <link rel="stylesheet" href="../dist/needs.css">
 <script src="../dist/needs.js"></script>
+<link rel="stylesheet" href="../dist/palette.css">
+<script src="../dist/palette.js"></script>
 <style>
   /* In an app the font sits beside tokens.css (sync copies both into one folder); here it is in ../fonts. */
   @font-face{font-family:Archivo;src:url(../fonts/archivo-latin-ui.woff2) format("woff2");font-weight:400 750;font-stretch:75% 100%;font-display:swap}
@@ -40,7 +42,7 @@
 <body>
 <main>
   <div>
-    <h1>Home</h1>
+    <div class="head"><h1>Home</h1><button class="ui-btn ui-btn--ghost" type="button" id="search" aria-label="Search and go (⌘K)">Search</button></div>
     <p class="lede">Every shared component, with the household's own content, in this device's theme. The button at the end switches theme.</p>
   </div>
 
@@ -113,6 +115,31 @@
     { id: 'spool', source: 'Materials', tone: 'attention', title: 'PETG Translucent Teal is running low', detail: '164 g left; the next print needs about 210 g.', link: '#materials-h' },
     { id: 'paperless', source: 'Pi Hub', tone: 'bad', title: 'Paperless is down', detail: 'Scans wait in the inbox until it is back.', link: '#status-h' },
   ], { here: location.href }));
+
+  // The palette with three demo providers: pages (Go), one action that confirms (Do), and a source that is down.
+  const done = document.createElement('p');
+  done.id = 'palette-done';
+  done.setAttribute('role', 'status');
+  done.className = 'muted';
+  document.querySelector('main > div').append(done);
+  const pages = [
+    { kind: 'go', label: 'Workshop', area: 'Home', href: '#workshop-h' },
+    { kind: 'go', label: 'Needs you', area: 'Home', href: '#needs-h' },
+    { kind: 'go', label: 'Filament loaded', area: 'Workshop', href: '#materials-h' },
+    { kind: 'go', label: 'States', area: 'Kit', href: '#states-h' },
+  ];
+  const palette = AppliancePalette.create({
+    recentKey: 'appliance-ui.demo.recent',
+    navigate: href => { location.href = href; },
+    providers: [
+      { name: 'Pages', find: q => pages.filter(p => p.label.toLowerCase().includes(q.toLowerCase())) },
+      { name: 'Actions', find: q => (!q || 'pause print'.includes(q.toLowerCase()) ? [
+        { kind: 'do', label: 'Pause print', hint: 'Spool holder v3 on the X2D', area: 'Workshop', confirm: 'Pause the print on the X2D?', run: () => { done.textContent = 'Paused the print.'; } },
+      ] : []) },
+      { name: 'Paperless', find: () => { throw new Error('connection refused'); } },
+    ],
+  });
+  document.getElementById('search').addEventListener('click', () => palette.open());
 </script>
 </body>
 </html>
