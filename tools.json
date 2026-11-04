@@ -1,0 +1,20 @@
+{
+  "$comment": "The one list of the house's tools (platform step 7, Decision 6). Each app gets tools.js and the display tools.h from it; change it here, never in a copy. host is <id>.<real> except the D4 boundary, which stays on home.arpa until a firmware release can use the real name.",
+  "real": "rahe-home.duckdns.org",
+  "tools": [
+    { "id": "hub", "name": "Home", "host": "hub.rahe-home.duckdns.org", "area": "home", "purpose": "Pi Hub, the house's front door" },
+    { "id": "assistant", "name": "Assistant", "host": "assistant.rahe-home.duckdns.org", "area": "assistant", "purpose": "Local AI on the PC, which may sleep" },
+    { "id": "bambuddy", "name": "Bambuddy", "host": "bambuddy.rahe-home.duckdns.org", "area": "workshop", "purpose": "The printer, spools and print history" },
+    { "id": "paperless", "name": "Paperless", "host": "paperless.rahe-home.duckdns.org", "area": "documents", "purpose": "Find and file documents" },
+    { "id": "scan", "name": "Scan", "host": "scan.rahe-home.duckdns.org", "area": "documents", "purpose": "Scan a page" },
+    { "id": "homebox", "name": "Homebox", "host": "homebox.rahe-home.duckdns.org", "area": "documents", "purpose": "Where things are kept" },
+    { "id": "devices", "name": "Homebridge", "host": "devices.rahe-home.duckdns.org", "area": "network", "purpose": "Smart home devices" },
+    { "id": "adguard", "name": "AdGuard", "host": "adguard.rahe-home.duckdns.org", "area": "network", "purpose": "Ad blocking and the house's DNS" },
+    { "id": "network", "name": "Grafana", "host": "network.rahe-home.duckdns.org", "area": "network", "purpose": "The network over time" },
+    { "id": "status", "name": "Uptime Kuma", "host": "status.rahe-home.duckdns.org", "area": "network", "purpose": "Whether each service is up" },
+    { "id": "backups", "name": "Backrest", "host": "backups.rahe-home.duckdns.org", "area": "system", "purpose": "Backups and restoring a file" },
+    { "id": "pi", "name": "Cockpit", "host": "pi.rahe-home.duckdns.org", "area": "system", "purpose": "The Pi's services, updates and logs" },
+    { "id": "display", "name": "Workshop display feed", "host": "home.home.arpa", "area": "workshop", "purpose": "The display's /api/display/* and the house CA, only", "boundary": "D4" },
+    { "id": "ota", "name": "Workshop OS updates", "host": "updates.home.arpa", "area": "workshop", "purpose": "The display's firmware updates", "boundary": "D4" }
+  ]
+}

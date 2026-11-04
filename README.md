@@ -1,8 +1,10 @@
 # appliance-ui
 
-The home appliance's shared look — colours, type, components and the `<appliance-header>` — as one source that is
-copied into each app: Home (Pi Hub), Assistant (Local AI) and Workshop (Workshop OS). Materials is Bambuddy's inventory
-(Filament Inventory is retired), which the header links to but which takes no copy.
+The home appliance's shared look — colours, type, components, the Needs-you renderer — and the house's one list of
+tools, as one source that is copied into each app: Home (Pi Hub), Assistant (Local AI) and Workshop (Workshop OS).
+
+2.0.0 retired the `<appliance-header>` (platform D3: the shared header is not navigation; no app loaded it). Its useful
+half, the list of tools, is now the registry below, and the next sync removes each app's header copy.
 
 Design: [`docs/superpowers/specs/2026-10-24-shared-look-design.md`](docs/superpowers/specs/2026-10-24-shared-look-design.md),
 with the look replaced in 1.4.0 by [Faceplate](docs/superpowers/specs/2026-11-01-faceplate-design.md): graphite and
@@ -83,22 +85,33 @@ node scripts/sync.mjs --status ~/dev/pi-hub:hub/static/ui ~/dev/ai-harness/Local
 | Assistant (Local AI) | `app/public/ui` | `node app/public/ui/verify.mjs app/public/ui` |
 | Workshop OS | `assets/ui` | `python3 assets/ui/verify.py assets/ui` (staged: the portal and firmware don't load it yet) |
 
-In a page: load `tokens.css`, `components.css` and `appliance-header.js` from that folder, then put
-`<appliance-header app="home|assistant|workshop|materials"></appliance-header>` first in `<body>`. Set the app's
-"needs a look" count with the `attention` attribute or property. `appliance-header.lite.js` is links only (no phone
-sheet), for the Workshop display's flash-served portal.
+In a page: load `tokens.css` and `components.css` from that folder.
+
+## Tools (2.0)
+
+`tools.json` is the one list of the house's tools (platform step 7, Decision 6): per tool an `id`, `name`, `host`,
+`area` (`home`, `assistant`, `workshop`, `documents`, `media`, `network`, `system`) and `purpose`. Every host is
+`<id>.rahe-home.duckdns.org`, except the display's D4 compatibility boundary (`display`, `ota`), which stays on
+`home.arpa` and is marked `"boundary": "D4"` until a firmware release can use the real name. The build refuses a
+duplicate id, a host off the real name outside D4, an unknown area or field, and non-ASCII text.
+
+- `tools.js` (ES module, Pi Hub and Local AI): `TOOLS`, `tool(id)`, `toolUrl(id, path)` (null for an unknown id) and
+  `toolsFor(area)`, an area's "Open in …↗" row without the D4 hosts.
+- `tools.h` (C, the Workshop display; used from step 8): `UI_TOOL_<ID>_HOST`, `_NAME`, `_BOUNDARY`, `UI_TOOL_COUNT`.
 
 The "Needs you" list is drawn by `needs.js` and `needs.css` (load them after `tokens.css`):
 `ApplianceNeeds.renderList(items, {resolve, here, self, max, more, empty})` returns a `<ul class="ui-needs">` and
 `ApplianceNeeds.render(item, opts)` one `<li class="ui-need">`. An item is `{id, source, tone: "bad"|"attention"|"warn",
 title, detail, link?, action?: {key, link}}`; `action.key` is a phrase key and the renderer supplies the words
-(`ApplianceNeeds.PHRASES`). Text goes in as text. Links are judged by the kit: an input starting with `/`, `#` or a backslash, or with `http(s):`, is kept only if it is
+(`ApplianceNeeds.PHRASES`). Since 2.0 the table also holds the platform's terms (spec section 9): `pc_off` "The PC is
+off or asleep", `assistant_down` "The Assistant isn't answering", `source_down` "{name} isn't answering" and
+`unknown_release` "Not reported". Text goes in as text. Links are judged by the kit: an input starting with `/`, `#` or a backslash, or with `http(s):`, is kept only if it is
 same-origin with `opts.here` (default: the page), and is emitted as an absolute URL with any userinfo removed. Any other
 input (e.g. `tool:x`, `hub:x`) goes to `opts.resolve(link)`, which must return an absolute http(s) URL; a relative result
 gives no link. A resolved link to another origin opens in a new tab and shows "↗".
 
-Change a colour or a link here, never in an app's copy: `tokens.json` and `suite.json`, then `npm test`, bump
-`version` in `tokens.json` (patch: a value; minor: a new component; major: a renamed variable or a header contract
+Change a colour or a tool here, never in an app's copy: `tokens.json` and `tools.json`, then `npm test`, bump
+`version` in `tokens.json` and `package.json` (patch: a value; minor: a new component; major: a renamed variable, a removed file or a registry contract
 change), and sync each app. Each app's copy fails its tests if edited by hand.
 
 `demo/index.html` shows every component; `demo/screens/` has it at phone and desktop width in both themes.

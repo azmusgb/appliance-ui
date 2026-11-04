@@ -18,7 +18,7 @@ test('sync copies dist, fonts and both checkers, and writes VERSION with checksu
   assert.equal(r.status, 0, r.stderr);
   const v = JSON.parse(fs.readFileSync(path.join(dir, 'VERSION'), 'utf8'));
   assert.equal(v.version, JSON.parse(fs.readFileSync(path.join(root, 'tokens.json'))).version);
-  for (const f of ['tokens.css', 'components.css', 'appliance-header.js', 'appliance-header.lite.js', 'tokens.h', 'tokens.json', 'verify.mjs', 'verify.py', 'archivo-latin-ui.woff2', 'OFL-Archivo.txt']) {
+  for (const f of ['tokens.css', 'components.css', 'tools.js', 'tools.h', 'tokens.h', 'tokens.json', 'verify.mjs', 'verify.py', 'archivo-latin-ui.woff2', 'OFL-Archivo.txt']) {
     assert.ok(fs.existsSync(path.join(dir, f)), f);
   }
   assert.match(v.files['tokens.css'], /^[0-9a-f]{64}$/);
