@@ -125,3 +125,17 @@ test('a hand edit to an app\'s tools.js fails both checkers, naming the file', (
   assert.equal(a.status, 1); assert.match(a.stderr, /tools\.js/);
   assert.equal(b.status, 1); assert.match(b.stderr, /tools\.js/);
 });
+
+test('Plex is a gated tool of Media, on its real name, and the only one in that area', async () => {
+  const plex = registry.tools.find(t => t.id === 'plex');
+  assert.ok(plex, 'plex is in the registry');
+  assert.equal(plex.host, 'plex.rahe-home.duckdns.org');
+  assert.equal(plex.name, 'Plex');
+  assert.equal(plex.area, 'media');
+  assert.equal(plex.boundary, undefined);
+  const { out } = buildTo();
+  const { toolsFor, toolUrl } = await import(pathToFileURL(path.join(out, 'tools.js')).href);
+  assert.deepEqual(toolsFor('media').map(t => t.id), ['plex']);
+  assert.equal(toolUrl('plex', '/web'), 'https://plex.rahe-home.duckdns.org/web');
+  assert.match(fs.readFileSync(path.join(out, 'tools.h'), 'utf8'), /#define UI_TOOL_PLEX_HOST "plex\.rahe-home\.duckdns\.org"/);
+});
