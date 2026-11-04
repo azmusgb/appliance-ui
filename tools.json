@@ -15,6 +15,7 @@
     { "id": "status", "name": "Uptime Kuma", "host": "status.rahe-home.duckdns.org", "area": "network", "purpose": "Whether each service is up" },
     { "id": "backups", "name": "Backrest", "host": "backups.rahe-home.duckdns.org", "area": "system", "purpose": "Backups and restoring a file" },
     { "id": "pi", "name": "Cockpit", "host": "pi.rahe-home.duckdns.org", "area": "system", "purpose": "The Pi's services, updates and logs" },
+    { "id": "healthchecks", "name": "Healthchecks.io", "host": "healthchecks.io", "external": true, "area": "system", "purpose": "Outside alarms: the house heartbeat and the off-site backup" },
     { "id": "display", "name": "Workshop display feed", "host": "home.home.arpa", "area": "workshop", "purpose": "The display's /api/display/* and the house CA, only", "boundary": "D4" },
     { "id": "ota", "name": "Workshop OS updates", "host": "updates.home.arpa", "area": "workshop", "purpose": "The display's firmware updates", "boundary": "D4" }
   ]
