@@ -158,3 +158,18 @@ test('an outside tool must say so, name a real outside host, and keep to a plain
     assert.match(r.stderr, why);
   }
 });
+
+test('Healthchecks.io is an outside tool of System, linked to its site, which opens the owner’s checks when signed in', async () => {
+  const hc = registry.tools.find(t => t.id === 'healthchecks');
+  assert.ok(hc, 'healthchecks is in the registry');
+  assert.equal(hc.name, 'Healthchecks.io');
+  assert.equal(hc.host, 'healthchecks.io');
+  assert.equal(hc.base, undefined, 'the site root sends a signed-in owner to their checks');
+  assert.equal(hc.external, true);
+  assert.equal(hc.area, 'system');
+  assert.equal(hc.boundary, undefined);
+  const { out } = buildTo();
+  const { toolsFor, toolUrl } = await import(pathToFileURL(path.join(out, 'tools.js')).href);
+  assert.ok(toolsFor('system').map(t => t.id).includes('healthchecks'));
+  assert.equal(toolUrl('healthchecks'), 'https://healthchecks.io/');
+});
