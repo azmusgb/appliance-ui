@@ -8,6 +8,7 @@
     { "id": "paperless", "name": "Paperless", "host": "paperless.rahe-home.duckdns.org", "area": "documents", "purpose": "Find and file documents" },
     { "id": "scan", "name": "Scan", "host": "scan.rahe-home.duckdns.org", "area": "documents", "purpose": "Scan a page" },
     { "id": "homebox", "name": "Homebox", "host": "homebox.rahe-home.duckdns.org", "area": "documents", "purpose": "Where things are kept" },
+    { "id": "plex", "name": "Plex", "host": "plex.rahe-home.duckdns.org", "area": "media", "purpose": "Watch the movies on the Pi's drive" },
     { "id": "devices", "name": "Homebridge", "host": "devices.rahe-home.duckdns.org", "area": "network", "purpose": "Smart home devices" },
     { "id": "adguard", "name": "AdGuard", "host": "adguard.rahe-home.duckdns.org", "area": "network", "purpose": "Ad blocking and the house's DNS" },
     { "id": "network", "name": "Grafana", "host": "network.rahe-home.duckdns.org", "area": "network", "purpose": "The network over time" },
