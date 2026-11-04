@@ -93,7 +93,9 @@ In a page: load `tokens.css` and `components.css` from that folder.
 `area` (`home`, `assistant`, `workshop`, `documents`, `media`, `network`, `system`) and `purpose`. Every host is
 `<id>.rahe-home.duckdns.org`, except the display's D4 compatibility boundary (`display`, `ota`), which stays on
 `home.arpa` and is marked `"boundary": "D4"` until a firmware release can use the real name. The build refuses a
-duplicate id, a host off the real name outside D4, an unknown area or field, and non-ASCII text.
+duplicate id, a host off the real name outside D4 and outside tools, an unknown area or field, and non-ASCII text.
+A tool that is not behind the house's gate (Plex, which opens in Plex's own web app) is marked `"external": true` and
+keeps its own `host` and `base` path (`app.plex.tv`, `/desktop`); `toolUrl` joins a path onto the base.
 
 - `tools.js` (ES module, Pi Hub and Local AI): `TOOLS`, `tool(id)`, `toolUrl(id, path)` (null for an unknown id) and
   `toolsFor(area)`, an area's "Open in …↗" row without the D4 hosts.

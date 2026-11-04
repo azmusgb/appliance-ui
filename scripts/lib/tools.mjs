@@ -3,7 +3,7 @@
 export const AREAS = ['home', 'assistant', 'workshop', 'documents', 'media', 'network', 'system'];
 const ID = /^[a-z][a-z0-9]*$/;
 const TEXT = /^[\x20-\x7e]+$/;  // printable ASCII: safe in a JS and a C string literal as JSON writes it
-const FIELDS = ['id', 'name', 'host', 'area', 'purpose', 'boundary'];
+const FIELDS = ['id', 'name', 'host', 'area', 'purpose', 'boundary', 'external', 'base'];
 
 export function check(reg) {
   const errors = [];
@@ -19,7 +19,16 @@ export function check(reg) {
     else seen.add(t.id);
     for (const k of ['name', 'purpose']) if (typeof t[k] !== 'string' || !TEXT.test(t[k])) errors.push(`${at}: ${k} must be printable ASCII text`);
     if (!AREAS.includes(t.area)) errors.push(`${at}: area must be one of ${AREAS.join(', ')}`);
-    if (t.boundary === undefined) {
+    if (t.external !== undefined && t.external !== true) errors.push(`${at}: external can only be true`);
+    if (t.base !== undefined && t.external !== true) errors.push(`${at}: base is only for an outside tool`);
+    if (t.base !== undefined && (typeof t.base !== 'string' || !/^\/[\x21-\x7e]*$/.test(t.base) || t.base.endsWith('/'))) errors.push(`${at}: base must start with / and not end with one`);
+    if (t.external === true) {
+      // A tool that isn't behind the house's gate: another company's web app, shown by name, never given a house name.
+      if (t.boundary !== undefined) errors.push(`${at}: an outside tool has no boundary`);
+      if (typeof t.host !== 'string' || !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(t.host) || t.host.endsWith(`.${reg.real}`) || t.host.endsWith('home.arpa')) {
+        errors.push(`${at}: an outside host is not on the real name or home.arpa`);
+      }
+    } else if (t.boundary === undefined) {
       if (t.host !== `${t.id}.${reg.real}`) errors.push(`${at}: host must be ${t.id}.${reg.real}`);
     } else if (t.boundary !== 'D4') {
       errors.push(`${at}: boundary can only be "D4"`);
@@ -36,6 +45,7 @@ const entry = t => Object.fromEntries(FIELDS.filter(k => t[k] !== undefined).map
 export function toolsJs(reg, banner) {
   return `// ${banner}
 // The house's tools: TOOLS lists them; toolUrl(id, path) gives a link, or null for an id that isn't one.
+// A tool marked external is not behind the house's gate (Plex's own web app); its host and base are another company's.
 // toolsFor(area) is an area's "Open in …↗" row, without the display's D4 hosts (machine-facing, not for people).
 export const REAL = ${JSON.stringify(reg.real)};
 export const TOOLS = Object.freeze([
@@ -49,7 +59,10 @@ export function tool(id) {
 
 export function toolUrl(id, path = '') {
   const t = BY_ID.get(id);
-  return t ? \`https://\${t.host}/\${String(path ?? '').replace(/^\\/+/, '')}\` : null;
+  if (!t) return null;
+  const rest = String(path ?? '').replace(/^\\/+/, '');
+  if (t.base === undefined) return \`https://\${t.host}/\${rest}\`;   // an outside tool keeps its own path: no trailing slash unless asked
+  return \`https://\${t.host}\${t.base}\${rest ? \`/\${rest}\` : ''}\`;
 }
 
 export function toolsFor(area) {
