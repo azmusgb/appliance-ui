@@ -22,7 +22,8 @@
   <header class="ui-page__head">
     <h1 class="ui-page__title">Workshop</h1>
     <p class="ui-page__purpose">The printer, what it's making and what it needs from you.</p>
-    <button class="ui-btn ui-btn--ghost ui-page__tool" type="button">Search</button>
+    <div class="ui-page__tool"><button class="ui-btn ui-btn--ghost" type="button">Search</button>
+      <button class="ui-btn ui-btn--icon" type="button" id="refresh" aria-label="Check the printer again" title="Check the printer again"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5V7h-3.5"/></svg></button></div>
   </header>
   <nav class="ui-strip" aria-label="Workshop">
     <a href="#" aria-current="page">Printer</a><a href="#">Print lab</a><a href="#">Print</a><a href="#">Filament</a>
@@ -56,8 +57,16 @@
   </section>
   <section class="ui-section" aria-labelledby="hist-h">
     <h2 id="hist-h">History</h2>
-    <p class="ui-section__note">Filters</p>
     <div class="ui-chips" role="group" aria-label="Show"><button type="button" aria-pressed="true">All</button><button type="button" aria-pressed="false">Failed</button><button type="button" aria-pressed="false">This week</button></div>
+    <table class="ui-table ui-table--stack" id="prints" role="table">
+      <caption>Last three prints, newest first</caption>
+      <thead role="rowgroup"><tr role="row"><th role="columnheader" scope="col">Print</th><th role="columnheader" scope="col">Result</th><th role="columnheader" scope="col" class="ui-table__num">Time</th><th role="columnheader" scope="col" class="ui-table__num">Filament</th></tr></thead>
+      <tbody role="rowgroup">
+        <tr role="row"><td role="cell" data-label="Print">Spool holder v3, plate 1 of 2</td><td role="cell" data-label="Result"><span class="ui-chip ui-chip--ok">Finished</span></td><td role="cell" data-label="Time" class="ui-table__num">2 h 14 min</td><td role="cell" data-label="Filament" class="ui-table__num">86.4 g</td></tr>
+        <tr role="row"><td role="cell" data-label="Print">Hex tile E-023, a much longer name that has to wrap on a phone</td><td role="cell" data-label="Result"><span class="ui-chip ui-chip--bad">Failed</span></td><td role="cell" data-label="Time" class="ui-table__num">24 min</td><td role="cell" data-label="Filament" class="ui-table__num">19.8 g</td></tr>
+        <tr role="row"><td role="cell" data-label="Print">Cable clip ×4</td><td role="cell" data-label="Result"><span class="ui-chip ui-chip--unknown">Not reported</span></td><td role="cell" data-label="Time" class="ui-table__num">—</td><td role="cell" data-label="Filament" class="ui-table__num">—</td></tr>
+      </tbody>
+    </table>
   </section>
   <p class="ui-tools">Open in <a href="#">Bambuddy ↗</a><a href="#">Bambu Studio ↗</a></p>
   <footer class="ui-sources"><span>Sources:</span><span class="ui-chip ui-chip--ok">Printer</span><span class="ui-chip ui-chip--ok">Bambuddy</span><span class="ui-chip ui-chip--warn">Lab mirror, 12 h old</span><a href="#">Site map</a></footer>
