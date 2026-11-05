@@ -10,6 +10,9 @@ Design: [`docs/superpowers/specs/2026-10-24-shared-look-design.md`](docs/superpo
 with the look replaced in 1.4.0 by [Faceplate](docs/superpowers/specs/2026-11-01-faceplate-design.md): graphite and
 coolant teal, Archivo with narrow readouts and headings, status lamps, low-radius panels under rounder controls.
 
+**Building a screen?** Read [`DESIGN.md`](DESIGN.md), the design contract for every app, and
+[`docs/contrast.md`](docs/contrast.md), the measured contrast of every colour pair (generated; `npm run contrast`).
+
 ## Components (1.4)
 
 | Class | Use |
