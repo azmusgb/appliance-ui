@@ -92,4 +92,5 @@ fs.writeFileSync(path.join(out, 'needs.js'), `// ${banner}\n` + fs.readFileSync(
 fs.writeFileSync(path.join(out, 'palette.css'), `/* ${banner} */\n` + fs.readFileSync(path.join(root, 'src/palette.css'), 'utf8'));
 fs.writeFileSync(path.join(out, 'palette.js'), `// ${banner}\n` + fs.readFileSync(path.join(root, 'src/palette.js'), 'utf8'));
 fs.writeFileSync(path.join(out, 'motion.js'), `// ${banner}\n` + fs.readFileSync(path.join(root, 'src/motion.js'), 'utf8'));
-console.log(`built ${path.relative(process.cwd(), out) || out}: tokens.css, tokens.h, tokens.json, components.css, needs.js, needs.css, palette.js, palette.css, tools.js, tools.h (v${t.version})`);
+fs.writeFileSync(path.join(out, 'confirm.js'), `// ${banner}\n` + fs.readFileSync(path.join(root, 'src/confirm.js'), 'utf8'));
+console.log(`built ${path.relative(process.cwd(), out) || out}: tokens.css, tokens.h, tokens.json, components.css, needs.js, needs.css, palette.js, palette.css, motion.js, confirm.js, tools.js, tools.h (v${t.version})`);

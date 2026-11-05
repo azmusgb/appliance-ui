@@ -187,3 +187,28 @@ test('dense lists add the class, hide the source line, keep rows 44px+ and keep 
   assert.equal(r.actions[0], 'Look at the printer'); assert.equal(r.actions[1], '↗');
   await page.close();
 });
+
+test('2.6.0: the meta line is "since <as_of> · <area>", the area else a foreign source; bad times are left out', async () => {
+  const page = await open();
+  const r = await page.evaluate(h => {
+    const N = window.ApplianceNeeds, here = new URL(h), now = '2026-11-04T15:00:00';
+    const meta = (item, o = {}) => N.render({ id: 'x', tone: 'warn', title: 't', detail: 'd', ...item }, { here, self: 'Pi Hub', now, ...o }).querySelector('.ui-need__meta')?.textContent ?? null;
+    return {
+      today: meta({ source: 'Pi Hub', area: 'Network', as_of: '2026-11-04T04:29:00' }),
+      before: meta({ source: 'Local AI', as_of: '2026-11-03T22:10:00' }),
+      self: meta({ source: 'Pi Hub' }),
+      selfSince: meta({ source: 'Pi Hub', as_of: '2026-11-04T09:05:00' }),
+      bad: meta({ source: 'Local AI', as_of: 'not a time' }),
+      custom: meta({ source: 'Pi Hub', area: 'Workshop', as_of: '2026-11-04T09:05:00' }, { when: () => '2 h ago' }),
+      verb: N.render({ id: 'v', source: 'Pi Hub', tone: 'attention', title: 't', detail: 'd', link: '/lab', action: { key: 'judge_it', link: '/lab' } }, { here, self: 'Pi Hub' }).querySelector('.ui-need__action').textContent,
+    };
+  }, here);
+  assert.equal(r.today, 'since 4:29 AM · Network');
+  assert.equal(r.before, 'since 3 Nov · Local AI');
+  assert.equal(r.self, null);
+  assert.equal(r.selfSince, 'since 9:05 AM');
+  assert.equal(r.bad, 'Local AI');
+  assert.equal(r.custom, 'since 2 h ago · Workshop');
+  assert.equal(r.verb, 'Judge it');
+  await page.close();
+});

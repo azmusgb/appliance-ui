@@ -29,6 +29,30 @@ coolant teal, Archivo with narrow readouts and headings, status lamps, low-radiu
 
 On a touch screen (`pointer: coarse`) `ui-btn` and `ui-field` are 44 px tall (2.5).
 
+## One page (2.6)
+
+Pi Hub amendment A7: every page in every app is drawn in this order, and nothing else. `demo/page.html` shows it.
+
+| Class | Use |
+|---|---|
+| `ui-page` | The page: head, strip, [notice], one faceplate, Needs you here, at most six sections, Open in, sources. |
+| `ui-page__head`, `__title`, `__purpose`, `__tool` | The title, one line of purpose, and the search button beside them. |
+| `ui-strip` | Level 2: an underlined strip of the area's pages; the current one has `aria-current="page"`. |
+| `ui-chips` | Filters and settings groups: buttons with `aria-pressed`, or links with `aria-current`. |
+| `ui-faceplate`, `--aside` | The page's only panel. `__main` holds `__nameplate` (name and lamp), the `ui-readout`, `__caption`, `__readings` (a `dl`) and `__actions`; `__aside` (a camera) sits beside it from 760 px. |
+| `ui-section`, `__note` | A heading (`h2`) and rows on the page, no card. |
+| `ui-rows`, `ui-row--lamp`, `ui-row__title`/`__detail`/`__value` | A row with its text first, then lamp, value and one action on the right, so titles line up. |
+| `ui-tools` | "Open in": the area's tools. |
+| `ui-sources` | The foot: each source with its lamp, and the Site map link. |
+| `ui-confirm`, `__what` | The inline confirm that `confirm.js` draws. |
+
+`confirm.js`: `ApplianceConfirm.ask(button, {what})` resolves `true` or `false`. It opens a line under the button's row
+saying what will happen, with the button's own words again (danger if the button is) and Cancel. Escape cancels, and focus
+comes back to the button. The app runs the action and says it in the past tense ("Restarted Plex").
+
+`needs.js` (2.6) adds verb actions (`judge_it`, `open_printer`, `open_network`, `see_usage`) and a meta line
+`since <as_of> · <area>`, where the area falls back to the source when the item isn't this app's own.
+
 `npm run screens` rebuilds and retakes `demo/screens/`.
 
 ## Values changed from the spec
