@@ -103,6 +103,22 @@
 /* A risky action asks first, in place (P7; confirm.js): what will happen, the verb again, and Cancel. */
 .ui-confirm{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:calc(var(--ui-space)*2);margin:0;padding:calc(var(--ui-space)*2.5) calc(var(--ui-space)*3);border-radius:var(--ui-r-2);background:var(--ui-surface-2);color:var(--ui-text);font:400 var(--ui-fs-2)/1.4 var(--ui-font)}
 .ui-confirm__what{margin:0;flex:1 1 220px}
+/* An icon-only button (2.7.0): square, and outlined by the 3:1 field line, since the ghost border is decoration. It needs
+   an accessible name (aria-label); its icon is 20 px. */
+.ui-btn--icon{width:40px;padding:0;background:transparent;border-color:var(--ui-field-line)}
+.ui-btn--icon svg{width:20px;height:20px;flex:none}
+@media (pointer:coarse){.ui-btn--icon{width:44px}}
+/* A table for comparison (2.7.0): many records with the same columns. Numbers right-aligned and tabular; with
+   ui-table--stack, a phone shows each row on its own with its column names (the markup keeps role="table" and its
+   row/cell roles, since display:block drops native table semantics in some browsers). */
+.ui-table{width:100%;border-collapse:collapse;color:var(--ui-text);font:400 var(--ui-fs-3)/1.4 var(--ui-font)}
+.ui-table caption{text-align:left;padding:0 0 calc(var(--ui-space)*2);color:var(--ui-muted);font-size:var(--ui-fs-2)}
+.ui-table th{text-align:left;padding:calc(var(--ui-space)*2) calc(var(--ui-space)*3) calc(var(--ui-space)*2) 0;border-bottom:1px solid var(--ui-line-2);color:var(--ui-muted);font-size:var(--ui-fs-2);font-weight:600}
+.ui-table td{padding:calc(var(--ui-space)*2.5) calc(var(--ui-space)*3) calc(var(--ui-space)*2.5) 0;border-bottom:1px solid var(--ui-line);vertical-align:top;overflow-wrap:anywhere}
+.ui-table :is(th,td):last-child{padding-right:0}
+.ui-table__num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ui-table th.ui-table__num{text-align:right}
+@media (max-width:599px){.ui-table--stack,.ui-table--stack caption,.ui-table--stack tbody,.ui-table--stack tr,.ui-table--stack td{display:block}.ui-table--stack thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.ui-table--stack tr{padding:calc(var(--ui-space)*2.5) 0;border-bottom:1px solid var(--ui-line)}.ui-table--stack td{display:flex;justify-content:space-between;gap:calc(var(--ui-space)*3);padding:calc(var(--ui-space)*0.5) 0;border:0;text-align:right}.ui-table--stack td[data-label]::before{content:attr(data-label);flex:none;white-space:nowrap;color:var(--ui-muted);font-size:var(--ui-fs-2);text-align:left}.ui-table--stack .ui-table__num{white-space:normal}}
 @media (pointer:coarse){.ui-chips :is(a,button){min-height:44px}}
 @media (max-width:599px){.ui-page{gap:calc(var(--ui-space)*6)}.ui-page__title{font-size:var(--ui-fs-6)}.ui-faceplate{padding:calc(var(--ui-space)*4)}.ui-faceplate .ui-readout{font-size:var(--ui-fs-7)}}
 :where(.ui-btn,.ui-field,a,button):focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}

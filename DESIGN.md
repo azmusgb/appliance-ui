@@ -130,9 +130,11 @@ Every page in Pi Hub and the Assistant is drawn in this order, and nothing else 
 - **Summary first,** then the exceptions that need action, then detail.
 - **No KPI tiles, charts or feeds** unless they support a decision the owner actually makes on that page.
 - **Rows** (`ui-row--lamp`) suit lists of things.
-- **Tables** suit comparison: many records with the same columns (Versions, Alerts history, filament spools). Use a
-  semantic `<table>` with a caption and header cells, and numeric columns right-aligned with tabular numerals. On a
-  phone a table becomes rows. The kit has no table component yet (see "Open differences").
+- **Tables** suit comparison: many records with the same columns (Versions, Alerts history, filament spools). Use
+  `ui-table` (2.7) on a `<table>` with a `<caption>` and `<th scope="col">`, and `ui-table__num` on number columns
+  (right-aligned, tabular). With `ui-table--stack`, a phone shows each row on its own, each value beside its column
+  name (`data-label` on each cell). Keep `role="table"`, `row`, `cell` and `columnheader` in that markup: some browsers
+  drop table semantics once CSS changes a table's display.
 - **Household pages are approachable** (plain words, few numbers). **Engineering pages** (Print lab, Assistant runs) are
   precise: exact values and units, with the technical detail one click away.
 
@@ -169,6 +171,8 @@ is added to this kit, never to one app.
 | Page head, strip, filters | `ui-page__head`, `ui-strip`, `ui-chips` |
 | The page's state and main action | `ui-faceplate` with `ui-readout`, `ui-chip`, `ui-btn--primary` |
 | Lists of things | `ui-rows` / `ui-row--lamp` (lamp, value, one action on the right) |
+| Comparing records | `ui-table`, `ui-table__num`, `ui-table--stack` (2.7) |
+| An icon-only control | `ui-btn--icon` (2.7) with `aria-label` |
 | What needs the owner | `ApplianceNeeds.renderList` (`ui-needs`), the only Needs-you list |
 | Status | `ui-chip--ok/warn/bad/unknown`, with `--live` for something running now |
 | Progress | `ui-meter`, only with a real fraction |
@@ -183,8 +187,9 @@ is added to this kit, never to one app.
   - One primary per area.
   - Labels are specific verbs ("Clear the plate", "Judge it"), never "Submit", "OK" or "Open" alone. The toast uses the
     same verb in the past tense ("Restarted Plex").
-  - An icon-only control has an accessible name and a visible label or tooltip that also works without hover (a long
-    press, or a label at the larger sizes).
+  - An icon-only control is `ui-btn--icon`: square (40 px, 44 on touch), outlined in `fieldLine` (3:1), with an
+    `aria-label`. Its label also has to be visible somewhere that doesn't depend on hover (beside it at wider sizes, or
+    in the palette). A familiar icon (search, refresh, close) is the only kind that goes without words.
 - **Status:** colour always comes with a word or an icon that means it. Unknown is never shown as Off, Healthy, Idle or
   Complete.
 - **Risky actions** (a restart, sign-out, deleting, dropping an experiment) ask inline with `confirm.js`. The ask says
@@ -252,19 +257,14 @@ Check it at 390, 1024 and 1440 px (and 480 × 320 for the display), in dark and 
 - **The interactive prototype** of every page: https://claude.ai/artifact/9iRwv9Pe7zMabRZFKtec9V.
 - **The look's rationale:** `docs/superpowers/specs/2026-11-01-faceplate-design.md`.
 
-## Open differences
+## Decided differences
 
-These are differences between this contract and what ships today. Each needs the owner's decision or a kit change
-before a screen relies on it:
+These were open in the first draft of this contract. They were settled on 5 Nov 2026 as recommended:
 
-1. **Running work's lamp.** This contract says running and queued work are neutral unless they need the owner. The kit
-   draws something running as `ok` with `--live` (a pulse). Keeping the green live lamp says "running and fine". The
-   alternative is a neutral `--live` lamp, and green only for "done and fine". Changing it touches the Faceplate spec,
-   so it needs an amendment.
-2. **Tables.** No `ui-table` component yet. Until one exists, a table uses the rules above with the app's own styles,
-   and is a candidate for the kit.
-3. **Icon-only buttons.** A ghost button's border (`line2`, 1.5–2.1:1) is decoration: fine for a labelled button,
-   too faint to be the only outline of an icon. An icon-only control uses the well (`surface2`) or a `fieldLine` border
-   (3:1+). A `ui-btn--icon` would make this the default.
-4. **The workshop display** doesn't load the kit yet (`assets/ui` is staged). Its layouts follow the display rules above,
-   by hand, until it does.
+1. **Running work's lamp** stays as the kit draws it: `ok` with `--live` (green, pulsing) means "running and fine".
+   Queued or waiting work that needs nothing from the owner is `unknown` (neutral). Anything that needs the owner is
+   `warn` or `bad`. This keeps the Faceplate spec as approved, with no amendment.
+2. **Tables** are `ui-table` (kit 2.7.0).
+3. **Icon-only buttons** are `ui-btn--icon` (kit 2.7.0), with a `fieldLine` outline at 3:1.
+4. **The workshop display** doesn't load the kit yet (`assets/ui` is staged). Its screens follow the display rules
+   above by hand until its own platform step moves it onto the kit's `tokens.h`.

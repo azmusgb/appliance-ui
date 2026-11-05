@@ -21,7 +21,9 @@ test('components.css defines the shared classes using only --ui-* colours', () =
     'ui-page', 'ui-page__head', 'ui-page__title', 'ui-page__purpose', 'ui-page__tool', 'ui-strip', 'ui-chips', 'ui-faceplate', 'ui-faceplate--aside',
     'ui-faceplate__main', 'ui-faceplate__nameplate', 'ui-faceplate__caption', 'ui-faceplate__readings', 'ui-faceplate__actions', 'ui-faceplate__aside',
     'ui-section', 'ui-section__note', 'ui-rows', 'ui-row--lamp', 'ui-row__title', 'ui-row__detail', 'ui-row__value', 'ui-tools', 'ui-sources',
-    'ui-confirm', 'ui-confirm__what']) {
+    'ui-confirm', 'ui-confirm__what',
+    // 2.7.0 (DESIGN.md open differences 2 and 3): the table and the icon-only button.
+    'ui-table', 'ui-table__num', 'ui-btn--icon']) {
     assert.match(css, new RegExp(`\\.${cls}[\\s{.,:>]`), cls);
   }
   assert.match(css, /:focus-visible\{[^}]*outline:2px solid var\(--ui-accent\)/);
@@ -46,6 +48,15 @@ test('components.css defines the shared classes using only --ui-* colours', () =
   assert.match(css, /@media \(pointer:coarse\)\{\.ui-chips :is\(a,button\)\{min-height:44px\}\}/, 'chips are 44 px on touch');
   assert.match(css, /\.ui-faceplate\{[^}]*border-radius:var\(--ui-r-2\)/, 'the faceplate is a panel: the low radius');
   assert.match(css, /\.ui-row--lamp>:first-child\{flex:1 1 220px\}/, 'the text takes the room, so lamps line up on the right');
+  // 2.7.0: an icon-only button's outline is the 3:1 field line (the ghost border is decoration), and it is square.
+  assert.match(css, /\.ui-btn--icon\{[^}]*border-color:var\(--ui-field-line\)/, 'icon-only buttons have a 3:1 boundary');
+  assert.match(css, /\.ui-btn--icon\{[^}]*width:40px/);
+  assert.match(css, /@media \(pointer:coarse\)\{\.ui-btn--icon\{width:44px\}\}/, 'and 44 px square on touch');
+  // 2.7.0: a table for comparison: numbers right-aligned and tabular; on a phone each row stands alone with its labels.
+  assert.match(css, /\.ui-table__num\{[^}]*text-align:right;font-variant-numeric:tabular-nums/);
+  assert.match(css, /\.ui-table caption\{[^}]*text-align:left/);
+  assert.match(css, /@media \(max-width:599px\)\{\.ui-table--stack[^}]*\{display:block\}/, 'a stacking table becomes rows on a phone');
+  assert.match(css, /\.ui-table--stack td\[data-label\]::before\{content:attr\(data-label\)/, 'each cell keeps its column name');
   const code = css.replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(code, /#[0-9a-f]{3,8}\b/i, 'no literal hex colours');
   assert.doesNotMatch(code, /\brgba?\(/i, 'no literal rgb colours');

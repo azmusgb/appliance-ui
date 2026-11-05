@@ -1,10 +1,11 @@
-# Measured contrast (appliance-ui 2.6.0)
+# Measured contrast (appliance-ui 2.7.0)
 
 Generated from `tokens.json` by `npm run contrast`; do not edit. Ratios are WCAG 2 contrast. Tints are measured as the
 components lay them. A pair is legible only as far as its number here says.
 
 - **Text** needs 4.5:1 (WCAG 1.4.3). The build refuses any text pair below it.
-- **Non-text** needs 3:1 (WCAG 1.4.11): the focus ring, a field's border, a lamp's dot. The build refuses these too.
+- **Non-text** needs 3:1 (WCAG 1.4.11): the focus ring, a field's or icon-only button's border (`fieldLine`), a lamp's dot.
+  The build refuses these too.
 - **Decoration** has no minimum and must never be the only thing that shows a control or a state: `line` and `line2`
   divide and frame; a ghost button is identified by its label, never by its border alone.
 

@@ -56,6 +56,16 @@ comes back to the button. The app runs the action and says it in the past tense 
 `needs.js` (2.6) adds verb actions (`judge_it`, `open_printer`, `open_network`, `see_usage`) and a meta line
 `since <as_of> · <area>`, where the area falls back to the source when the item isn't this app's own.
 
+## Tables and icon buttons (2.7)
+
+| Class | Use |
+|---|---|
+| `ui-table`, `__num` | A `<table>` for comparing records: caption and column heads muted, number columns right-aligned and tabular. |
+| `ui-table--stack` | On a phone (under 600 px) each row stands alone, each cell's `data-label` beside its value. Keep the `role="table"`/`row`/`cell`/`columnheader` markup. |
+| `ui-btn--icon` | An icon-only button: 40 px square (44 on touch), outlined in `fieldLine` (3:1), with an `aria-label`. |
+
+`demo/page.html` shows both (History, and the refresh button in the head).
+
 `npm run screens` rebuilds and retakes `demo/screens/`.
 
 ## Values changed from the spec
