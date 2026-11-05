@@ -5,7 +5,8 @@ screen should look and behave like part of the same product. Agents building UI 
 first.
 
 **What wins when sources disagree.** The platform baseline and its approved amendments
-(`pi-hub/docs/superpowers/specs/2026-11-01-platform-product-architecture-design.md`, notably A6 and A7) come first. The
+(`pi-hub/docs/superpowers/specs/2026-11-01-platform-product-architecture-design.md`, notably A6, A7, and A8 and A9 for
+Home) come first. The
 kit's specs come next (`docs/superpowers/specs/`, Faceplate). This contract comes after both. It restates their rules in
 working form and adds the ones they leave open. A rule here that changes what an approved spec says needs an amendment.
 Changing this file is not enough. Where this contract and the shipped kit differ today, the difference is listed under
@@ -18,7 +19,8 @@ Hub's shell at `/assistant` (A4 step 7a). The Workshop is for hands-on work: the
 Hub, and the 480 × 320 workshop display. They share one look (this kit), one vocabulary (the spec's section 9 and the
 phrase table in `src/needs.js`) and one set of interaction patterns. Each adapts to its user and device.
 
-The feel is calm, dependable and easy to understand: a well-made instrument, not a dashboard.
+The feel is calm, dependable and easy to understand: a well-made instrument, not a wall of tiles. Home is the one
+dashboard (A8), and it reads like an instrument panel: one bold band, then lamps and meters.
 
 ## Principles
 
@@ -105,7 +107,8 @@ for, and sync it into each app. Never edit an app's copy.
 
 ### The page (A7 P1)
 
-Every page in Pi Hub and the Assistant is drawn in this order, and nothing else (`ui-page`, `demo/page.html`):
+Every page in Pi Hub and the Assistant except Home (next section) is drawn in this order, and nothing else
+(`ui-page`, `demo/page.html`):
 
 ```
  Title                                   Search ⌘K
@@ -125,10 +128,30 @@ Every page in Pi Hub and the Assistant is drawn in this order, and nothing else 
 - **Sections** are headings and rows on the page.
 - **A form page** (Print, Make an automation) keeps its form as a section.
 
+### Home (A8, A9)
+
+Home is the one page that leaves the A7 anatomy. It is drawn by Pi Hub's `home-dashboard.js` and `home-dashboard.css`
+with the kit's tokens, not by a new kit component.
+
+- **Today band (the hero):** the house's day as one lane per system, marks for what happened, a Now line, and the
+  hours still to come hatched. Four counts sit above it in the readout face. On a phone (a band under 520 px) it shows
+  midnight to an hour after Now (A9).
+- **Needs you beside Systems:** the kit's Needs-you list on the left (first on narrow screens), and a rack on the right
+  with one row per system. A rack row's lamp is on the left (A8 D3 amends P3 for Home only), with a faint wash on a row
+  that needs a look.
+- **No camera on Home.** Workshop keeps it.
+- **Sizes:** one column under 1000 px, the band above two columns up to 1800 px, and two columns at 1.2× on a landscape
+  TV. A larger zoom only narrows Home inside the shell's 1440 px.
+- **The wall display** (`/wall`) keeps its own board.
+
 ### Order and density
 
 - **Summary first,** then the exceptions that need action, then detail.
-- **No KPI tiles, charts or feeds** unless they support a decision the owner actually makes on that page.
+- **No KPI tiles, charts or feeds** unless they support a decision the owner actually makes on that page. Home's Today
+  band is the one approved chart (A8); another needs the same case made in a spec.
+- **Anything drawn against time keeps a readable density at its narrowest width.** Work out the pixels per unit (an
+  hour, a day) at 320 px. If neighbouring marks would touch, show a shorter span, not smaller marks. Phone and desktop
+  may show different spans of the same data (A9).
 - **Rows** (`ui-row--lamp`) suit lists of things.
 - **Tables** suit comparison: many records with the same columns (Versions, Alerts history, filament spools). Use
   `ui-table` (2.7) on a `<table>` with a `<caption>` and `<th scope="col">`, and `ui-table__num` on number columns
@@ -225,7 +248,8 @@ is added to this kit, never to one app.
 - **Contrast:** 4.5:1 for text and 3:1 for large text, focus rings, field borders and status marks, measured in
   `docs/contrast.md`. Any new pairing is measured before it ships.
 - **Focus:** a visible ring (`2px` accent, offset `2px`) that is never clipped or covered. Check it in strips, inside
-  overflow containers and under sticky headers.
+  overflow containers and under sticky headers. A page that refreshes itself puts focus back where it was. A redraw
+  never drops a keyboard user to the top.
 - **Keyboard:**
   - Tab order follows the reading order, and native controls keep their native keys.
   - A scrolling region either can take focus or doesn't scroll (prefer wrapping).
@@ -239,9 +263,11 @@ is added to this kit, never to one app.
 
 ## Before a screen is done
 
-Check it at 390, 1024 and 1440 px (and 480 × 320 for the display), in dark and light, with real data:
+Check it at 320, 390, 1024 and 1440 px (and 480 × 320 for the display), in dark and light, with real data. A page
+that can be on the TV (Home) is also checked at 1920 px, and at 3840 px for overflow:
 
-- **Content:** long names, missing values and a target of 0.
+- **Content:** long names, missing values and a target of 0. Anything drawn against time is checked with a busy day's
+  data at 320 px: marks don't merge, and labels don't touch or wrap.
 - **States:** a stale source, a down source, a pending action, a failed action, loading and empty.
 - **Keyboard and focus:** keyboard only, with focus visible throughout.
 - **Automated checks:** axe with no serious or critical findings, and no horizontal overflow.
