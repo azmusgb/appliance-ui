@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { contrast, flatten, mix, rgb565, isHex } from './lib/color.mjs';
 import { check, toolsJs, toolsH } from './lib/tools.mjs';
+import { failures as measured } from './lib/contrast-report.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const arg = (name, fallback) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; };
@@ -47,6 +48,8 @@ for (const mode of ['dark', 'light']) {
     if (ratio < 3) failures.push(`${mode} fieldLine on ${bg}: ${ratio.toFixed(2)} < 3`);
   }
 }
+// The focus ring, field borders and lamp dots at 3:1 (WCAG 1.4.11), as docs/contrast.md lists them.
+for (const f of measured(t)) if (!failures.includes(f)) failures.push(f);
 if (failures.length) { console.error('Contrast below WCAG AA:\n' + failures.join('\n')); process.exit(1); }
 
 const registry = JSON.parse(fs.readFileSync(toolsPath, 'utf8'));
