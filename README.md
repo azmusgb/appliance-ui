@@ -25,6 +25,9 @@ coolant teal, Archivo with narrow readouts and headings, status lamps, low-radiu
 | `ui-notice`, `--bad`/`--warn` | An error or warning, said where it happened. |
 | `ui-skeleton` | A loading placeholder. |
 | `ui-empty` | An empty list, with what to do next. |
+| `ui-beam`, `--bad` (2.5) | The one card that needs a look: a faint edge in the warn (or bad) colour; with motion welcome a slow light turns along it. Never on a list or more than one card. |
+
+On a touch screen (`pointer: coarse`) `ui-btn` and `ui-field` are 44 px tall (2.5).
 
 `npm run screens` rebuilds and retakes `demo/screens/`.
 
@@ -131,6 +134,15 @@ searchButton.onclick = () => palette.open();  // the phone header's search icon;
   answering", never an empty list. The other providers' results still show.
 
 Approving an Assistant run is never a palette action (spec section 8.2): a provider returns a `go` to the approval sheet.
+
+## Motion (2.5)
+
+`motion.js` (a classic script; it sets `window.ApplianceMotion`) holds the kit's one bit of number motion.
+`ApplianceMotion.countTo(el, to, {duration, decimals, format})` counts `el`'s shown number to `to` once (600 ms,
+ease-out) and ends exactly on `format(to)`. Point it at the number's own element, not a readout holding a unit span:
+`<p class="ui-readout"><span id="pct">42</span><span class="ui-readout__unit">%</span></p>`. It sets the value at once
+with reduced motion, inside an `aria-live` region, or when either value isn't a number (a non-number `to` is shown as
+given); a newer call replaces one still counting.
 
 The "Needs you" list is drawn by `needs.js` and `needs.css` (load them after `tokens.css`):
 `ApplianceNeeds.renderList(items, {resolve, here, self, max, more, empty})` returns a `<ul class="ui-needs">` and

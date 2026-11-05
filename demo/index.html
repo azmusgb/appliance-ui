@@ -9,6 +9,7 @@
 <script src="../dist/needs.js"></script>
 <link rel="stylesheet" href="../dist/palette.css">
 <script src="../dist/palette.js"></script>
+<script src="../dist/motion.js"></script>
 <style>
   /* In an app the font sits beside tokens.css (sync copies both into one folder); here it is in ../fonts. */
   @font-face{font-family:Archivo;src:url(../fonts/archivo-latin-ui.woff2) format("woff2");font-weight:400 750;font-stretch:75% 100%;font-display:swap}
@@ -50,7 +51,7 @@
     <section class="ui-card stack" aria-labelledby="workshop-h">
       <div class="head"><h2 class="ui-title" id="workshop-h">Workshop</h2><span class="ui-chip ui-chip--ok ui-chip--live">Printing</span></div>
       <div class="reading">
-        <p class="ui-readout">42<span class="ui-readout__unit">%</span></p>
+        <p class="ui-readout"><span id="pct">42</span><span class="ui-readout__unit">%</span></p>
         <p class="ui-readout ui-readout--md">1 h 05<span class="ui-readout__unit">left</span></p>
       </div>
       <span class="ui-meter" role="meter" aria-label="Print progress" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100"><i style="width:42%"></i></span>
@@ -96,7 +97,7 @@
         <div class="head"><h3 class="ui-title">Printer</h3><span class="ui-chip">Checking</span></div>
         <div class="wait"><span class="ui-skeleton" style="width:40%;height:34px"></span><span class="ui-skeleton" style="height:8px"></span><span class="ui-skeleton" style="width:70%"></span></div>
       </div>
-      <div class="ui-card stack">
+      <div class="ui-card stack ui-beam ui-beam--bad">
         <p class="ui-notice ui-notice--bad">Bambuddy did not answer at 2:04 PM. The figures above are from 2:01 PM; it keeps trying.</p>
         <p class="ui-notice ui-notice--warn">The Windows PC is asleep, so the Assistant answers from the Pi until it wakes.</p>
       </div>
@@ -115,6 +116,11 @@
     { id: 'spool', source: 'Materials', tone: 'attention', title: 'PETG Translucent Teal is running low', detail: '164 g left; the next print needs about 210 g.', link: '#materials-h' },
     { id: 'paperless', source: 'Pi Hub', tone: 'bad', title: 'Paperless is down', detail: 'Scans wait in the inbox until it is back.', link: '#status-h' },
   ], { here: location.href }));
+
+  // The reading counts up once on load (ApplianceMotion); with reduced motion it is simply 42.
+  const pct = document.getElementById('pct');
+  pct.textContent = '0';
+  ApplianceMotion.countTo(pct, 42, { duration: 900 });
 
   // The palette with three demo providers: pages (Go), one action that confirms (Do), and a source that is down.
   const done = document.createElement('p');
