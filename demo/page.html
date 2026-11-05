@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>appliance-ui page</title>
+<link rel="stylesheet" href="../dist/tokens.css">
+<link rel="stylesheet" href="../dist/components.css">
+<link rel="stylesheet" href="../dist/needs.css">
+<script src="../dist/needs.js"></script>
+<script src="../dist/confirm.js"></script>
+<style>
+  @font-face{font-family:Archivo;src:url(../fonts/archivo-latin-ui.woff2) format("woff2");font-weight:400 750;font-stretch:75% 100%;font-display:swap}
+  /* Demo layout only: the page anatomy (2.6.0) carries the look. */
+  body{margin:0;background:var(--ui-bg);color:var(--ui-text);font:400 var(--ui-fs-3)/1.5 var(--ui-font)}
+  main{max-width:1080px;margin:0 auto;padding:calc(var(--ui-space)*7) 16px calc(var(--ui-space)*10)}
+  .cam{display:grid;place-items:center;min-height:180px;height:100%;box-sizing:border-box;border-radius:var(--ui-r-2);border:1px solid var(--ui-line);background:var(--ui-surface-2);color:var(--ui-muted);font-size:var(--ui-fs-2)}
+  #done{margin:0;color:var(--ui-muted);font-size:var(--ui-fs-2)}
+</style>
+</head>
+<body>
+<main class="ui-page">
+  <header class="ui-page__head">
+    <h1 class="ui-page__title">Workshop</h1>
+    <p class="ui-page__purpose">The printer, what it's making and what it needs from you.</p>
+    <button class="ui-btn ui-btn--ghost ui-page__tool" type="button">Search</button>
+  </header>
+  <nav class="ui-strip" aria-label="Workshop">
+    <a href="#" aria-current="page">Printer</a><a href="#">Print lab</a><a href="#">Print</a><a href="#">Filament</a>
+  </nav>
+  <p class="ui-notice ui-notice--warn">The Mac's lab mirror is 12 hours old: the Mac is asleep. Experiments below are as of 10:41 PM.</p>
+  <section class="ui-faceplate ui-faceplate--aside" aria-label="Printer">
+    <div class="ui-faceplate__main">
+      <div class="ui-faceplate__nameplate"><span>Bambu X2D</span><span class="ui-chip ui-chip--ok ui-chip--live">Printing</span></div>
+      <p class="ui-readout">42<span class="ui-readout__unit">%</span></p>
+      <p class="ui-faceplate__caption">Spool holder v3, plate 1 of 2. About 1 h 05 left.</p>
+      <span class="ui-meter"><i style="width:42%"></i></span>
+      <dl class="ui-faceplate__readings">
+        <div><dt>Nozzle</dt><dd>220 °C</dd></div><div><dt>Bed</dt><dd>65 °C</dd></div><div><dt>Chamber</dt><dd>31 °C</dd></div><div><dt>Layer</dt><dd>84 / 200</dd></div>
+      </dl>
+      <div class="ui-faceplate__actions"><button class="ui-btn" type="button">Pause</button><button class="ui-btn ui-btn--danger" type="button" id="stop">Stop the print</button></div>
+    </div>
+    <div class="ui-faceplate__aside"><div class="cam">Camera</div></div>
+  </section>
+  <section class="ui-section" aria-labelledby="needs-h">
+    <h2 id="needs-h">Needs you here</h2>
+    <div id="needs"></div>
+  </section>
+  <section class="ui-section" aria-labelledby="fil-h">
+    <h2 id="fil-h">Filament</h2>
+    <ul class="ui-rows">
+      <li class="ui-row ui-row--lamp"><div><span class="ui-row__title">PETG Translucent Teal</span><span class="ui-row__detail">AMS slot 1</span></div><span class="ui-chip ui-chip--warn">Low</span><span class="ui-row__value">164 g</span></li>
+      <li class="ui-row ui-row--lamp"><div><span class="ui-row__title">PLA Matte Charcoal</span><span class="ui-row__detail">AMS slot 2</span></div><span class="ui-chip ui-chip--ok">Loaded</span><span class="ui-row__value">812 g</span></li>
+      <li class="ui-row ui-row--lamp"><div><span class="ui-row__title">Bambuddy</span><span class="ui-row__detail">Keeps spools and print history</span></div><span class="ui-chip ui-chip--ok">Up</span><button class="ui-btn ui-btn--ghost" type="button" data-what="Bambuddy stops for about 20 seconds. The print carries on.">Restart Bambuddy</button></li>
+    </ul>
+    <p id="done" role="status"></p>
+  </section>
+  <section class="ui-section" aria-labelledby="hist-h">
+    <h2 id="hist-h">History</h2>
+    <p class="ui-section__note">Filters</p>
+    <div class="ui-chips" role="group" aria-label="Show"><button type="button" aria-pressed="true">All</button><button type="button" aria-pressed="false">Failed</button><button type="button" aria-pressed="false">This week</button></div>
+  </section>
+  <p class="ui-tools">Open in <a href="#">Bambuddy ↗</a><a href="#">Bambu Studio ↗</a></p>
+  <footer class="ui-sources"><span>Sources:</span><span class="ui-chip ui-chip--ok">Printer</span><span class="ui-chip ui-chip--ok">Bambuddy</span><span class="ui-chip ui-chip--warn">Lab mirror, 12 h old</span><a href="#">Site map</a></footer>
+</main>
+<script>
+  document.getElementById('needs').append(ApplianceNeeds.renderList([
+    { id: 'judge', source: 'Print lab', area: 'Workshop', tone: 'attention', title: 'E-021 is ready to judge', detail: 'Hex tile, two plates. Takes about two minutes.', link: '#hist-h', action: { key: 'judge_it', link: '#hist-h' }, as_of: new Date(Date.now() - 36e5).toISOString() },
+  ], { here: location.href, self: 'Pi Hub' }));
+  const done = document.getElementById('done');
+  for (const b of document.querySelectorAll('[data-what]')) {
+    b.addEventListener('click', async () => {
+      if (await ApplianceConfirm.ask(b, { what: b.dataset.what })) done.textContent = b.textContent.replace(/^Restart/, 'Restarted') + '.';
+    });
+  }
+  document.getElementById('stop').addEventListener('click', async e => {
+    if (await ApplianceConfirm.ask(e.currentTarget, { what: "The print ends now and can't be resumed." })) done.textContent = 'Stopped the print.';
+  });
+  for (const c of document.querySelectorAll('.ui-chips button')) c.addEventListener('click', () => {
+    for (const o of c.parentElement.children) o.setAttribute('aria-pressed', String(o === c));
+  });
+</script>
+</body>
+</html>

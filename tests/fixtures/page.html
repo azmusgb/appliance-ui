@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page fixture</title>
+<link rel="stylesheet" href="../../dist/tokens.css">
+<link rel="stylesheet" href="../../dist/components.css">
+<script src="../../dist/confirm.js"></script>
+</head>
+<body style="margin:0;background:var(--ui-bg)">
+<main id="host" class="ui-page">
+  <ul class="ui-rows">
+    <li class="ui-row ui-row--lamp" id="row"><div><span class="ui-row__title">Plex</span><span class="ui-row__detail">Movies for the TVs</span></div>
+      <span class="ui-chip ui-chip--ok">Up</span><button class="ui-btn ui-btn--ghost" type="button" id="plex">Restart Plex</button></li>
+    <li class="ui-row ui-row--lamp"><div><span class="ui-row__title">The Pi</span></div>
+      <button class="ui-btn ui-btn--danger" type="button" id="pi">Restart the Pi</button></li>
+  </ul>
+  <button class="ui-btn" type="button" id="loose">Sign out</button>
+</main>
+</body>
+</html>
