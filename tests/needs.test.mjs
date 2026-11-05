@@ -12,12 +12,13 @@ const { PHRASES, safeLink } = mod.exports;
 const here = new URL('http://10.0.0.30/home');
 const resolve = l => (l === 'bambuddy' ? 'https://bambuddy.home.arpa/' : l);
 
-test('PHRASES has the sixteen keys and texts, with the platform terms of spec section 9', () => {
+test('PHRASES has the seventeen keys and texts, with the platform terms of spec section 9', () => {
   assert.deepEqual(PHRASES, {
     judge: 'Judge the print', approve: 'Approve or drop', send: 'Send it to the printer', fix_plan: 'Fix the plan',
     look: 'Look at the printer', open_bambuddy: 'Open Bambuddy', check_pc: 'Check the PC', not_answering: "{name} isn't answering",
     pc_off: 'The PC is off or asleep', assistant_down: "The Assistant isn't answering", source_down: "{name} isn't answering",
     unknown_release: 'Not reported',
+    outside_alarm_quiet: "The outside alarm isn't hearing from the Pi",
     judge_it: 'Judge it', open_printer: 'Open printer', open_network: 'Open Network', see_usage: "See what's using it",
   });
 });

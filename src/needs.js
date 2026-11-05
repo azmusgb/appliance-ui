@@ -10,6 +10,8 @@
     // The platform's terms (spec section 9), the same on every surface.
     pc_off: 'The PC is off or asleep', assistant_down: "The Assistant isn't answering", source_down: "{name} isn't answering",
     unknown_release: 'Not reported',
+    // A1 (2.8.0): a Healthchecks.io check is Late, Down or Paused while the hub is up.
+    outside_alarm_quiet: "The outside alarm isn't hearing from the Pi",
     // Actions named by their verb (2.6.0, A7 P2): never "Open" alone.
     judge_it: 'Judge it', open_printer: 'Open printer', open_network: 'Open Network', see_usage: "See what's using it",
   };

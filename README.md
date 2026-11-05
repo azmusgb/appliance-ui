@@ -187,7 +187,8 @@ The "Needs you" list is drawn by `needs.js` and `needs.css` (load them after `to
 title, detail, link?, action?: {key, link}}`; `action.key` is a phrase key and the renderer supplies the words
 (`ApplianceNeeds.PHRASES`). Since 2.0 the table also holds the platform's terms (spec section 9): `pc_off` "The PC is
 off or asleep", `assistant_down` "The Assistant isn't answering", `source_down` "{name} isn't answering" and
-`unknown_release` "Not reported". Text goes in as text. Links are judged by the kit: an input starting with `/`, `#` or a backslash, or with `http(s):`, is kept only if it is
+`unknown_release` "Not reported"; 2.8 adds `outside_alarm_quiet` "The outside alarm isn't hearing from the Pi"
+(Pi Hub amendment A1: a Healthchecks.io check is Late, Down or Paused). Text goes in as text. Links are judged by the kit: an input starting with `/`, `#` or a backslash, or with `http(s):`, is kept only if it is
 same-origin with `opts.here` (default: the page), and is emitted as an absolute URL with any userinfo removed. Any other
 input (e.g. `tool:x`, `hub:x`) goes to `opts.resolve(link)`, which must return an absolute http(s) URL; a relative result
 gives no link. A resolved link to another origin opens in a new tab and shows "↗".
