@@ -27,11 +27,31 @@ test('components.css defines the shared classes using only --ui-* colours', () =
   assert.match(css, /\.ui-card\{[^}]*border-radius:var\(--ui-r-2\)/, 'panels use the low radius');
   assert.match(css, /\.ui-btn\{[^}]*border-radius:var\(--ui-r-3\)/, 'controls are rounder than panels');
   assert.match(css, /@media \(prefers-reduced-motion:no-preference\)\{\.ui-skeleton\{animation:/, 'the wait pulse only runs when motion is welcome');
-  assert.doesNotMatch(css.replace(/@media \(prefers-reduced-motion:no-preference\)\{[^}]*\}\}/, ''), /animation:/, 'no other animation');
+  // Motion lives only in no-preference blocks: the wait pulse and the attention beam (2.5.0).
+  assert.doesNotMatch(css.replace(/@media \(prefers-reduced-motion:no-preference\)\{(?:[^{}]*\{[^}]*\})*\}/g, ''), /animation:/, 'no other animation');
+  // 2.5.0: a card that needs a look gets a slow, faint beam along its edge; without motion it is a still tinted edge.
+  assert.match(css, /\.ui-beam::after\{[^}]*pointer-events:none/, 'the beam never takes a click');
+  assert.match(css, /@media \(prefers-reduced-motion:no-preference\)\{[^@]*\.ui-beam::after\{animation:ui-beam [6-9]s linear infinite\}/, 'the beam turns slowly, and only when motion is welcome');
+  assert.match(css, /\.ui-beam--bad\{--ui-beam:var\(--ui-bad\)\}/);
+  // 2.5.0: on a touch screen buttons and fields are 44 px, like the rest of the kit's targets (CSS review, 4 Nov).
+  assert.match(css, /@media \(pointer:coarse\)\{\.ui-btn,\.ui-field\{min-height:44px\}\}/);
   const code = css.replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(code, /#[0-9a-f]{3,8}\b/i, 'no literal hex colours');
   assert.doesNotMatch(code, /\brgba?\(/i, 'no literal rgb colours');
   const needs = fs.readFileSync(path.join(out, 'needs.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(needs, /#[0-9a-f]{3,8}\b/i, 'needs.css: no literal hex colours');
   assert.doesNotMatch(needs, /\brgba?\(/i, 'needs.css: no literal rgb colours');
+});
+
+test('every --ui-* variable the CSS uses is a token the build defines (palette used --ui-surface2)', () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-vars-'));
+  const r = spawnSync(process.execPath, [path.join(root, 'scripts/build.mjs'), '--out', out], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  const tokens = fs.readFileSync(path.join(out, 'tokens.css'), 'utf8');
+  const defined = new Set([...tokens.matchAll(/(--ui-[\w-]+):/g)].map((m) => m[1]));
+  for (const f of ['components.css', 'needs.css', 'palette.css']) {
+    const css = fs.readFileSync(path.join(out, f), 'utf8');
+    for (const own of css.matchAll(/(--ui-[\w-]+):/g)) defined.add(own[1]);
+    for (const [, name] of css.matchAll(/var\((--ui-[\w-]+)/g)) assert.ok(defined.has(name), `${f} uses undefined ${name}`);
+  }
 });
