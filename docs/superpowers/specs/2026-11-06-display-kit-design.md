@@ -1,7 +1,8 @@
 # Display kit: the kit's look, words and parts on the workshop display
 
 Status: proposed 6 November 2026, for the owner's review. Adds a display build to the kit; changes no token, class or
-phrase the web apps use, so it ships as minor versions.
+phrase the web apps use, so it ships as minor versions. Amended 6 November 2026: K9 adds the controls for changing a
+setting, including a pick-list, after the device review found named choices cycled with −/+.
 
 ## Why
 
@@ -45,7 +46,29 @@ screen.
 | K5 Parts | A header-only C++17 display kit in `dist/display/` that draws through a small `UiCanvas` interface: fill and round rects, a line, text in a kit font, text width. The parts: `Faceplate` (lamp, readout and unit, caption, age), `LampRow` (lamp, label, value, at most one action), `Chip` (ok, warn, bad, unknown; `live` adds a halo; unknown is a hollow dot), `Button` (primary or plain, at least 48 px, disabled state), `NeedsRow`, `AgeLine`, `Meter` (only with a real fraction) and `Frame` (header with Back and Home always in the same place, two levels at most). | One drawing per idea, matching `ui-faceplate`, `ui-row--lamp`, `ui-chip` and `ui-btn`. The LovyanGFX adapter lives in the display repo, the only place that depends on it, so the kit stays testable on a Mac. Rejected: LVGL. It would mean rewriting the UI layer instead of moving it. |
 | K6 Honest states in the parts | Parts take a `Reading` (value, observed at, and one of: live, stale, unavailable, never read) and draw the age or "Unknown" themselves. There is no way to draw an unknown reading as ok. | `DESIGN.md`: unknown never shows as Off, Healthy or Complete. Putting it in the part enforces it on every screen at once. |
 | K7 Sync and guard | The display repo syncs the whole kit, including `dist/display/`, into `assets/ui/` through its existing `VERSION` hash list, and the firmware includes it from there. A firmware check fails on a raw `0x....` colour or a new palette constant in UI code. Unported files sit on an allow list that only shrinks. | The same sync and drift check Pi Hub and Local AI use (shared-look D4). |
+| K9 Controls | Each kind of setting has one control. A number (brightness, volume, a temperature threshold) uses a `Stepper`: −/+ with the value centred. A named choice (time zone, date format, alert policy, gauge style) uses a `Picker`. A colour uses a `Picker` of named swatches. On/off uses a `Switch`. A clock time (night mode start and end) uses a `Picker` of times in 15-minute steps, so it is the same part, not a new one. See "The Picker" below. | −/+ on a named choice hides the options until you step through them, and that is what the 6 Nov device review found on Gauges, Time & locale and After a print. Rejected: keeping steppers for named choices as a documented exception. That would be a second way to make the same kind of choice. Rejected: a separate time wheel. It is a new gesture on a touch panel with no momentum scrolling, for two settings. |
 | K8 Proof | The kit compiles the parts on the Mac against an in-memory RGB565 canvas, renders each part in each state, and compares the result with reference images (`demo/screens/display/*.png`, created on purpose like the web visual baselines). On the device, `/hub/show` and `/hub/frame.ppm` capture each ported screen for acceptance. | Mac renders catch drift in the kit; device captures are what the owner accepts. |
+
+## The Picker
+
+A full-screen view in the same `Frame`, so the header has the setting's name as its title and Back in its usual place.
+
+- **Options:** one per row. Each row is at least 48 px tall and shows its label in full at 14 px or larger, never
+  shrunk and never cut off. A colour option shows its swatch beside its name. The current choice has a check mark,
+  so it is not marked by colour alone.
+- **Layout:** four options per page is the expected layout, and 48 px is the enforced minimum. The header, tab bar,
+  gaps and any two-line label must still fit in 320 px. Longer lists scroll, and any scroll controls are also at least
+  48 px with 14 px text.
+- **Opening:** the list opens with the current choice in view.
+- **Choosing:** a tap applies the choice and returns to the page it came from, which shows the new value. Back returns
+  without changing anything.
+- **Failure:** if the choice can't be saved, the Picker stays open, the row shows that it wasn't saved and why, and the
+  previous value remains selected. It never returns as if it were saved.
+- **Unknown:** if the current value can't be read, no row is checked and the title line says "Current setting unknown".
+  The first option is never pre-selected as if it were the current value.
+
+The Mac render tests (K8) cover a list that fits, a list that scrolls with the choice below the first page, a colour
+list, a long label, the failure state and the unknown state.
 
 ## Rejected
 
@@ -61,8 +84,8 @@ Each step is its own PR. The kit's steps can merge independently; the display st
 
 1. **appliance-ui 2.10.0: measure and word.** RGB565 contrast column and gate (K2), plus `needs.h` and `words.h` (K4).
    - Evidence: the contrast test and a header snapshot test.
-2. **appliance-ui 2.11.0: the display parts.** `dist/display/` (K5, K6), the Archivo VLW fonts (K3) and the Mac render
-   tests with reference images (K8).
+2. **appliance-ui 2.11.0: the display parts.** `dist/display/` (K5, K6, and the K9 `Stepper`, `Switch` and
+   `Picker`), the Archivo VLW fonts (K3) and the Mac render tests with reference images (K8).
    - Evidence: the render tests, and the font sizes in bytes, reported in the PR.
 3. **Display: sync and palette.**
    - Sync the kit at 2.11 and add the LovyanGFX adapter.
@@ -74,7 +97,8 @@ Each step is its own PR. The kit's steps can merge independently; the display st
    - Idle Home is the closest to the web Home, with a faceplate-like card and the two Needs-you rows.
    - Evidence: the Home captures next to the web Home, and its allow-list entries removed.
 5. **Display: the remaining screens,** a few per PR: Printer, the More pages and Lab judge. Each removes its
-   allow-list entries.
+   allow-list entries. On the More pages, each setting moves to its K9 control: Gauges, the colour settings, Time &
+   locale, After a print and the night-mode times move from −/+ to a `Picker`.
    - Done when the allow list is empty.
 
 `DESIGN.md`'s display section changes with step 2, from "follows the rules by hand" to "uses `dist/display/`".
