@@ -20,7 +20,7 @@ test('contrast is the WCAG ratio', async () => {
   assert.ok(Math.abs(contrast('#ffffff', '#000000') - 21) < 0.01);
 });
 
-test('tokens.css has dark on :root, light by device and by data-theme, and the header height', () => {
+test('tokens.css has dark on :root, light by device and by data-theme, and the header height in rem', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
   const r = build(['--out', out]);
   assert.equal(r.status, 0, r.stderr);
@@ -30,8 +30,7 @@ test('tokens.css has dark on :root, light by device and by data-theme, and the h
   assert.match(dark, /--ui-accent:#3fc1c9;/);
   assert.match(css, /@media \(prefers-color-scheme: light\)\{:root:not\(\[data-theme="dark"\]\)\{[^}]*--ui-accent:#0b7a83;/);
   assert.match(css, /\[data-theme="light"\]\{[^}]*--ui-accent:#0b7a83;/);
-  assert.match(css, /--ui-header-h:48px;/);
-  assert.match(css, /@media \(max-width:719px\)\{:root\{--ui-header-h:44px;\}\}/);
+  assert.match(css, /--ui-header-h:2\.75rem;/);
   assert.match(css, /--ui-surface-2:/);
   assert.match(css, /--ui-accent-text:/);
   assert.match(css, /@font-face\{font-family:Archivo;src:url\(archivo-latin-ui\.woff2\) format\("woff2"\);font-weight:400 750;font-stretch:75% 100%;/);
@@ -132,7 +131,7 @@ test('1.4 tokens pass on the well', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
   const r = build(['--out', out]);
   assert.equal(r.status, 0, r.stderr);
-  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^2\.8\.\d+$/);
+  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^2\.9\.\d+$/);
 });
 
 // 1.4 faceplate: the font file the face names ships, and radii keep their order (panels r2 under controls r3).
@@ -159,4 +158,63 @@ test('the gate still bites on the faceplate backgrounds: a dim red on the well f
   const r = withColors({ bad: { dark: '#f6806a' } }, {});
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /dark bad chip on surface2: \d\.\d\d < 4\.5/);
+});
+
+// A10 D1: one fluid curve on the root, and the kit's sizes in rem so they follow it; the display keeps its px (D5).
+const built = () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
+  const r = build(['--out', out]);
+  assert.equal(r.status, 0, r.stderr);
+  return { css: fs.readFileSync(path.join(out, 'tokens.css'), 'utf8'), h: fs.readFileSync(path.join(out, 'tokens.h'), 'utf8'), out };
+};
+// The root's size in px at a window width, for a browser default of 16 px: clamp(min%, a rem + b vw, max%).
+const rootPx = (css, width, base = 16) => {
+  const m = css.match(/html\{font-size:clamp\(([\d.]+)%,\s*([\d.]+)rem \+ ([\d.]+)vw,\s*([\d.]+)%\)\}/);
+  assert.ok(m, 'html font-size clamp in tokens.css');
+  const [lo, a, b, hi] = m.slice(1).map(Number);
+  return Math.min(base * hi / 100, Math.max(base * lo / 100, a * base + b * width / 100));
+};
+
+test('the root grows from 16 px at 360 to 20 px at 1920 and stops there (A10 D1)', () => {
+  const { css } = built();
+  assert.ok(Math.abs(rootPx(css, 320) - 16) < 0.01);
+  assert.ok(Math.abs(rootPx(css, 360) - 16) < 0.01);
+  assert.ok(Math.abs(rootPx(css, 1140) - 18) < 0.02);
+  assert.ok(Math.abs(rootPx(css, 1920) - 20) < 0.01);
+  assert.ok(Math.abs(rootPx(css, 2560) - 20) < 0.01);
+  // A reader's larger text setting still scales it: the floor is a percentage of the browser's size.
+  assert.ok(rootPx(css, 360, 20) >= 20);
+});
+
+test('type and space tokens are rem, equal to today at a 16 px root; radii stay px', () => {
+  const { css } = built();
+  const t = JSON.parse(fs.readFileSync(path.join(root, 'tokens.json'), 'utf8'));
+  for (const [k, px] of Object.entries(t.size)) assert.match(css, new RegExp(`--ui-fs-${k.slice(2)}:${px / 16}rem;`));
+  assert.match(css, new RegExp(`--ui-space:${t.space.unit / 16}rem;`));
+  assert.doesNotMatch(css, /--ui-(fs-\d|space):[\d.]+px/);
+  assert.match(css, /--ui-r-2:6px;/);
+});
+
+test('tokens.h is unchanged from 2.8.0 apart from its banner (A10 D5: the display is a fixed screen)', () => {
+  const { h } = built();
+  const want = fs.readFileSync(path.join(root, 'tests/fixtures/tokens-2.8.0.h'), 'utf8');
+  assert.equal(h.slice(h.indexOf('\n') + 1), want);
+});
+
+test('no kit stylesheet switches at a window width (A10 D2)', () => {
+  const { out } = built();
+  for (const f of ['tokens.css', 'components.css', 'needs.css', 'palette.css']) {
+    const css = fs.readFileSync(path.join(out, f), 'utf8');
+    assert.doesNotMatch(css, /@media[^{]*\((max|min)-width/, f);
+  }
+});
+
+test('stacked tables and Needs you arrange by their container, not the window (A10 D2)', () => {
+  const { out } = built();
+  const comp = fs.readFileSync(path.join(out, 'components.css'), 'utf8');
+  const needs = fs.readFileSync(path.join(out, 'needs.css'), 'utf8');
+  assert.match(comp, /\.ui-cq\{container-type:inline-size\}/);
+  assert.match(comp, /@container \(max-width:[\d.]+rem\)\{\.ui-table--stack/);
+  assert.match(needs, /\.ui-needs\{[^}]*container:ui-needs\/inline-size/);
+  assert.match(needs, /@container ui-needs \(min-width:[\d.]+rem\)\{/);
 });

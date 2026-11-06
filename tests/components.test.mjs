@@ -55,7 +55,7 @@ test('components.css defines the shared classes using only --ui-* colours', () =
   // 2.7.0: a table for comparison: numbers right-aligned and tabular; on a phone each row stands alone with its labels.
   assert.match(css, /\.ui-table__num\{[^}]*text-align:right;font-variant-numeric:tabular-nums/);
   assert.match(css, /\.ui-table caption\{[^}]*text-align:left/);
-  assert.match(css, /@media \(max-width:599px\)\{\.ui-table--stack[^}]*\{display:block\}/, 'a stacking table becomes rows on a phone');
+  assert.match(css, /@container \(max-width:37\.4375rem\)\{\.ui-table--stack[^}]*\{display:block\}/, 'a stacking table becomes rows in a narrow container');
   assert.match(css, /\.ui-table--stack td\[data-label\]::before\{content:attr\(data-label\)/, 'each cell keeps its column name');
   const code = css.replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(code, /#[0-9a-f]{3,8}\b/i, 'no literal hex colours');

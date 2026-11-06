@@ -71,7 +71,12 @@ for, and sync it into each app. Never edit an app's copy.
   technical detail only.
 - **Narrow widths** (`--ui-stretch-heading` 87.5%, `--ui-stretch-readout` 75%) are for headings and readouts. They carry
   the look; nothing else is condensed.
-- **Scale** (`fs1`–`fs7`: 12, 13, 14, 16, 20, 26, 34 px):
+- **One fluid scale (A10 D1).** `tokens.css` sets the root's size on one curve: 100% of the browser's text size on a
+  360 px window, growing smoothly to 125% at 1920 px, then stopping. The type, space and header tokens are `rem`, so they
+  follow it. Nothing is smaller on a phone than it was, and a reader's own larger text setting still scales everything.
+  An app never sets its own curve or a type size in px; it uses the tokens or `rem`. `tokens.h` keeps the px sizes:
+  the workshop display is a fixed screen.
+- **Scale** (`fs1`–`fs7`: 12, 13, 14, 16, 20, 26, 34 px on a 360 px window, about 1.25× that from 1920 px):
 
   | Role | Size |
   |---|---|
@@ -82,7 +87,7 @@ for, and sync it into each app. Never edit an app's copy.
   | Supporting text | `fs2` |
   | Readout | `ui-readout` sizes |
 
-  `fs1` (12 px) is the floor, for meta lines only.
+  `fs1` (12 px on a phone) is the floor, for meta lines only.
 - **Writing:** sentence case everywhere. No all-caps labels and no tracked-out eyebrows above headings.
 - **Numbers that change** (temperatures, progress, counts in columns) use tabular numerals.
 - **Words:** the spec's section 9 names (Filament, Assistant status, In progress, Print lab, …) and the phrase-table
@@ -90,7 +95,7 @@ for, and sync it into each app. Never edit an app's copy.
 
 ### Space and shape
 
-- **Spacing:** 4 px steps (`--ui-space` × n). Related things are close (4–8), groups are separated (16–24), and sections
+- **Spacing:** steps of `--ui-space` (4 px on a 360 px window, growing with the type). Related things are close (4–8), groups are separated (16–24), and sections
   are separated more (32+).
 - **Radii:**
   - `r2` (6) for the faceplate and panels
@@ -134,14 +139,15 @@ Home is the one page that leaves the A7 anatomy. It is drawn by Pi Hub's `home-d
 with the kit's tokens, not by a new kit component.
 
 - **Today band (the hero):** the house's day as one lane per system, marks for what happened, a Now line, and the
-  hours still to come hatched. Four counts sit above it in the readout face. On a phone (a band under 520 px) it shows
-  midnight to an hour after Now (A9).
+  hours still to come hatched. Four counts sit above it in the readout face. It shows the whole day when an hour gets
+  at least 24 px, and otherwise midnight to an hour after Now, at least six hours (A9's rule as a measure, A10 D4).
 - **Needs you beside Systems:** the kit's Needs-you list on the left (first on narrow screens), and a rack on the right
   with one row per system. A rack row's lamp is on the left (A8 D3 amends P3 for Home only), with a faint wash on a row
   that needs a look.
 - **No camera on Home.** Workshop keeps it.
-- **Sizes:** one column under 1000 px, the band above two columns up to 1800 px, and two columns at 1.2× on a landscape
-  TV. A larger zoom only narrows Home inside the shell's 1440 px.
+- **Sizes (A10 D4):** Needs you and Systems sit side by side where Needs you gets about 22 rem and Systems about
+  36 rem, and stack where they don't. Rack rows arrange by their own width. The band's rows, bars and name column scale
+  with it. No zoom on the TV: the fluid scale and the `rem` page cap do that.
 - **The wall display** (`/wall`) keeps its own board.
 
 ### Order and density
@@ -167,9 +173,17 @@ with the kit's tokens, not by a new kit component.
 - **Pages in the shell** are links. Only another product's tool opens with "↗".
 - **Selection carries between related views.** The selected project, experiment, device or run carries in the URL
   (`?p=`, `?e=`, `#lab-E-025`), so Back, refresh and a shared link land in the same place.
-- **Layouts adapt to the width.** They never shrink the desktop design:
-  - **Under 560 px:** the strip wraps, readings stack, and tables become rows.
-  - **From 760 px:** the faceplate's aside sits beside it.
+- **Layouts flow; they don't switch (A10 D2, D3).** A grid sets its columns by the smallest width its content can live
+  with (`repeat(auto-fit, minmax(…))`, `fr`, `min()`), and a component rearranges by its container's width (container
+  queries), never the window's. The only window switch is the shell's: rail or tab bar, marked in the stylesheet as
+  such. No breakpoints named after devices, no fixed pixel widths for content, and the page's width cap is in `rem`.
+  In the kit:
+  - **The faceplate's aside** sits beside it where both get 20 rem, and under it where they don't.
+  - **Needs you** puts each item's action beside its text when the list is at least 34 rem wide.
+  - **`ui-table--stack`** goes row by row when its container is under about 37.5 rem; put it in a `ui-cq` (or any
+    element with `container-type`).
+  - **The page title, readout and faceplate padding** grow from their phone size to their full size between a 360 and
+    a 600 px window, without a step.
 
 ### The workshop display (480 × 320, touch)
 
@@ -263,11 +277,12 @@ is added to this kit, never to one app.
 
 ## Before a screen is done
 
-Check it at 320, 390, 1024 and 1440 px (and 480 × 320 for the display), in dark and light, with real data. A page
-that can be on the TV (Home) is also checked at 1920 px, and at 3840 px for overflow:
+Sweep it from 320 to 2560 px in 20 px steps, in dark and light, with real data (A10 D6): no horizontal overflow, no
+clipped text, no control under its target, and no two neighbouring marks or labels overlapping. Take screenshots at
+320, 390, 820, 1024, 1366, 1440 and 1920 px for a person to look at (and 480 × 320 for the display):
 
 - **Content:** long names, missing values and a target of 0. Anything drawn against time is checked with a busy day's
-  data at 320 px: marks don't merge, and labels don't touch or wrap.
+  data across the sweep: marks don't merge, and labels don't touch or wrap.
 - **States:** a stale source, a down source, a pending action, a failed action, loading and empty.
 - **Keyboard and focus:** keyboard only, with focus visible throughout.
 - **Automated checks:** axe with no serious or critical findings, and no horizontal overflow.
