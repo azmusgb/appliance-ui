@@ -4,6 +4,9 @@
 // The meta line (2.6.0, Pi Hub amendment A7 P2) is "since <as_of> · <area>": the area, else the source when it isn't
 // this app (opts.self). renderList/render option when(date, now) → text overrides how as_of reads.
 (() => {
+  // The state words and the age rules, one table with the display (src/words.json). The build puts it on the next line
+  // of dist/needs.js, so run dist/needs.js, not this file.
+  const WORDS = null;
   const PHRASES = {
     judge: 'Judge the print', approve: 'Approve or drop', send: 'Send it to the printer', fix_plan: 'Fix the plan',
     look: 'Look at the printer', open_bambuddy: 'Open Bambuddy', check_pc: 'Check the PC', not_answering: "{name} isn't answering",
@@ -44,14 +47,23 @@
     return { href: u.href, external: u.origin !== o.here.origin };
   }
 
+  // The age rules: seconds since → "now" or "4 min ago"; null once the last rule is past (then use "since …").
+  function ago(seconds) {
+    if (typeof seconds !== 'number' || !Number.isFinite(seconds)) return null;
+    const s = Math.max(0, seconds);
+    const r = WORDS.age.ago.find(x => s < x.under);
+    return r ? r.text.replace('{n}', Math.floor(s / (r.per || 1))) : null;
+  }
+  const sinceText = when => WORDS.age.since.replace('{when}', () => when);
+
   // "since 4:29 AM" today, "since 3 Nov" before; nothing for a missing or unreadable time.
   function since(asOf, o) {
     if (asOf == null || asOf === '') return '';
     const d = new Date(asOf), now = o.now ? new Date(o.now) : new Date();
     if (Number.isNaN(d.getTime())) return '';
-    if (typeof o.when === 'function') { const t = o.when(d, now); return typeof t === 'string' && t ? `since ${t}` : ''; }
+    if (typeof o.when === 'function') { const t = o.when(d, now); return typeof t === 'string' && t ? sinceText(t) : ''; }
     const today = d.toDateString() === now.toDateString();
-    return 'since ' + (today ? d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    return sinceText(today ? d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
       : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
   }
 
@@ -109,7 +121,7 @@
     return ul;
   }
 
-  const api = { render, renderList, PHRASES, safeLink };
+  const api = { render, renderList, PHRASES, WORDS, ago, safeLink };
   if (typeof window !== 'undefined') window.ApplianceNeeds = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })();

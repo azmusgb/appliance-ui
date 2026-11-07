@@ -1,0 +1,10 @@
+{
+  "state": { "up": "Up", "down": "Down", "unknown": "Unknown", "running": "Running", "waiting": "Waiting" },
+  "age": {
+    "ago": [
+      { "under": 60, "text": "now" },
+      { "under": 3600, "per": 60, "text": "{n} min ago" }
+    ],
+    "since": "since {when}"
+  }
+}
