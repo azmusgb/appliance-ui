@@ -76,3 +76,34 @@ test('a file the last copy shipped and this version does not is removed; other a
   assert.ok(fs.existsSync(path.join(repo, 'web/escape.txt')), 'a listed name with a path is never followed');
   assert.equal(node([path.join(dir, 'verify.mjs'), dir]).status, 0);
 });
+
+test('--display also copies the display kit with its folders, the web sync does not, and both pass the checkers', () => {
+  assert.equal(node([path.join(root, 'scripts/build.mjs')]).status, 0);
+  const web = target();
+  assert.equal(node([path.join(root, 'scripts/sync.mjs'), web.repo, '--dir', 'web/ui']).status, 0);
+  assert.ok(!fs.existsSync(path.join(web.dir, 'display')), 'the web apps do not get the display kit');
+  const { repo, dir } = target();
+  const r = node([path.join(root, 'scripts/sync.mjs'), repo, '--dir', 'assets/ui', '--display']);
+  assert.equal(r.status, 0, r.stderr);
+  const d = path.join(repo, 'assets/ui');
+  const v = JSON.parse(fs.readFileSync(path.join(d, 'VERSION'), 'utf8'));
+  for (const f of ['display/ui.h', 'display/canvas.h', 'display/picker.h', 'display/README.md', 'display/fonts.h', 'display/fonts/archivo-14.vlw', 'display/fonts/archivo-readout-34.vlw', 'tokens.h', 'words.h', 'needs.h']) {
+    assert.ok(fs.existsSync(path.join(d, f)), f);
+    assert.match(v.files[f], /^[0-9a-f]{64}$/, f);
+  }
+  assert.equal(node([path.join(d, 'verify.mjs'), d]).status, 0);
+  assert.equal(py([path.join(d, 'verify.py'), d]).status, 0);
+  // the kit's own includes resolve in the copy: display/ is one folder under tokens.h and words.h
+  assert.match(fs.readFileSync(path.join(d, 'display/canvas.h'), 'utf8'), /#include "\.\.\/tokens\.h"/);
+  // a hand edit to a display file is caught, naming it
+  fs.appendFileSync(path.join(d, 'display/picker.h'), '// edited');
+  const bad = node([path.join(d, 'verify.mjs'), d]);
+  assert.equal(bad.status, 1); assert.match(bad.stderr, /display\/picker\.h/);
+  assert.match(py([path.join(d, 'verify.py'), d]).stderr, /display\/picker\.h/);
+  // syncing again without --display removes the display files the last copy shipped, and nothing outside the folder
+  fs.writeFileSync(path.join(repo, 'keep.txt'), 'mine');
+  assert.equal(node([path.join(root, 'scripts/sync.mjs'), repo, '--dir', 'assets/ui']).status, 0);
+  assert.ok(!fs.existsSync(path.join(d, 'display/ui.h')));
+  assert.ok(fs.existsSync(path.join(repo, 'keep.txt')));
+  assert.equal(node([path.join(d, 'verify.mjs'), d]).status, 0);
+});
