@@ -195,8 +195,18 @@ It has its own layouts, not a shrunken page:
 - at most two levels deep, with Back and Home always visible in the same place
 - no hover, no tables, and no text under 14 px
 
-Colours come from the same tokens (`tokens.h` RGB565 from the build). The same honest states apply: a reading the
-display can't refresh says how old it is.
+The display is built from `dist/display/` (kit 2.11), not by hand: header-only C++ parts that draw through a small
+`UiCanvas` (see `dist/display/README.md`).
+
+- **Parts:** `Faceplate`, `LampRow`, `Chip`, `Button`, `NeedsRow`, `AgeLine`, `Meter` and `Frame`, and the controls
+  for changing a setting: a number is a `Stepper`, a named choice or a colour or a clock time is a `Picker`, on or off is
+  a `Switch`. A screen never draws its own lamp, row, button or header.
+- **Colours** come only from `tokens.h` (`UI_COLOR_*`, RGB565), measured after rounding to RGB565 in the display column
+  of `docs/contrast.md`. **Words** come from `words.h` and `needs.h`, the same text as the web.
+- **Type** is Archivo in five VLW sizes (14, 16, 20, 26, and a 34 px readout at 75% width). Nothing is smaller than 14 px.
+- **Honest states are in the parts.** A part that shows a value takes a `Reading` (live, stale, unavailable or never
+  read) and draws the age or "Unknown" itself, so a screen can't draw an unknown reading as ok.
+- **Back and Home** are drawn by `Frame` in the same two places on every screen, at two levels at most.
 
 ## Components
 
@@ -307,5 +317,6 @@ These were open in the first draft of this contract. They were settled on 5 Nov 
    `warn` or `bad`. This keeps the Faceplate spec as approved, with no amendment.
 2. **Tables** are `ui-table` (kit 2.7.0).
 3. **Icon-only buttons** are `ui-btn--icon` (kit 2.7.0), with a `fieldLine` outline at 3:1.
-4. **The workshop display** doesn't load the kit yet (`assets/ui` is staged). Its screens follow the display rules
-   above by hand until its own platform step moves it onto the kit's `tokens.h`.
+4. **The workshop display** doesn't load the kit yet (`assets/ui` is staged). Since 2.11 the kit ships the display's
+   parts (`dist/display/`); its screens move onto them in the display repo's own steps (display-kit rollout 3 to 5), and
+   follow the display rules above by hand until they do.

@@ -84,6 +84,21 @@ apps use.
   it), and the phrases are `ApplianceNeeds.PHRASES`. `dist/needs.js` is the file to run; `src/needs.js` holds a
   placeholder the build fills.
 
+## The display kit (2.11)
+
+`dist/display/` is the workshop display's parts: header-only C++17 that draws through a small `UiCanvas` the display repo
+implements over LovyanGFX. `Faceplate`, `LampRow`, `Chip`, `Button`, `NeedsRow`, `AgeLine`, `Meter` and `Frame` (K5); a
+`Reading` that makes "Unknown" impossible to draw as ok (K6); `Stepper`, `Switch` and `Picker` (K9); and the Archivo VLW
+fonts (K3). Read [`dist/display/README.md`](dist/display/README.md) (source: `src/display/README.md`) for the API.
+
+- `npm run display` compiles the parts on the Mac, runs their checks, renders every part in every state and compares
+  with `demo/screens/display/*.png`; `npm run display:update` rewrites those images on purpose. It is part of `npm test`.
+- `npm run fonts` regenerates `dist/display/fonts/*.vlw` and `fonts.h` from `fonts/archivo-latin-ui.woff2`. It needs
+  Python with Pillow, a dev-only dependency of that script; the files are committed, so nothing else needs it.
+- `node scripts/sync.mjs <repo> --dir <folder> --display` copies the display kit with the rest (the web apps' sync leaves it out).
+- 2.11 also adds `UI_TEXT_*` control words to `words.h` (Back, Home, On, Off, Previous, Next, "Current setting unknown",
+  "Not saved", "Nothing to choose") and measures text on `bar` (the header) in `docs/contrast.md`.
+
 ## Values changed from the spec
 
 The build refuses text/background pairs below WCAG AA (4.5:1). Light-mode values the spec listed that failed, and what

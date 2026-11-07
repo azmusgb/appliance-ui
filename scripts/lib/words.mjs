@@ -15,6 +15,9 @@ export function checkWords(w) {
   };
   for (const k of ['up', 'down', 'unknown', 'running', 'waiting']) text(`state.${k}`, w.state?.[k]);
   for (const k of Object.keys(w.state || {})) if (!['up', 'down', 'unknown', 'running', 'waiting'].includes(k)) out.push(`state.${k}: not a known state`);
+  const controls = ['back', 'home', 'on', 'off', 'previous', 'next', 'current_unknown', 'not_saved', 'no_choices'];
+  for (const k of controls) text(`control.${k}`, w.control?.[k]);
+  for (const k of Object.keys(w.control || {})) if (!controls.includes(k)) out.push(`control.${k}: not a known control word`);
   text('age.since', w.age?.since);
   if (w.age?.since && !w.age.since.includes('{when}')) out.push('age.since: needs {when}');
   const rules = w.age?.ago;
@@ -35,8 +38,10 @@ const fmt = s => s.replace('{n}', '%u').replace('{when}', '%s');
 
 export function wordsH(w, banner) {
   return [`// ${banner}`, '#pragma once',
-    '// The state words, and the age rules, as the web words them (src/words.json). C and C++.',
+    '// The state words, the display controls\' words and the age rules, as the web words them (src/words.json). C and C++.',
     ...Object.entries(w.state).map(([k, v]) => `#define UI_WORD_${k.toUpperCase()} ${cstr(v)}`),
+    '// The words on the display\'s own controls (Back, Home, a switch, the Picker); the web has no use for them yet.',
+    ...Object.entries(w.control).map(([k, v]) => `#define UI_TEXT_${k.toUpperCase()} ${cstr(v)}`),
     '// An age in seconds is worded by the first rule whose `under` it is below: its text, with %u the whole number of',
     '// `per` seconds. Past the last rule, say UI_AGE_SINCE_FMT with the clock time (today) or the day (earlier) for %s.',
     'typedef struct { unsigned under; unsigned per; const char *fmt; } UiAgeRule;',

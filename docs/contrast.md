@@ -1,4 +1,4 @@
-# Measured contrast (appliance-ui 2.10.0)
+# Measured contrast (appliance-ui 2.11.0)
 
 Generated from `tokens.json` by `npm run contrast`; do not edit. Ratios are WCAG 2 contrast. Tints are measured as the
 components lay them. A pair is legible only as far as its number here says.
@@ -37,6 +37,10 @@ components lay them. A pair is legible only as far as its number here says.
 | Text | unknown on bg | 4.5:1 | 8.37 | 6.72 | 8.75 |
 | Text | unknown on surface | 4.5:1 | 7.28 | 7.48 | 7.67 |
 | Text | unknown on surface2 | 4.5:1 | 6.64 | 6.29 | 6.88 |
+| Text | text on bar (header) | 4.5:1 | 13.71 | 16.97 | 14.41 |
+| Text | muted on bar (header) | 4.5:1 | 7.24 | 7.11 | 7.69 |
+| Text | accentText on bar (header) | 4.5:1 | 8.81 | 6.48 | 9.33 |
+| Text | unknown on bar (header) | 4.5:1 | 7.83 | 7.22 | 8.41 |
 | Text | onAccent on accent (primary button label) | 4.5:1 | 7.03 | 5.09 | 7.39 |
 | Text | ok chip (18% tint) on bg | 4.5:1 | 6.05 | 5.12 | 6.38 |
 | Text | ok chip (18% tint) on surface | 4.5:1 | 5.28 | 5.64 | 5.59 |
@@ -55,7 +59,7 @@ components lay them. A pair is legible only as far as its number here says.
 | Text | bad danger button (16% tint) on surface | 4.5:1 | 5.12 | 5.78 | 5.41 |
 | Text | accentText on accentSoft over surface | 4.5:1 | 6.29 | 5.87 | 6.68 |
 | Text | bad danger button (16% tint) on surface2 | 4.5:1 | 4.69 | 4.93 | 4.73 |
-| Text | accentText on accentSoft over surface2 | 4.5:1 | 5.76 | 4.99 | 5.90 |
+| Text | accentText on accentSoft over surface2 | 4.5:1 | 5.76 | 4.99 | 5.84 |
 | Non-text | accent focus ring and primary fill on bg | 3:1 | 7.83 | 4.57 | 8.10 |
 | Non-text | fieldLine (field border) on bg | 3:1 | 4.21 | 3.47 | 4.28 |
 | Non-text | ok lamp dot on bg | 3:1 | 8.91 | 6.71 | 9.24 |
