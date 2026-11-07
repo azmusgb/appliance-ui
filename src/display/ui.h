@@ -1,0 +1,16 @@
+// The display kit (display-kit K5, K6, K9): include this to get every part. Header-only C++17. See README.md.
+#pragma once
+#include "canvas.h"
+#include "reading.h"
+#include "text.h"
+#include "chip.h"
+#include "button.h"
+#include "ageline.h"
+#include "faceplate.h"
+#include "lamprow.h"
+#include "needsrow.h"
+#include "meter.h"
+#include "frame.h"
+#include "stepper.h"
+#include "switch.h"
+#include "picker.h"

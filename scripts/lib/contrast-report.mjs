@@ -12,6 +12,8 @@ export function pairs() {
   for (const fg of ['text', 'muted', 'accentText', ...STATUS]) {
     for (const bg of BGS) rows.push(['Text', `${fg} on ${bg}`, 4.5, (c, m) => [c[fg][m], c[bg][m]]]);
   }
+  // The header sits on `bar` (the page head, and the display's Frame): its text, links and sub-line are measured there too.
+  for (const fg of ['text', 'muted', 'accentText', 'unknown']) rows.push(['Text', `${fg} on bar (header)`, 4.5, (c, m) => [c[fg][m], c.bar[m]]]);
   rows.push(['Text', 'onAccent on accent (primary button label)', 4.5, (c, m) => [c.onAccent[m], c.accent[m]]]);
   for (const fg of STATUS) for (const bg of BGS) {
     rows.push(['Text', `${fg} chip (18% tint) on ${bg}`, 4.5, (c, m) => [c[fg][m], mix(c[fg][m], c[bg][m], 0.18)]]);
@@ -33,10 +35,17 @@ export function pairs() {
 
 // K2: the same pair as the panel shows it. The display is dark only, so this is the dark value of each colour taken to
 // RGB565 (panel()), the tint or overlay laid on those, and the result taken to RGB565 again, since the part blends and
-// then stores a 16-bit value. accentSoft is an rgba and stays so until it is laid over its background.
+// then stores a 16-bit value. accentSoft is an rgba: its colour is taken to RGB565 too, and it stays a tint until it is laid over
+// its background.
 export function displayRatio(t, at) {
   const shown = {};
-  for (const [k, v] of Object.entries(t.color)) shown[k] = { dark: isHex(v.dark) ? panel(v.dark) : v.dark };
+  const quantize = v => {
+    if (isHex(v)) return panel(v);
+    const m = /^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)$/.exec(v);
+    const q = panel('#' + m.slice(1, 4).map(n => (+n).toString(16).padStart(2, '0')).join('')).slice(1);
+    return `rgba(${[0, 2, 4].map(i => parseInt(q.slice(i, i + 2), 16)).join(',')},${m[4]})`;
+  };
+  for (const [k, v] of Object.entries(t.color)) shown[k] = { dark: quantize(v.dark) };
   const [fg, bg] = at(shown, 'dark');
   return contrast(panel(fg), panel(bg));
 }
