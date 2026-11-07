@@ -88,7 +88,7 @@ apps use.
 
 `dist/display/` is the workshop display's parts: header-only C++17 that draws through a small `UiCanvas` the display repo
 implements over LovyanGFX. `Faceplate`, `LampRow`, `Chip`, `Button`, `NeedsRow`, `AgeLine`, `Meter` and `Frame` (K5); a
-`Reading` that makes "Unknown" impossible to draw as ok (K6); `Stepper`, `Switch` and `Picker` (K9); and the Archivo VLW
+`Reading` that makes "Unknown" impossible to draw as ok (K6); `Stepper`, `Switch` and `Picker` (K9); `Tabs` (2.12, the strip of a screen's views); and the Archivo VLW
 fonts (K3). Read [`dist/display/README.md`](dist/display/README.md) (source: `src/display/README.md`) for the API.
 
 - `npm run display` compiles the parts on the Mac, runs their checks, renders every part in every state and compares

@@ -195,12 +195,13 @@ It has its own layouts, not a shrunken page:
 - at most two levels deep, with Back and Home always visible in the same place
 - no hover, no tables, and no text under 14 px
 
-The display is built from `dist/display/` (kit 2.11), not by hand: header-only C++ parts that draw through a small
+The display is built from `dist/display/` (kit 2.12), not by hand: header-only C++ parts that draw through a small
 `UiCanvas` (see `dist/display/README.md`).
 
 - **Parts:** `Faceplate`, `LampRow`, `Chip`, `Button`, `NeedsRow`, `AgeLine`, `Meter` and `Frame`, and the controls
   for changing a setting: a number is a `Stepper`, a named choice or a colour or a clock time is a `Picker`, on or off is
-  a `Switch`. A screen never draws its own lamp, row, button or header.
+  a `Switch`. The views of one screen (the Printer's Status, AMS, Control and Camera) are `Tabs`: two to five tabs, 48 px
+  high, 16 px labels, the selected one marked by a wash, accent text and an accent bar, never colour alone. A screen never draws its own lamp, row, button or header.
 - **Colours** come only from `tokens.h` (`UI_COLOR_*`, RGB565), measured after rounding to RGB565 in the display column
   of `docs/contrast.md`. **Words** come from `words.h` and `needs.h`, the same text as the web.
 - **Type** is Archivo in five VLW sizes (14, 16, 20, 26, and a 34 px readout at 75% width). Nothing is smaller than 14 px.

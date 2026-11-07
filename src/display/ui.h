@@ -14,3 +14,4 @@
 #include "stepper.h"
 #include "switch.h"
 #include "picker.h"
+#include "tabs.h"
