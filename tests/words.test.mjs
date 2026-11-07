@@ -17,11 +17,11 @@ new Function('module', read('dist/needs.js'))(mod);
 const { PHRASES, WORDS, ago } = mod.exports;
 
 test('dist/words.h is the snapshot: state words and the age rules', () => {
-  assert.equal(body('dist/words.h'), read('tests/fixtures/words-2.10.0.h'));
+  assert.equal(body('dist/words.h'), read('tests/fixtures/words-2.11.0.h'));
 });
 
 test('dist/needs.h is the snapshot: every phrase key and text from needs.js', () => {
-  assert.equal(body('dist/needs.h'), read('tests/fixtures/needs-2.10.0.h'));
+  assert.equal(body('dist/needs.h'), read('tests/fixtures/needs-2.11.0.h'));
   const h = read('dist/needs.h');
   for (const [k, text] of Object.entries(PHRASES)) {
     assert.ok(h.includes(`#define UI_NEED_${k.toUpperCase()} ${JSON.stringify(text)}`), k);
@@ -40,6 +40,12 @@ test('the headers carry the version banner and the same table as src/words.json'
 
 test('the state words are Up, Down, Unknown, Running and Waiting', () => {
   assert.deepEqual(WORDS.state, { up: 'Up', down: 'Down', unknown: 'Unknown', running: 'Running', waiting: 'Waiting' });
+});
+
+test('the display controls have their words (2.11.0): Back, Home, On, Off, Previous, Next, the Picker\'s two lines', () => {
+  assert.deepEqual(WORDS.control, { back: 'Back', home: 'Home', on: 'On', off: 'Off', previous: 'Previous', next: 'Next',
+    current_unknown: 'Current setting unknown', not_saved: 'Not saved', no_choices: 'Nothing to choose' });
+  for (const [k, v] of Object.entries(WORDS.control)) assert.ok(read('dist/words.h').includes(`#define UI_TEXT_${k.toUpperCase()} "${v}"`), k);
 });
 
 test('the age rules word "now", "4 min ago" and "since …"', () => {

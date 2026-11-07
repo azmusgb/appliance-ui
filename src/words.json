@@ -1,5 +1,9 @@
 {
   "state": { "up": "Up", "down": "Down", "unknown": "Unknown", "running": "Running", "waiting": "Waiting" },
+  "control": {
+    "back": "Back", "home": "Home", "on": "On", "off": "Off", "previous": "Previous", "next": "Next",
+    "current_unknown": "Current setting unknown", "not_saved": "Not saved", "no_choices": "Nothing to choose"
+  },
   "age": {
     "ago": [
       { "under": 60, "text": "now" },
