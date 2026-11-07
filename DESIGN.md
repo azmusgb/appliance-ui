@@ -195,10 +195,10 @@ It has its own layouts, not a shrunken page:
 - one reading or one decision per screen
 - 48 px or larger targets, with 8 px or more between them
 - labels of one to three words
-- at most two levels deep, with Back and Home always visible in the same place
+- at most two levels deep, with Back and Home always in the same place: Back at the top left of a level-two screen, Home the tab bar's Home tab
 - no hover, no tables, and no text under 14 px
 
-The display is built from `dist/display/` (kit 2.12), not by hand: header-only C++ parts that draw through a small
+The display is built from `dist/display/` (kit 2.13), not by hand: header-only C++ parts that draw through a small
 `UiCanvas` (see `dist/display/README.md`).
 
 - **Parts:** `Faceplate`, `LampRow`, `Chip`, `Button`, `NeedsRow`, `AgeLine`, `Meter` and `Frame`, and the controls
@@ -210,7 +210,7 @@ The display is built from `dist/display/` (kit 2.12), not by hand: header-only C
 - **Type** is Archivo in five VLW sizes (14, 16, 20, 26, and a 34 px readout at 75% width). Nothing is smaller than 14 px.
 - **Honest states are in the parts.** A part that shows a value takes a `Reading` (live, stale, unavailable or never
   read) and draws the age or "Unknown" itself, so a screen can't draw an unknown reading as ok.
-- **Back and Home** are drawn by `Frame` in the same two places on every screen, at two levels at most.
+- **Back and Home:** `Frame` draws Back at the top left of a level-two screen; Home is the tab bar's Home tab. A level-one (top-level) screen has neither in its header. Two levels at most.
 
 ## Components
 
