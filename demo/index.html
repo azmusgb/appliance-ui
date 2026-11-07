@@ -114,6 +114,7 @@
 <script>
   document.getElementById('needs').append(ApplianceNeeds.renderList([
     { id: 'spool', source: 'Materials', tone: 'attention', title: 'PETG Translucent Teal is running low', detail: '164 g left; the next print needs about 210 g.', link: '#materials-h' },
+    { id: 'adblock', source: 'Pi Hub', tone: 'warn', title: 'Ad blocking is off', detail: 'DNS filtering is paused on the Pi.', link: '#status-h' },
     { id: 'paperless', source: 'Pi Hub', tone: 'bad', title: 'Paperless is down', detail: 'Scans wait in the inbox until it is back.', link: '#status-h' },
   ], { here: location.href }));
 

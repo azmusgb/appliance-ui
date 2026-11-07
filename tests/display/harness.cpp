@@ -116,6 +116,11 @@ static void sceneLampRowB(MemCanvas& c) {
   for (LampRow& r : rows) { r.draw(c, Rect{0, y, 480, LampRow::kHeight}, kNow, UI_COLOR_BG); y += LampRow::kHeight + 4; }
 }
 
+// 2.11.1: warn is amber like attention, not the quiet grey it was; only bad is a different bar.
+static_assert(NeedsRow::toneColor(NeedTone::Warn) == UI_COLOR_WARN, "a warn need is amber");
+static_assert(NeedsRow::toneColor(NeedTone::Attention) == UI_COLOR_WARN, "an attention need is amber");
+static_assert(NeedsRow::toneColor(NeedTone::Bad) == UI_COLOR_BAD, "a bad need is red");
+
 static void sceneNeedsRow(MemCanvas& c) {
   const uint32_t n = kNow.epoch;
   NeedItem a; a.source = "Pi Hub"; a.tone = NeedTone::Bad; a.title = "The printer stopped"; a.detail = "Nozzle clog at layer 112"; a.asOf = n - 3 * kHour - 28 * 60;

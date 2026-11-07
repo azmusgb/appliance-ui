@@ -27,7 +27,7 @@ struct NeedsRow {
   static constexpr int kHeight = 72;
 
   static constexpr uint16_t toneColor(NeedTone t) {
-    return t == NeedTone::Bad ? UI_COLOR_BAD : t == NeedTone::Attention ? UI_COLOR_WARN : UI_COLOR_MUTED;
+    return t == NeedTone::Bad ? UI_COLOR_BAD : UI_COLOR_WARN;
   }
   static constexpr bool hit(const Rect& r, int px, int py) { return r.contains(px, py); }
 
