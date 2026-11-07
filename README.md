@@ -68,6 +68,22 @@ comes back to the button. The app runs the action and says it in the past tense 
 
 `npm run screens` rebuilds and retakes `demo/screens/`.
 
+## The display's measure and words (2.10)
+
+The Workshop display is the third surface (display-kit spec, K2 and K4); 2.10 changes no token, class or phrase the web
+apps use.
+
+- `docs/contrast.md` has a **Display (RGB565)** column: each dark colour truncated to 5/6/5 bits as `tokens.h` packs it,
+  expanded back to 8 by bit replication, tints mixed from those and rounded again, then measured. The build and
+  `npm test` refuse a pair that drops under its minimum (4.5:1 text, 3:1 lamps, rings and fields) after rounding.
+- `words.h` (C and C++): `UI_WORD_UP`, `_DOWN`, `_UNKNOWN`, `_RUNNING`, `_WAITING`, and the age rules
+  (`UI_AGE_RULES`, `UI_AGE_SINCE_FMT`): "now" under a minute, "4 min ago" under an hour, then "since 10:32".
+- `needs.h` (C and C++): `UI_NEED_<KEY>` per phrase and `UI_NEED_PHRASES` (`key`, `text`); `{name}` stays in the text.
+- Both come from one table with the web: the state words and age rules are `src/words.json`, which the build also puts
+  into `dist/needs.js` (`ApplianceNeeds.WORDS`, `ApplianceNeeds.ago(seconds)`; the meta line reads its "since …" from
+  it), and the phrases are `ApplianceNeeds.PHRASES`. `dist/needs.js` is the file to run; `src/needs.js` holds a
+  placeholder the build fills.
+
 ## Values changed from the spec
 
 The build refuses text/background pairs below WCAG AA (4.5:1). Light-mode values the spec listed that failed, and what

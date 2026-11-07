@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { contrast, flatten, mix, rgb565, isHex } from './lib/color.mjs';
 import { check, toolsJs, toolsH } from './lib/tools.mjs';
 import { failures as measured } from './lib/contrast-report.mjs';
+import { loadWords, checkWords, wordsH, needsH } from './lib/words.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const arg = (name, fallback) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; };
@@ -99,9 +100,20 @@ fs.writeFileSync(path.join(out, 'tools.h'), toolsH(registry, toolsBanner));
 for (const f of ['appliance-header.js', 'appliance-header.lite.js']) fs.rmSync(path.join(out, f), { force: true });
 fs.writeFileSync(path.join(out, 'components.css'), `/* ${banner} */\n` + fs.readFileSync(path.join(root, 'src/components.css'), 'utf8'));
 fs.writeFileSync(path.join(out, 'needs.css'), `/* ${banner} */\n` + fs.readFileSync(path.join(root, 'src/needs.css'), 'utf8'));
-fs.writeFileSync(path.join(out, 'needs.js'), `// ${banner}\n` + fs.readFileSync(path.join(root, 'src/needs.js'), 'utf8'));
+// needs.js and the display's words.h/needs.h come from one table (src/words.json) and one PHRASES (src/needs.js).
+const words = loadWords(root);
+const wordProblems = checkWords(words);
+if (wordProblems.length) { console.error('src/words.json:\n' + wordProblems.join('\n')); process.exit(1); }
+const needsSrc = fs.readFileSync(path.join(root, 'src/needs.js'), 'utf8');
+const needsBuilt = needsSrc.replace('const WORDS = null;', () => `const WORDS = ${JSON.stringify(words)};`);
+if (needsBuilt === needsSrc) { console.error('src/needs.js: the `const WORDS = null;` line the build fills is gone'); process.exit(1); }
+const needsMod = { exports: {} };
+new Function('module', needsBuilt)(needsMod);
+fs.writeFileSync(path.join(out, 'needs.js'), `// ${banner}\n` + needsBuilt);
+fs.writeFileSync(path.join(out, 'needs.h'), needsH(needsMod.exports.PHRASES, banner));
+fs.writeFileSync(path.join(out, 'words.h'), wordsH(words, banner));
 fs.writeFileSync(path.join(out, 'palette.css'), `/* ${banner} */\n` + fs.readFileSync(path.join(root, 'src/palette.css'), 'utf8'));
 fs.writeFileSync(path.join(out, 'palette.js'), `// ${banner}\n` + fs.readFileSync(path.join(root, 'src/palette.js'), 'utf8'));
 fs.writeFileSync(path.join(out, 'motion.js'), `// ${banner}\n` + fs.readFileSync(path.join(root, 'src/motion.js'), 'utf8'));
 fs.writeFileSync(path.join(out, 'confirm.js'), `// ${banner}\n` + fs.readFileSync(path.join(root, 'src/confirm.js'), 'utf8'));
-console.log(`built ${path.relative(process.cwd(), out) || out}: tokens.css, tokens.h, tokens.json, components.css, needs.js, needs.css, palette.js, palette.css, motion.js, confirm.js, tools.js, tools.h (v${t.version})`);
+console.log(`built ${path.relative(process.cwd(), out) || out}: tokens.css, tokens.h, tokens.json, components.css, needs.js, needs.h, words.h, needs.css, palette.js, palette.css, motion.js, confirm.js, tools.js, tools.h (v${t.version})`);

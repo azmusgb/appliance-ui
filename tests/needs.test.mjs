@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 // package.json is "type": "module", so require() would load the classic script as ESM; run it with a CommonJS-style module.
 const mod = { exports: {} };
-new Function('module', fs.readFileSync(path.join(root, 'src/needs.js'), 'utf8'))(mod);
+new Function('module', fs.readFileSync(path.join(root, 'dist/needs.js'), 'utf8'))(mod);
 const { PHRASES, safeLink } = mod.exports;
 const here = new URL('http://10.0.0.30/home');
 const resolve = l => (l === 'bambuddy' ? 'https://bambuddy.home.arpa/' : l);

@@ -1,0 +1,16 @@
+#pragma once
+// The state words, and the age rules, as the web words them (src/words.json). C and C++.
+#define UI_WORD_UP "Up"
+#define UI_WORD_DOWN "Down"
+#define UI_WORD_UNKNOWN "Unknown"
+#define UI_WORD_RUNNING "Running"
+#define UI_WORD_WAITING "Waiting"
+// An age in seconds is worded by the first rule whose `under` it is below: its text, with %u the whole number of
+// `per` seconds. Past the last rule, say UI_AGE_SINCE_FMT with the clock time (today) or the day (earlier) for %s.
+typedef struct { unsigned under; unsigned per; const char *fmt; } UiAgeRule;
+static const UiAgeRule UI_AGE_RULES[] = {
+  { 60, 0, "now" },
+  { 3600, 60, "%u min ago" },
+};
+#define UI_AGE_RULE_COUNT 2
+#define UI_AGE_SINCE_FMT "since %s"
