@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { compare, compileHarness, compiler, fontsDir, renderScenes, root, run, tmp } from '../scripts/lib/display.mjs';
-import { flatten, mix, panel, rgb565 } from '../scripts/lib/color.mjs';
+import { contrast, flatten, mix, panel, rgb565 } from '../scripts/lib/color.mjs';
 
 const t = JSON.parse(fs.readFileSync(path.join(root, 'tokens.json'), 'utf8'));
 const needs = { exports: {} };
@@ -19,7 +19,7 @@ test('the parts compile as C++17 with -Wall -Wextra -Wpedantic -Werror, against 
   assert.ok(fs.existsSync(exe));
 });
 
-test('the harness checks pass: K5 parts, K6 honest states, K9 Stepper, Switch and Picker', { skip }, () => {
+test('the harness checks pass: K5 parts, K6 honest states, K9 Stepper, Switch and Picker, Tabs', { skip }, () => {
   const r = run(exe, 'check', fontsDir);
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /^\d+ checks, 0 failed/);
@@ -32,7 +32,7 @@ test('every part in every state renders as demo/screens/display/*.png shows (npm
 test('the scenes cover the parts, the Picker cases the spec lists, and the failure and unknown states', { skip }, () => {
   const names = Object.keys(renderScenes(exe, dir));
   for (const n of ['chip', 'button', 'ageline', 'faceplate-live', 'faceplate-honest', 'lamprow-live', 'lamprow-honest', 'needsrow', 'meter', 'frame-level-1',
-    'frame-level-2', 'stepper', 'switch', 'picker-fits', 'picker-scrolls-below-first-page', 'picker-colours', 'picker-long-label', 'picker-failure', 'picker-unknown']) {
+    'frame-level-2', 'stepper', 'switch', 'picker-fits', 'picker-scrolls-below-first-page', 'picker-colours', 'picker-long-label', 'picker-failure', 'picker-unknown', 'tabs-printer', 'tabs-states', 'tabs-surfaces']) {
     assert.ok(names.includes(n), n);
   }
 });
@@ -62,6 +62,19 @@ test('a chip, and a selected row, are tinted as the contrast table measured them
     const a = panel(t.color.accent.dark), rgba = `rgba(${[1, 3, 5].map(i => parseInt(a.slice(i, i + 2), 16))},.14)`;
     const want = kind === 'accentSoft' ? rgb565(panel(flatten(rgba, p))) : rgb565(panel(mix(panel(t.color[kind].dark), p, 0.18)));
     assert.equal(value, want, `${kind} on ${bg}`);
+  }
+});
+
+test('Tabs: its colours are the ones the contrast table measures, and the accent bar holds 3:1 on the selected wash', () => {
+  for (const bg of ['bg', 'surface', 'surface2']) {
+    const p = panel(t.color[bg].dark);
+    const a = panel(t.color.accent.dark), rgba = `rgba(${[1, 3, 5].map(i => parseInt(a.slice(i, i + 2), 16))},.14)`;
+    const wash = panel(flatten(rgba, p));
+    assert.ok(contrast(a, wash) >= 3, `accent bar on the wash over ${bg}: ${contrast(a, wash).toFixed(2)}`);
+    assert.ok(contrast(panel(t.color.accentText.dark), wash) >= 4.5, `accentText on the wash over ${bg}`);
+    assert.ok(contrast(panel(t.color.text.dark), p) >= 4.5, `text on ${bg}`);
+    assert.ok(contrast(panel(t.color.muted.dark), p) >= 4.5, `muted (a disabled tab) on ${bg}`);
+    assert.ok(contrast(panel(t.color.fieldLine.dark), p) >= 3, `the strip's border on ${bg}`);
   }
 });
 

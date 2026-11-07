@@ -198,6 +198,36 @@ static void scenePickerFailure(MemCanvas& c) { scenePicker(c, "Alert policy", kA
 static void scenePickerUnknown(MemCanvas& c) { scenePicker(c, "Alert policy", kAlerts, 4, -1); }
 static void scenePickerEmpty(MemCanvas& c) { scenePicker(c, "Gauge style", nullptr, 0, -1); }
 
+// The Printer screen's strip (Status / AMS / Control / Camera) in the 224 px under the header, each tab selected in turn,
+// then the other cases: two tabs, five tabs, a disabled tab, nothing selected, and a label too long for its tab.
+static const TabItem kPrinterTabs[] = {{"Status"}, {"AMS"}, {"Control"}, {"Camera"}};
+static void sceneTabsPrinter(MemCanvas& c) {
+  Frame::draw(c, "Printer", Level::One);
+  for (int i = 0; i < 4; i++) Tabs::draw(c, Rect{8, 56 + i * 64, 464, Tabs::kHeight}, kPrinterTabs, 4, i, UI_COLOR_BG);
+}
+static void sceneTabsStates(MemCanvas& c) {
+  static const TabItem two[] = {{"Day"}, {"Night"}};
+  static const TabItem five[] = {{"Status"}, {"AMS"}, {"Control"}, {"Camera"}, {"Log"}};
+  static const TabItem disabled[] = {{"Status"}, {"AMS"}, {"Control", false}, {"Camera", false}};
+  static const TabItem longer[] = {{"Status"}, {"AMS"}, {"Filament and spools"}, {"Camera"}};
+  caption(c, 8, 4, "two tabs, the second selected");
+  Tabs::draw(c, Rect{8, 24, 464, Tabs::kHeight}, two, 2, 1, UI_COLOR_BG);
+  caption(c, 8, 80, "five tabs across the panel");
+  Tabs::draw(c, Rect{8, 100, 464, Tabs::kHeight}, five, 5, 4, UI_COLOR_BG);
+  caption(c, 8, 156, "Control and Camera disabled, none selected");
+  Tabs::draw(c, Rect{8, 176, 464, Tabs::kHeight}, disabled, 4, -1, UI_COLOR_BG);
+  caption(c, 8, 232, "a label that does not fit is cut, never shrunk");
+  Tabs::draw(c, Rect{8, 252, 464, Tabs::kHeight}, longer, 4, 0, UI_COLOR_BG);
+}
+static void sceneTabsSurfaces(MemCanvas& c) {
+  const uint16_t bgs[3] = {UI_COLOR_BG, UI_COLOR_SURFACE, UI_COLOR_SURFACE_2};
+  for (int b = 0; b < 3; b++) {
+    c.fillRect(0, b * 107, 480, 107, bgs[b]);
+    Tabs::draw(c, Rect{8, b * 107 + 8, 464, Tabs::kHeight}, kPrinterTabs, 4, 1 + b, bgs[b]);
+    Tabs::draw(c, Rect{8, b * 107 + 56, 464, Tabs::kHeight}, kPrinterTabs, 4, 0, bgs[b]);
+  }
+}
+
 struct Scene { const char* name; void (*draw)(MemCanvas&); };
 static const Scene kScenes[] = {
     {"chip", sceneChip}, {"button", sceneButton}, {"ageline", sceneAgeLine},
@@ -206,7 +236,7 @@ static const Scene kScenes[] = {
     {"frame-level-1", sceneFrameLevel1}, {"frame-level-2", sceneFrameLevel2}, {"stepper", sceneStepper}, {"switch", sceneSwitch},
     {"picker-fits", scenePickerFits}, {"picker-first-page", scenePickerFirstPage}, {"picker-scrolls-below-first-page", scenePickerScrolls},
     {"picker-colours", scenePickerColours}, {"picker-long-label", scenePickerLong}, {"picker-failure", scenePickerFailure},
-    {"picker-unknown", scenePickerUnknown}, {"picker-empty", scenePickerEmpty},
+    {"picker-unknown", scenePickerUnknown}, {"tabs-printer", sceneTabsPrinter}, {"tabs-states", sceneTabsStates}, {"tabs-surfaces", sceneTabsSurfaces}, {"picker-empty", scenePickerEmpty},
 };
 
 // ---------------------------------------------------------------- checks
@@ -325,6 +355,93 @@ static void checkMeter(MemCanvas& c) {
   CHECK(!Meter::draw(c, Rect{0, 0, 200, 20}, live, NAN), "NaN isn't a fraction");
   CHECK(!Meter::draw(c, Rect{0, 0, 200, 20}, live, -0.1f) && !Meter::draw(c, Rect{0, 0, 200, 20}, live, 1.5f), "outside 0..1 isn't a fraction");
   CHECK(!Meter::draw(c, Rect{0, 0, 200, 20}, Reading::unavailable(), 0.5f), "an unavailable reading draws no bar");
+}
+
+static void checkTabs(MemCanvas& c) {
+  const TabItem four[] = {{"Status"}, {"AMS"}, {"Control", false}, {"Camera"}};
+  const Rect r{8, 56, 464, 48};
+  // geometry: every tab is at least 48 high and the share of the width, and together they cover the strip with no gap
+  int covered = 0;
+  bool tall = true, wide = true;
+  for (int n = Tabs::kMinTabs; n <= Tabs::kMaxTabs; n++) {
+    covered = 0;
+    for (int i = 0; i < n; i++) {
+      const Rect t = Tabs::tabRect(r, n, i);
+      tall &= t.h >= kTarget;
+      wide &= t.w >= kTarget && (i == 0 || t.x == Tabs::tabRect(r, n, i - 1).right());
+      covered += t.w;
+    }
+    CHECK(covered == r.w, "the " + std::to_string(n) + " tabs cover the strip exactly");
+  }
+  CHECK(tall && wide, "every tab is at least 48 px both ways and touches the next");
+  CHECK(Tabs::tabRect(Rect{0, 0, 480, 20}, 4, 0).h == 48 && Tabs::bounds(Rect{0, 0, 480, 20}).h == 48, "a short strip is grown to 48");
+  CHECK(Tabs::tabRect(Rect{0, 0, 480, 48}, 5, 4).right() == 480, "five tabs fit 480 px, to the edge");
+  CHECK(Tabs::tabRect(Rect{0, 0, 480, 48}, 5, 0).w == 96, "five tabs on the whole panel are 96 px each");
+  CHECK(Tabs::tabRect(r, 4, 4).w == 0 && Tabs::tabRect(r, 4, -1).w == 0 && Tabs::tabRect(r, 1, 0).w == 0 && Tabs::tabRect(r, 6, 0).w == 0, "out of range is an empty rect");
+  // hits: the tab under the point, never a disabled one, nothing outside
+  CHECK(Tabs::hit(r, four, 4, 20, 80) == 0 && Tabs::hit(r, four, 4, 140, 80) == 1 && Tabs::hit(r, four, 4, 460, 80) == 3, "a tap picks the tab under it");
+  CHECK(Tabs::hit(r, four, 4, 260, 80) == -1, "a tap on a disabled tab does nothing");
+  CHECK(Tabs::hit(r, four, 4, 20, 20) == -1 && Tabs::hit(r, four, 4, 20, 110) == -1 && Tabs::hit(r, four, 4, 2, 80) == -1, "a tap outside the strip does nothing");
+  CHECK(Tabs::hit(r, four, 1, 20, 80) == -1 && Tabs::hit(r, four, 6, 20, 80) == -1 && Tabs::hit(r, nullptr, 4, 20, 80) == -1, "a bad count or no tabs never hits");
+  // a bad count or no tabs draws nothing
+  c.clear(UI_COLOR_BG);
+  CHECK(!Tabs::draw(c, r, four, 1, 0, UI_COLOR_BG) && !Tabs::draw(c, r, four, 6, 0, UI_COLOR_BG) && !Tabs::draw(c, r, nullptr, 4, 0, UI_COLOR_BG), "1, 6 or no tabs is refused");
+  CHECK(c.count(UI_COLOR_FIELD_LINE) == 0 && c.texts.empty(), "a refused strip draws nothing");
+  // the selected tab: accent text, a wash, and the accent bar; no other tab has them
+  const uint16_t wash = blend565(UI_COLOR_ACCENT, UI_COLOR_BG, 14);
+  for (int sel = 0; sel < 4; sel++) {
+    c.clear(UI_COLOR_BG);
+    Tabs::draw(c, r, four, 4, sel, UI_COLOR_BG);
+    bool one = true;
+    for (int i = 0; i < 4; i++) {
+      const Rect t = Tabs::tabRect(r, 4, i);
+      const bool bar = c.count(UI_COLOR_ACCENT, t.x, t.y, t.right(), t.bottom()) > 0;
+      const bool tint = c.count(wash, t.x, t.y, t.right(), t.bottom()) > 0;
+      one &= (bar == (i == sel)) && (tint == (i == sel));
+    }
+    CHECK(one, "only the selected tab has the accent bar and the wash, tab " + std::to_string(sel));
+    int onText = 0;
+    for (const TextCall& tc : c.texts) onText += tc.fg == UI_COLOR_ACCENT_TEXT;
+    CHECK(onText == 1, "exactly one label is in accent text, tab " + std::to_string(sel));
+  }
+  const Rect sel0 = Tabs::tabRect(r, 4, 0);
+  CHECK(c.count(UI_COLOR_ACCENT, sel0.x, sel0.y, sel0.right(), sel0.bottom()) == 0, "the bar moves with the selection");
+  // the bar is 3 px high, under the label, and does not touch the letters
+  c.clear(UI_COLOR_BG);
+  Tabs::draw(c, r, four, 4, 1, UI_COLOR_BG);
+  const Rect t1 = Tabs::tabRect(r, 4, 1);
+  const long bar = c.count(UI_COLOR_ACCENT, t1.x, t1.bottom() - 5, t1.right(), t1.bottom() - 2);
+  CHECK(bar == static_cast<long>(t1.w - 2 * Tabs::kPad) * 3 && bar == c.count(UI_COLOR_ACCENT), "the accent bar is 3 px high, in the bottom 5 rows of the selected tab");
+  // none selected: no wash, no bar, no accent text
+  c.clear(UI_COLOR_BG);
+  Tabs::draw(c, r, four, 4, -1, UI_COLOR_BG);
+  int accentText = 0;
+  for (const TextCall& tc : c.texts) accentText += tc.fg == UI_COLOR_ACCENT_TEXT;
+  CHECK(c.count(UI_COLOR_ACCENT) == 0 && c.count(wash) == 0 && accentText == 0, "with nothing selected, no tab is marked");
+  // labels: 16 px, never shrunk, a disabled one muted, a long one cut with an ellipsis
+  c.clear(UI_COLOR_BG);
+  const TabItem lng[] = {{"Status"}, {"Filament and spools"}, {"Control", false}};
+  Tabs::draw(c, r, lng, 3, 0, UI_COLOR_BG);
+  bool font = true, cut = false, muted = false;
+  for (const TextCall& tc : c.texts) {
+    font &= tc.font == UiFont::Fs4;
+    cut |= tc.s.size() > 3 && tc.s.compare(tc.s.size() - 3, 3, "\xE2\x80\xA6") == 0;
+    muted |= tc.s == "Control" && tc.fg == UI_COLOR_MUTED;
+  }
+  CHECK(font, "tab labels are all 16 px");
+  CHECK(cut, "a label wider than its tab is cut with an ellipsis");
+  CHECK(muted, "a disabled tab's label is muted");
+  CHECK(!Tabs::fits(c, r, lng, 3) && Tabs::fits(c, r, four, 4), "fits() says whether every label is whole");
+  const TabItem five[] = {{"Status"}, {"AMS"}, {"Control"}, {"Camera"}, {"Log"}};
+  CHECK(Tabs::fits(c, Rect{0, 0, 480, 48}, five, 5), "the Printer words fit five tabs across the panel");
+  // the label sits inside its tab
+  c.clear(UI_COLOR_BG);
+  Tabs::draw(c, r, five, 5, 0, UI_COLOR_BG);
+  bool inside = true;
+  for (const TextCall& tc : c.texts) {
+    for (int i = 0; i < 5; i++) if (five[i].label == tc.s) { const Rect t = Tabs::tabRect(r, 5, i); inside &= tc.x >= t.x && tc.x + tc.width <= t.right(); }
+  }
+  CHECK(inside, "each label sits inside its own tab");
 }
 
 // Counts pixels of `color` in the list area, below the header.
@@ -508,6 +625,7 @@ static int runCheck(const char* fonts) {
   checkMeter(c);
   checkText(c);
   checkPicker(c);
+  checkTabs(c);
   // every scene draws only glyphs the fonts have, and no text below 14 px
   for (const Scene& s : kScenes) {
     c.clear(UI_COLOR_BG);
