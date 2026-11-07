@@ -120,6 +120,7 @@ static void sceneLampRowB(MemCanvas& c) {
 static_assert(NeedsRow::toneColor(NeedTone::Warn) == UI_COLOR_WARN, "a warn need is amber");
 static_assert(NeedsRow::toneColor(NeedTone::Attention) == UI_COLOR_WARN, "an attention need is amber");
 static_assert(NeedsRow::toneColor(NeedTone::Bad) == UI_COLOR_BAD, "a bad need is red");
+static_assert(NeedsRow::toneColor(NeedTone::Info) == UI_COLOR_MUTED, "an info need is the quiet muted bar, as on the web");
 
 static void sceneNeedsRow(MemCanvas& c) {
   const uint32_t n = kNow.epoch;
@@ -132,6 +133,8 @@ static void sceneNeedsRow(MemCanvas& c) {
   NeedsRow::draw(c, Rect{12, 8, 456, NeedsRow::kHeight}, a, kNow, "Pi Hub");
   NeedsRow::draw(c, Rect{12, 88, 456, NeedsRow::kHeight}, b, kNow, "Pi Hub");
   NeedsRow::draw(c, Rect{12, 168, 456, NeedsRow::kHeight}, d, kNow, "Pi Hub");
+  NeedItem e; e.source = "Pi Hub"; e.tone = NeedTone::Info; e.title = "Backup finished"; e.detail = "Info, ok and busy items keep the muted bar"; e.asOf = n - 40 * 60;
+  NeedsRow::draw(c, Rect{12, 248, 456, NeedsRow::kHeight}, e, kNow, "Pi Hub");
 }
 
 static void sceneMeter(MemCanvas& c) {
