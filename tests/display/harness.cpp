@@ -152,12 +152,12 @@ static void sceneMeter(MemCanvas& c) {
 
 static void sceneFrameLevel1(MemCanvas& c) {
   Frame::draw(c, "Printer", Level::One);
-  caption(c, 16, 64, "Level::One: Back is drawn disabled, in its place; Home works");
+  caption(c, 16, 64, "Level::One: no Back, no Home (tab bar)");
 }
 static void sceneFrameLevel2(MemCanvas& c) {
   Frame::draw(c, "Time zone and a long setting name that has to be cut", Level::Two);
   Frame::draw(c, "Night mode", Level::Two, "Current setting unknown", UI_COLOR_UNKNOWN);
-  caption(c, 16, 64, "Level::Two: Back and Home in the same two places");
+  caption(c, 16, 64, "Level::Two: Back top left, title after it; Home is the tab bar");
 }
 
 static void sceneStepper(MemCanvas& c) {
@@ -342,9 +342,9 @@ static void checkControls(MemCanvas& c) {
   for (const TextCall& tc : c.texts) { off |= tc.s == UI_TEXT_OFF; unknown |= tc.s == UI_WORD_UNKNOWN; }
   CHECK(!off && unknown, "an Unknown Switch says Unknown, never Off");
   CHECK(c.count(UI_COLOR_MUTED, 400, 0, 480, 56) == 0 && c.count(UI_COLOR_ACCENT) == 0, "an Unknown Switch draws no knob");
-  CHECK(Frame::backRect().w >= 48 && Frame::backRect().h >= 48 && Frame::homeRect().w >= 48, "Back and Home are at least 48 px");
+  CHECK(Frame::backRect().w >= 48 && Frame::backRect().h >= 48, "Back is at least 48 px");
   CHECK(Frame::hit(Level::One, 10, 10) == FrameHit::None && Frame::hit(Level::Two, 10, 10) == FrameHit::Back, "Back works at level two only");
-  CHECK(Frame::hit(Level::One, 470, 10) == FrameHit::Home && Frame::hit(Level::Two, 470, 10) == FrameHit::Home, "Home works at both levels");
+  CHECK(Frame::hit(Level::One, 470, 10) == FrameHit::None && Frame::hit(Level::Two, 470, 10) == FrameHit::None, "the header has no Home at either level");
   CHECK(Frame::content(kTabBarH).y == kHeaderH && Frame::content(kTabBarH).bottom() == kScreenH - kTabBarH, "content sits between the header and the tab bar");
 }
 
@@ -534,8 +534,8 @@ static void checkPicker(MemCanvas& c) {
     CHECK(chose.event == PickerEvent::Chose && chose.index == 2, "a tap on a row chooses it");
     CHECK(p.current() == 1, "choosing doesn't move the current value: the app does that once it has saved");
     CHECK(p.tap(c, 10, 10).event == PickerEvent::Back, "Back reports Back");
-    CHECK(p.tap(c, 470, 10).event == PickerEvent::Home, "Home reports Home");
-    CHECK(p.current() == 1 && !p.hasFailure(), "Back and Home change nothing");
+    CHECK(p.tap(c, 470, 10).event == PickerEvent::None, "the header has no Home to tap");
+    CHECK(p.current() == 1 && !p.hasFailure(), "Back and a tap where Home used to be change nothing");
     CHECK(p.tap(c, 100, 300).event == PickerEvent::None, "a tap below the list does nothing");
   }
 
