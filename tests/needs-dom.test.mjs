@@ -116,6 +116,21 @@ test('the stripe uses the tone token; the action sits right on desktop and below
   }
 });
 
+test('a warn need is drawn in the warn lamp colour, not the muted grey (2.11.1)', async () => {
+  const page = await open(1280);
+  const r = await page.evaluate(h => {
+    const N = window.ApplianceNeeds, colour = v => { const d = document.createElement('i'); d.style.color = `var(${v})`; document.body.append(d); return getComputedStyle(d).color; };
+    const stripe = tone => { const ul = N.renderList([{ id: 'a', source: 'home', tone, title: 't', detail: 'd' }], { here: new URL(h), self: 'home' }); document.getElementById('host').append(ul); return getComputedStyle(ul.firstChild).borderLeftColor; };
+    return { warn: stripe('warn'), attention: stripe('attention'), bad: stripe('bad'), fallback: stripe('nonsense'), lamp: colour('--ui-warn'), muted: colour('--ui-muted'), red: colour('--ui-bad') };
+  }, here);
+  assert.equal(r.warn, r.lamp);
+  assert.equal(r.attention, r.lamp);
+  assert.equal(r.fallback, r.lamp);
+  assert.equal(r.bad, r.red);
+  assert.notEqual(r.warn, r.muted);
+  await page.close();
+});
+
 test('needs.css has no literal colours and only gated --ui-* colour tokens', () => {
   const css = fs.readFileSync(path.join(root, 'dist/needs.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
