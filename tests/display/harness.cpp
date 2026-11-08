@@ -337,6 +337,16 @@ static void checkControls(MemCanvas& c) {
   CHECK(Stepper::hit(Rect{0, 0, 360, 48}, "5", true, true, 340, 24) == StepperHit::Inc, "Stepper plus");
   CHECK(Stepper::hit(Rect{0, 0, 360, 48}, "5", false, true, 24, 24) == StepperHit::None, "a Stepper at its minimum can't go down");
   CHECK(Stepper::decRect(Rect{0, 0, 360, 48}).w >= 48 && Stepper::incRect(Rect{0, 0, 360, 48}).h >= 48, "Stepper keys are 48 px");
+  CHECK(Switch::kHeight == kTarget && Switch::kTrackH + 2 * 4 <= Switch::kHeight, "a Switch row is the 48 px target and its track sits inside it");
+  CHECK(Switch::kKnob + 2 * 4 <= Switch::kTrackH && Switch::kTrackW >= Switch::kTrackH * 3 / 2, "the knob sits inside the track");
+  CHECK(Switch::hit(Rect{0, 0, 480, Switch::kHeight}, SwitchState::On, 240, 24), "a Switch flips from anywhere in its 48 px row");
+  CHECK(Stepper::kHeight == kTarget && Stepper::kKey < Stepper::kHeight, "a Stepper row is the 48 px target and its keys are drawn smaller inside it");
+  {
+    MemCanvas k;
+    Stepper::draw(k, Rect{0, 0, 360, Stepper::kHeight}, "5", nullptr, true, true, UI_COLOR_BG);
+    CHECK(k.count(UI_COLOR_FIELD_LINE, 0, 0, 4, Stepper::kHeight) == 0 && k.count(UI_COLOR_FIELD_LINE, 0, 0, 48, 4) == 0,
+          "a Stepper key keeps 4 px clear of its cell's edge");
+  }
   CHECK(!Switch::hit(Rect{0, 0, 480, 56}, SwitchState::Unknown, 20, 20), "a Switch that is Unknown ignores taps");
   CHECK(Switch::hit(Rect{0, 0, 480, 56}, SwitchState::Off, 20, 20), "a Switch that is Off flips");
   c.clear(UI_COLOR_BG);
@@ -344,7 +354,7 @@ static void checkControls(MemCanvas& c) {
   bool off = false, unknown = false;
   for (const TextCall& tc : c.texts) { off |= tc.s == UI_TEXT_OFF; unknown |= tc.s == UI_WORD_UNKNOWN; }
   CHECK(!off && unknown, "an Unknown Switch says Unknown, never Off");
-  CHECK(c.count(UI_COLOR_MUTED, 400, 0, 480, 56) == 0 && c.count(UI_COLOR_ACCENT) == 0, "an Unknown Switch draws no knob");
+  CHECK(c.count(UI_COLOR_MUTED, 420 - 2, 0, 480, 56) == 0 && c.count(UI_COLOR_ACCENT) == 0, "an Unknown Switch draws no knob");
   CHECK(Frame::backRect().w >= 48 && Frame::backRect().h >= 48, "Back is at least 48 px");
   CHECK(Frame::hit(Level::One, 10, 10) == FrameHit::None && Frame::hit(Level::Two, 10, 10) == FrameHit::Back, "Back works at level two only");
   CHECK(Frame::hit(Level::One, 470, 10) == FrameHit::None && Frame::hit(Level::Two, 470, 10) == FrameHit::None, "the header has no Home at either level");
