@@ -57,9 +57,10 @@ for, and sync it into each app. Never edit an app's copy.
 | `ok`, `warn`, `bad` | Fine, needs a look, broken or blocking. Always shown with a word (a lamp: dot plus word). |
 | `unknown` | Not known: never answered, can't be read, or out of date. Never drawn as `ok`. |
 
-- A Needs-you item's bar is the lamp colour of its tone: `bad` is red, `attention` and `warn` are amber. Nothing in a
-  Needs-you list is grey, because every item there needs the owner to look (2.11.1: `warn` was drawn muted, so a real
-  problem such as "Ad blocking is off" read as information). The web (`ui-need`) and the display (`NeedsRow`) agree.
+- A Needs-you item's bar is the lamp colour of its tone: `bad` is red, `attention` and `warn` are amber. A problem is
+  never grey (2.11.1: `warn` was drawn muted, so a real problem such as "Ad blocking is off" read as information). Only
+  an item with no problem tone (info, ok, busy) keeps the muted bar (2.13: `NeedTone::Info` on the display). The web
+  (`ui-need`) and the display (`NeedsRow`) agree.
 - The kit has no "information" colour. Neutral facts use `text` and `muted`. A notice that isn't a warning is plain text.
 - Decorative gradients and glows stay out of anything operational. The one exception is `ui-beam` (2.5): one item that
   needs a look, never on a list.

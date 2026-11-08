@@ -10,7 +10,9 @@
 
 namespace ui {
 
-enum class NeedTone : uint8_t { Bad, Attention, Warn };
+// Bad is red, Attention and Warn amber; Info is the quiet tone (info, ok and busy items), the muted bar the web keeps
+// for a `.ui-need` with no coloured data-tone.
+enum class NeedTone : uint8_t { Bad, Attention, Warn, Info };
 
 struct NeedItem {
   const char* source = nullptr;     // the system that reported it ("Pi Hub", "Local AI"); fills {name} in a phrase
@@ -26,7 +28,7 @@ struct NeedsRow {
   static constexpr int kHeight = 72;
 
   static constexpr uint16_t toneColor(NeedTone t) {
-    return t == NeedTone::Bad ? UI_COLOR_BAD : UI_COLOR_WARN;
+    return t == NeedTone::Bad ? UI_COLOR_BAD : t == NeedTone::Info ? UI_COLOR_MUTED : UI_COLOR_WARN;
   }
   static constexpr bool hit(const Rect& r, int px, int py) { return r.contains(px, py); }
 
