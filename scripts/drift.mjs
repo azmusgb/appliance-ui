@@ -54,6 +54,12 @@ export async function main(argv, opts = {}) {
   return exit;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  main(process.argv.slice(2)).then(code => { process.exitCode = code; }, e => { console.error(e.message); process.exitCode = 1; });
+// Node realpaths the entry module's URL, so compare realpaths: a symlinked path (macOS /var -> /private/var) must still run.
+const isEntry = () => {
+  try { return fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url)); } catch { return false; }
+};
+
+if (process.argv[1] && isEntry()) {
+  // Exit 2 for anything thrown here: a consumer's hook reads codes above 1 as "unavailable", never as a failed check.
+  main(process.argv.slice(2)).then(code => { process.exitCode = code; }, e => { console.error(e.message); process.exitCode = 2; });
 }

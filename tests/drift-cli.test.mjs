@@ -1,6 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { parseChangelog } from '../scripts/lib/changelog.mjs';
 import { main } from '../scripts/drift.mjs';
 
@@ -78,4 +83,15 @@ test('a malformed kit version exits 1 without throwing', async () => {
   const r = await run({ 'o/alpha': clean, 'o/beta': clean }, [], { kitVersion: 'banana' });
   assert.equal(r.code, 1);
   assert.match(r.errs, /banana/);
+});
+
+test('drift.mjs run through a symlinked path still runs (Node realpaths the entry; so must the guard)', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'drift-link-'));
+  try {
+    const link = path.join(dir, 'drift.mjs');
+    fs.symlinkSync(fileURLToPath(new URL('../scripts/drift.mjs', import.meta.url)), link);
+    const r = spawnSync(process.execPath, [link, '--only', 'nope'], { encoding: 'utf8' });
+    assert.equal(r.status, 64);
+    assert.match(r.stderr, /known consumers: pi-hub/);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
