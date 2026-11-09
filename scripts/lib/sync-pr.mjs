@@ -24,15 +24,20 @@ export function validate({ name, folder }, ...versions) {
   for (const v of versions) if (!parseVersion(v)) throw usage(`not a version: ${v}`);
 }
 
-const VERDICT = e => e.skip === true ? 'skippable'
-  : e.skip === false ? `needs consumer change${e.note ? `: ${e.note}` : ''}`
-  : 'unclassified: read the diff';
+// A needs-change release for the other kit is nothing for this consumer to do. No kit (or no audience) counts as relevant,
+// as in drift.mjs.
+const VERDICT = (e, kit) => e.skip === true ? 'skippable'
+  : e.skip === false
+    ? (kit && e.audience && e.audience !== 'all' && e.audience !== kit
+      ? `${e.audience} kit only, nothing for this consumer to change${e.note ? ` (${e.note})` : ''}`
+      : `needs consumer change${e.note ? `: ${e.note}` : ''}`)
+    : 'unclassified: read the diff';
 
-// entries: releasesBetween(...) rows. check: the consumer's check command or null.
-export function buildPrBody({ name, from, to, entries, check = null }) {
+// entries: releasesBetween(...) rows. check: the consumer's check command or null. kit: the consumer's kit (web|display) or null.
+export function buildPrBody({ name, from, to, entries, check = null, kit = null }) {
   const lines = [`## Sync appliance-ui kit for ${name}: ${from ?? 'no copy'} to ${to}`, '',
     from ? 'Releases in this move:' : 'First copy of the kit.', ''];
-  for (const e of entries) lines.push(`- ${e.version}: ${VERDICT(e)}`);
+  for (const e of entries) lines.push(`- ${e.version}: ${VERDICT(e, kit)}`);
   if (entries.length) lines.push('');
   if (!check) lines.push(NO_CHECK, '');
   lines.push(GENERATED, '');
@@ -71,7 +76,9 @@ export function runSyncPr({ repo, dir, display, dryRun, version, io }) {
   const name = path.basename(path.resolve(repo));
   let consumers;
   try { consumers = JSON.parse(fs.readFileSync(path.join(root, 'consumers.json'), 'utf8')); } catch { consumers = []; }
-  const c = { name, folder: dir, check: consumers.find(x => x.name === name)?.check ?? null };
+  const known = consumers.find(x => x.name === name);
+  const c = { name, folder: dir, check: known?.check ?? null };
+  const kit = known?.kit ?? (display ? 'display' : null);
   let from = copied(path.join(repo, dir));
   if (from && newer(from, version)) { err(`${path.join(repo, dir)} has v${from}, newer than this v${version}; not replacing it.`); return 2; }
   let plan;
@@ -89,7 +96,7 @@ export function runSyncPr({ repo, dir, display, dryRun, version, io }) {
       if (body === null && argv.includes('<body>')) {
         const entries = from ? releasesBetween(parseChangelog(fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8')), from, version) : [];
         body = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'kit-sync-')), 'body.md');
-        fs.writeFileSync(body, buildPrBody({ name, from, to: version, entries, check: c.check }));
+        fs.writeFileSync(body, buildPrBody({ name, from, to: version, entries, check: c.check, kit }));
         argv[argv.indexOf('<body>')] = body;
       }
       const r = run(argv, cmd.cwd ? worktree : undefined);

@@ -25,6 +25,21 @@ test('buildPrBody lists the releases in order and keeps a needs-change note verb
   assert.match(body, /2\.9\.0.*needs consumer change/);
 });
 
+test('buildPrBody marks a needs-change release for the other kit as not this consumer\'s, and keeps its own and all-kit ones', () => {
+  const mixed = [
+    { version: '2.13.0', skip: false, note: 'new firmware font', audience: 'display' },
+    { version: '2.14.0', skip: false, note: 'rename `Row`', audience: 'web' },
+    { version: '2.15.0', skip: false, note: 'new token', audience: 'all' },
+  ];
+  const web = buildPrBody({ name: 'pi-hub', from: '2.12.0', to: '2.15.0', entries: mixed, kit: 'web' });
+  assert.match(web, /2\.13\.0: display kit only, nothing for this consumer to change/);
+  assert.doesNotMatch(web, /2\.13\.0.*needs consumer change/);
+  assert.match(web, /2\.14\.0: needs consumer change: rename `Row`/);
+  assert.match(web, /2\.15\.0: needs consumer change: new token/);
+  const none = buildPrBody({ name: 'x', from: '2.12.0', to: '2.15.0', entries: mixed });
+  assert.match(none, /2\.13\.0: needs consumer change/);
+});
+
 test('buildPrBody says an unclassified release is unclassified, and ends with the Claude Code line', () => {
   const body = buildPrBody({ name: 'x', from: '2.1.0', to: '2.2.0', entries: [{ version: '2.2.0', skip: null, note: '' }] });
   assert.match(body, /2\.2\.0.*unclassified/);
