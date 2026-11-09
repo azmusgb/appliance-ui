@@ -2,6 +2,7 @@
 // Says where each consumer's kit copy stands against this kit, reading each consumer's main on GitHub.
 //   node scripts/drift.mjs                  one line per consumer
 //   node scripts/drift.mjs --only <name>    just that consumer (a consumer's own preflight uses this)
+// Exit 2 for anything the kit side cannot read (CHANGELOG.md, consumers.json, tokens.json); a malformed kit version is 1.
 // Exit 1 for a modified copy, a missing or malformed VERSION, or a copy behind across a release that needs a change.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -28,6 +29,10 @@ export function ghFetchFile(repo, file) {
 
 // opts (all optional, for tests): fetchFile, out, err, consumers, changelog, kitVersion.
 export async function main(argv, opts = {}) {
+  try { return await run(argv, opts); } catch (e) { (opts.err ?? (line => console.error(line)))(e.message); return 2; }
+}
+
+async function run(argv, opts) {
   const fetchFile = opts.fetchFile ?? ghFetchFile;
   const out = opts.out ?? (line => console.log(line));
   const err = opts.err ?? (line => console.error(line));
@@ -47,7 +52,7 @@ export async function main(argv, opts = {}) {
   let exit = 0;
   for (const c of chosen) {
     const copy = await readConsumer(c, fetchFile);
-    const r = classifyCopy({ ...copy, kitVersion }, changelog);
+    const r = classifyCopy({ ...copy, kitVersion, kit: c.kit }, changelog);
     out(`${c.name}\t${r.state}\t${r.line}`);
     exit = Math.max(exit, r.exit);
   }
@@ -61,5 +66,5 @@ const isEntry = () => {
 
 if (process.argv[1] && isEntry()) {
   // Exit 2 for anything thrown here: a consumer's hook reads codes above 1 as "unavailable", never as a failed check.
-  main(process.argv.slice(2)).then(code => { process.exitCode = code; }, e => { console.error(e.message); process.exitCode = 2; });
+  main(process.argv.slice(2)).then(code => { process.exitCode = code; });
 }

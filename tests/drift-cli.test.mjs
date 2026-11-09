@@ -12,8 +12,8 @@ import { main } from '../scripts/drift.mjs';
 const sha = s => crypto.createHash('sha256').update(s).digest('hex');
 const changelog = parseChangelog('<!-- classified-from: 2.7.0 -->\n# Changelog\n\n## 2.10.0 — skippable\n## 2.9.0 — skippable\n');
 const consumers = [
-  { name: 'alpha', repo: 'o/alpha', folder: 'ui', check: null },
-  { name: 'beta', repo: 'o/beta', folder: 'ui', check: null },
+  { name: 'alpha', repo: 'o/alpha', folder: 'ui', kit: 'web', check: null },
+  { name: 'beta', repo: 'o/beta', folder: 'ui', kit: 'display', check: null },
 ];
 const version = (v, files) => JSON.stringify({ version: v, files: Object.fromEntries(Object.entries(files).map(([n, b]) => [n, sha(b)])) });
 const stub = repos => async (repo, file) => {
@@ -94,4 +94,16 @@ test('drift.mjs run through a symlinked path still runs (Node realpaths the entr
     assert.equal(r.status, 64);
     assert.match(r.stderr, /known consumers: pi-hub/);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('anything thrown outside the consumer fetch exits 2, not 1 (a hook reads above 1 as unavailable)', async () => {
+  const r = await run({}, [], { consumers: [null] });
+  assert.equal(r.code, 2);
+  assert.ok(r.errs.length > 0);
+});
+
+test('a consumer with no kit named is still classified (nothing is skipped by audience)', async () => {
+  const r = await run({ 'o/alpha': { ...clean, 'ui/VERSION': version('2.9.0', { 'a.css': 'x' }) } }, ['--only', 'alpha'],
+    { consumers: [{ name: 'alpha', repo: 'o/alpha', folder: 'ui', check: null }], changelog: parseChangelog('<!-- classified-from: 2.7.0 -->\n## 2.10.0 — needs consumer change (display): x\n## 2.9.0 — skippable\n') });
+  assert.equal(r.code, 1);
 });

@@ -39,7 +39,7 @@ test('the "Check: not run on the Mac" line appears only when the consumer has no
 });
 
 test('planSync names the branch kit-sync-<to>, orders the steps, and never merges or pushes main', () => {
-  const p = planSync(pi, '2.7.0', '2.15.0', '/wt/pi-hub');
+  const p = planSync(pi, '2.7.0', '2.15.0');
   assert.equal(p.branch, 'kit-sync-2.15.0');
   const joined = p.steps.join('\n');
   const at = s => p.steps.findIndex(x => x.includes(s));

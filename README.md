@@ -193,7 +193,10 @@ list. If the consumer's `main` already has this version it stops without opening
 
 `CHANGELOG.md` is where a release is classified. A release author adds one entry per new kit version, newest first:
 `## X.Y.Z — skippable` (a consumer can move past it without touching its own code) or
-`## X.Y.Z — needs consumer change: <what to do>`. When unsure, write "needs consumer change". The drift check reads this
+`## X.Y.Z — needs consumer change (web): <what to do>` / `(display): <what to do>`. The audience names the kit whose
+consumers must act (each entry in `consumers.json` has `"kit": "web"` or `"display"`); a release for the other kit is
+skippable for that consumer. Leave the audience off only when everyone must act, and when unsure write
+"needs consumer change" with no audience. The drift check reads this
 file, and a missing entry for the kit's current version reads "unclassified". Releases at or below 2.7.0 were never
 classified.
 
