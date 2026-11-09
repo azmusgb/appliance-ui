@@ -158,6 +158,45 @@ node scripts/sync.mjs --status ~/dev/pi-hub:hub/static/ui ~/dev/ai-harness/Local
 
 In a page: load `tokens.css` and `components.css` from that folder.
 
+## Keeping copies current
+
+`npm run drift` reads each consumer's `main` on GitHub (with `gh`; the list is `consumers.json`) and prints one
+tab-separated line per consumer: name, state, a sentence. `node scripts/drift.mjs --only <name>` prints just that
+consumer, which is what a consumer's own preflight calls.
+
+| State | Meaning | Exit |
+|---|---|---|
+| `current` | the copy is this kit's version | 0 |
+| `ahead` | the copy is newer than this kit | 0 |
+| `behind-skippable` | behind, and every release between is marked skippable | 0 |
+| `unclassified` | behind, and a release between has no CHANGELOG entry (or predates the classified-from marker) | 0 |
+| `behind-needs-change` | behind across a release marked "needs consumer change"; the line says what to do | 1 |
+| `modified` | a file in the copy no longer matches the hash in its `VERSION`; the line names the files | 1 |
+| `unknown-copy` | `VERSION` is missing or not a version | 1 |
+| `unreachable` | `gh` could not read the consumer; the line reads "unknown" | 0 |
+
+An unreachable consumer never fails the check, so a preflight does not block on the network. An unknown `--only` name
+exits 64.
+
+To catch a consumer up, run this from the kit repo, giving the consumer's checkout (`--pr` makes its own worktree):
+
+```sh
+node scripts/sync.mjs <consumer checkout> --dir <folder> --pr --dry-run   # print the steps, run nothing
+node scripts/sync.mjs <consumer checkout> --dir <folder> --pr             # open the kit-sync PR
+```
+
+`--pr` makes a `kit-sync-<version>` branch in a new `wt new` worktree of the consumer, copies the kit in, runs the
+consumer's own check from `consumers.json` (the PR body says "Check: not run on the Mac" when there is none), commits,
+pushes that branch and opens a PR against `main`. The PR body lists each release from the consumer's version to this one
+as skippable, "needs consumer change: ...", or "unclassified: read the diff". It never merges: you do, after reading the
+list. If the consumer's `main` already has this version it stops without opening a PR.
+
+`CHANGELOG.md` is where a release is classified. A release author adds one entry per new kit version, newest first:
+`## X.Y.Z — skippable` (a consumer can move past it without touching its own code) or
+`## X.Y.Z — needs consumer change: <what to do>`. When unsure, write "needs consumer change". The drift check reads this
+file, and a missing entry for the kit's current version reads "unclassified". Releases at or below 2.7.0 were never
+classified.
+
 ## Tools (2.0)
 
 `tools.json` is the one list of the house's tools (platform step 7, Decision 6): per tool an `id`, `name`, `host`,
