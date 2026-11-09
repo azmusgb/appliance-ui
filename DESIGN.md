@@ -161,7 +161,8 @@ with the kit's tokens, not by a new kit component.
   band is the one approved chart (A8); another needs the same case made in a spec.
 - **Anything drawn against time keeps a readable density at its narrowest width.** Work out the pixels per unit (an
   hour, a day) at 320 px. If neighbouring marks would touch, show a shorter span, not smaller marks. Phone and desktop
-  may show different spans of the same data (A9).
+  may show different spans of the same data (A9). Fitting isn't enough: at that width every label is readable without
+  zoom, neighbouring events can be told apart, and each mark you can act on is a full-size target.
 - **Rows** (`ui-row--lamp`) suit lists of things.
 - **Tables** suit comparison: many records with the same columns (Versions, Alerts history, filament spools). Use
   `ui-table` (2.7) on a `<table>` with a `<caption>` and `<th scope="col">`, and `ui-table__num` on number columns
