@@ -7,10 +7,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { newer } from './lib/versions.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const { version } = JSON.parse(fs.readFileSync(path.join(root, 'tokens.json'), 'utf8'));
-const newer = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false; };
 const copied = dir => { try { return JSON.parse(fs.readFileSync(path.join(dir, 'VERSION'), 'utf8')).version; } catch { return null; } };
 const args = process.argv.slice(2);
 
