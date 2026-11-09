@@ -14,7 +14,8 @@
     "contrast": "node scripts/contrast.mjs",
     "display": "node scripts/build.mjs && node scripts/display.mjs",
     "display:update": "node scripts/build.mjs && node scripts/display.mjs --update",
-    "fonts": "python3 scripts/build-fonts.py"
+    "fonts": "python3 scripts/build-fonts.py",
+    "drift": "node scripts/drift.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0"
