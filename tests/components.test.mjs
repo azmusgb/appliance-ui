@@ -23,7 +23,9 @@ test('components.css defines the shared classes using only --ui-* colours', () =
     'ui-section', 'ui-section__note', 'ui-rows', 'ui-row--lamp', 'ui-row__title', 'ui-row__detail', 'ui-row__value', 'ui-tools', 'ui-sources',
     'ui-confirm', 'ui-confirm__what',
     // 2.7.0 (DESIGN.md open differences 2 and 3): the table and the icon-only button.
-    'ui-table', 'ui-table__num', 'ui-btn--icon']) {
+    'ui-table', 'ui-table__num', 'ui-btn--icon',
+    // 2.16.0: tabs, the web's counterpart of the display's Tabs.
+    'ui-tabs']) {
     assert.match(css, new RegExp(`\\.${cls}[\\s{.,:>]`), cls);
   }
   assert.match(css, /:focus-visible\{[^}]*outline:2px solid var\(--ui-accent\)/);
