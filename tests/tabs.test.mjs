@@ -55,6 +55,16 @@ test('tabs: one strip of equal segments, 48 px high, 16 px labels at a phone wid
   }
 });
 
+test('tabs: at 320 px a label with a count beside it is never cut: the count drops under the label', async () => {
+  const page = await open(320);
+  const r = await page.evaluate(() => {
+    const strip = document.getElementById('list-tabs');
+    return [...strip.querySelectorAll('[role="tab"]')].map((t) => ({ cut: t.scrollWidth > t.clientWidth + 1, h: Math.round(t.getBoundingClientRect().height) }));
+  });
+  assert.ok(r.every((t) => !t.cut), JSON.stringify(r));
+  assert.ok(r.every((t) => t.h >= 48));
+});
+
 test('tabs: the selected one is marked three ways, never by colour alone, and its text passes 4.5:1 in both themes', async () => {
   for (const scheme of ['dark', 'light']) {
     const page = await open(1024, scheme);

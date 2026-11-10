@@ -73,10 +73,10 @@
    48 px high, 16 px labels (keep each to a word or two). The selected tab is marked three ways (an accent wash, accent
    text and a 3 px accent bar along its foot), so colour is never the only cue; the bar is a border, so it survives
    forced colours. Markup: role="tablist" on the strip, role="tab" and aria-selected on each button, and the app moves
-   focus between tabs with the arrow keys (the ARIA tabs pattern). A focused tab sits above its neighbours, so its
-   ring is never hidden. */
+   focus between tabs with the arrow keys (the ARIA tabs pattern). Where a tab is narrow, what follows its label (a
+   count) drops under it rather than being cut. A focused tab sits above its neighbours, so its ring is never hidden. */
 .ui-tabs{display:flex;margin:0;padding:0;border:1px solid var(--ui-field-line);border-radius:var(--ui-r-3);background:var(--ui-surface-2)}
-.ui-tabs>:is(button,a){flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;margin:0;padding:3px calc(var(--ui-space)*3) 0;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:var(--ui-text);font:550 var(--ui-fs-4)/1.2 var(--ui-font);white-space:nowrap;text-decoration:none;cursor:pointer}
+.ui-tabs>:is(button,a){flex:1 1 0;min-width:0;display:flex;flex-wrap:wrap;align-items:center;align-content:center;justify-content:center;gap:2px 6px;min-height:48px;margin:0;padding:5px calc(var(--ui-space)*2) 2px;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:var(--ui-text);font:550 var(--ui-fs-4)/1.2 var(--ui-font);white-space:nowrap;text-decoration:none;cursor:pointer}
 .ui-tabs>:is(button,a)+:is(button,a){border-left:1px solid var(--ui-line-2)}
 .ui-tabs>:first-child{border-radius:calc(var(--ui-r-3) - 1px) 0 0 calc(var(--ui-r-3) - 1px)}
 .ui-tabs>:last-child{border-radius:0 calc(var(--ui-r-3) - 1px) calc(var(--ui-r-3) - 1px) 0}
