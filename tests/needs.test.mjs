@@ -9,7 +9,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mod = { exports: {} };
 new Function('module', fs.readFileSync(path.join(root, 'dist/needs.js'), 'utf8'))(mod);
 const { PHRASES, safeLink } = mod.exports;
-const here = new URL('http://10.0.0.30/home');
+const here = new URL('http://10.0.0.80/home');
 const resolve = l => (l === 'bambuddy' ? 'https://bambuddy.home.arpa/' : l);
 
 test('PHRASES has the seventeen keys and texts, with the platform terms of spec section 9', () => {
@@ -28,9 +28,9 @@ const norm = l => l.replace(/[\t\n\r]/g, '').trim();
 const resolveTool = l => (l === 'tool:bambuddy' ? 'https://bambuddy.home.arpa/' : l);
 
 test('safeLink keeps same-origin paths, hashes, same-origin absolutes and resolver-produced URLs', () => {
-  assert.deepEqual(safeLink('/workshop', { resolve, here }), { href: 'http://10.0.0.30/workshop', external: false });
-  assert.deepEqual(safeLink('#printLab?e=E-1', { resolve, here }), { href: 'http://10.0.0.30/home#printLab?e=E-1', external: false });
-  assert.deepEqual(safeLink('http://10.0.0.30/x?a=1#h', { resolve, here }), { href: 'http://10.0.0.30/x?a=1#h', external: false });
+  assert.deepEqual(safeLink('/workshop', { resolve, here }), { href: 'http://10.0.0.80/workshop', external: false });
+  assert.deepEqual(safeLink('#printLab?e=E-1', { resolve, here }), { href: 'http://10.0.0.80/home#printLab?e=E-1', external: false });
+  assert.deepEqual(safeLink('http://10.0.0.80/x?a=1#h', { resolve, here }), { href: 'http://10.0.0.80/x?a=1#h', external: false });
   assert.deepEqual(safeLink('bambuddy', { resolve, here }), { href: 'https://bambuddy.home.arpa/', external: true });
   assert.deepEqual(safeLink('tool:bambuddy', { resolve: resolveTool, here }), { href: 'https://bambuddy.home.arpa/', external: true });
 });
@@ -45,7 +45,7 @@ test('safeLink drops anything else', () => {
 });
 
 const tricks = ['/..//evil.com', '/.//evil.com', '/x/..//evil.com', '/./\\evil.com', '\\..\\\\evil.com', '/%2e%2e//evil.com', '/%2e//evil.com',
-  'http://10.0.0.30//evil.com/x', '#', ' # '];
+  'http://10.0.0.80//evil.com/x', '#', ' # '];
 
 test('dot-segment and double-slash tricks never yield a link that leaves the origin', () => {
   for (const l of tricks) {
@@ -64,7 +64,7 @@ test('a throwing resolver means no link', () => {
 
 test('userinfo is stripped from every emitted href', () => {
   for (const r of [resolve, resolveTool]) {
-    const a = safeLink('http://evil.com@10.0.0.30/x', { resolve: r, here });
+    const a = safeLink('http://evil.com@10.0.0.80/x', { resolve: r, here });
     assert.ok(a && !a.href.includes('@'), JSON.stringify(a));
     assert.equal(a.external, false);
   }

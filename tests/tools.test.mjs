@@ -84,7 +84,7 @@ test('a duplicate id fails the build and writes nothing', () => {
 test('a host off the real name, an unknown area, a stray field or a non-ASCII name fails the build', () => {
   const cases = [
     [reg => { reg.tools[2].host = 'bambuddy.home.arpa'; }, /host must be bambuddy\.rahe-home\.duckdns\.org/],
-    [reg => { reg.tools[2].host = 'https://10.0.0.30:8000/'; }, /host must be/],
+    [reg => { reg.tools[2].host = 'https://10.0.0.80:8000/'; }, /host must be/],
     [reg => { reg.tools[2].area = 'materials'; }, /area must be one of/],
     [reg => { reg.tools[2].lan = 'http://x/'; }, /unknown field lan/],
     [reg => { reg.tools[2].name = 'Bam"buddyé'; }, /name must be printable ASCII/],

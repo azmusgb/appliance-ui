@@ -78,7 +78,7 @@ test('the build refuses a words table with a bad rule', () => {
 });
 
 test('the web meta line still reads "since <time>" from the table (no change to what the apps show)', () => {
-  const here = new URL('http://10.0.0.30/home');
+  const here = new URL('http://10.0.0.80/home');
   const doc = { createElement: tag => { const e = { tag, children: [], dataset: {}, className: '', setAttribute() {}, append(...c) { this.children.push(...c); }, set textContent(v) { this.text = v; } }; return e; } };
   const li = mod.exports.render({ id: 'x', source: 'Local AI', tone: 'warn', title: 't', detail: 'd', as_of: '2026-11-03T22:10:00' },
     { doc, here, self: 'Pi Hub', now: '2026-11-04T15:00:00' });
