@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.21.0 — needs consumer change (web): an app that keeps its own copy of the `pc_off` text drops it and reads the kit's `PHRASES`; "The PC is off or asleep" is now "The PC is asleep"
+`ui-backbar` (Pi Hub amendment A22 6.4): the "← Pi Hub" bar for the platform's own pages that live outside Pi Hub's frame (the Assistant on its own address, Camera fit, the Privacy note), never for another product's page. One link in `<nav aria-label="Pi Hub">`, first in the document, 44 px high, not sticky, the arrow `aria-hidden` and the link named "Back to Pi Hub". `backbar.js` (a classic script, `window.ApplianceBackbar`) sends a visitor who came from a Pi Hub page back to that page, and leaves the link alone for any other referrer. The phrase table (A22 8.4): `pc_off` is "The PC is asleep" (was "The PC is off or asleep") and `pc_waking`, "The PC is waking up", is new; `needs.h` carries both, so the display shows the new words after its next sync with no change of its own.
+
 ## 2.20.0 — skippable
 `literals.mjs`, the check behind Pi Hub amendment A22 1.5, is copied into each app beside `verify.mjs`. It counts what an app wrote by hand instead of taking from the kit, in eight categories (colour, type size, spacing, radius, shadow, motion, layer, and custom-property names that are not `--ui-*`), and compares each file's counts with the app's `.kit-literals-baseline.json`: a count that rises fails, a count that falls must be written back, a new file starts at zero. Nothing runs it until an app turns it on in its own PR, so a sync past this release changes no behaviour. No value or component changes.
 

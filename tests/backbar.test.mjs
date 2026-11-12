@@ -2,7 +2,6 @@
 // frame. Where its link goes (src/backbar.js), and the bar itself in a real browser (demo/outside.html).
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -37,11 +36,9 @@ test('apply sets each bar link from the document\'s referrer, and only bar links
 });
 
 let browser;
-before(async () => {
-  const r = spawnSync(process.execPath, [path.join(root, 'scripts/build.mjs')], { encoding: 'utf8' });
-  assert.equal(r.status, 0, r.stderr);
-  browser = await chromium.launch();
-});
+// dist/ is built by `npm test` before any test runs. It is not rebuilt here: test files run side by side, and a second
+// build while another file's page is loading dist/components.css hands that page a half-written stylesheet.
+before(async () => { browser = await chromium.launch(); });
 after(() => browser?.close());
 const demo = pathToFileURL(path.join(root, 'demo/outside.html')).href;
 
