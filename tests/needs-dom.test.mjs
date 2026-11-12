@@ -22,7 +22,7 @@ async function open(width = 1280) {
   return page;
 }
 const resolve = l => (l === 'bambuddy' ? 'https://bambuddy.home.arpa/' : l);
-const here = 'http://10.0.0.30/';
+const here = 'http://10.0.0.80/';
 
 test('the build writes needs.js and needs.css', () => {
   assert.ok(fs.existsSync(path.join(root, 'dist/needs.js')));
@@ -66,7 +66,7 @@ test('an external link gets the arrow, target=_blank and rel=noopener; a local o
   assert.equal(r.rel, 'noopener noreferrer');
   assert.equal(r.action, 'Open Bambuddy ↗');
   assert.equal(r.meta, 'bambuddy');
-  assert.equal(r.lhref, 'http://10.0.0.30/workshop');
+  assert.equal(r.lhref, 'http://10.0.0.80/workshop');
   assert.equal(r.ltarget, null);
   assert.equal(r.laction, 'Look at the printer');
   assert.equal(r.lmeta, null);
@@ -89,7 +89,7 @@ test('renderList caps at max, adds the more link; empty shows the phrase', async
   }, here);
   assert.equal(r.tag, 'UL'); assert.equal(r.cls, 'ui-needs');
   assert.equal(r.n, 2);
-  assert.equal(r.more, 'See all 4'); assert.equal(r.moreHref, 'http://10.0.0.30/needs');
+  assert.equal(r.more, 'See all 4'); assert.equal(r.moreHref, 'http://10.0.0.80/needs');
   assert.equal(r.fullMore, false);
   assert.equal(r.empty, 'Nothing needs you right now.');
   assert.equal(r.emptyTag, 'P'); assert.equal(r.emptyCls, 'ui-needs__empty');
@@ -176,7 +176,7 @@ test('tricky more.href values never produce a link off the origin', async () => 
       return a ? new URL(a.getAttribute('href'), h).origin : null;
     });
   }, here);
-  assert.deepEqual(r, [null, null, 'http://10.0.0.30']);
+  assert.deepEqual(r, [null, null, 'http://10.0.0.80']);
   await page.close();
 });
 
