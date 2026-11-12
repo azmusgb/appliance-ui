@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>appliance-ui: a page outside the frame</title>
+<link rel="stylesheet" href="../dist/tokens.css">
+<link rel="stylesheet" href="../dist/components.css">
+<script src="../dist/backbar.js"></script>
+<style>
+  @font-face{font-family:Archivo;src:url(../fonts/archivo-latin-ui.woff2) format("woff2");font-weight:400 750;font-stretch:75% 100%;font-display:swap}
+  body{margin:0;background:var(--ui-bg);color:var(--ui-text);font:400 var(--ui-fs-3)/1.5 var(--ui-font)}
+  main{max-width:44rem;margin:0 auto;padding:var(--ui-s-5) var(--ui-s-4)}
+</style>
+</head>
+<body>
+<!-- The platform's own page outside Pi Hub's frame (Camera fit, the Privacy note, the Assistant on its own address):
+     the bar is the first thing in the document. Never on another product's page. -->
+<nav class="ui-backbar" aria-label="Pi Hub"><a href="https://hub.rahe-home.duckdns.org/" aria-label="Back to Pi Hub"><span aria-hidden="true">←</span>Pi Hub</a></nav>
+<main class="ui-page">
+  <header class="ui-page__head">
+    <h1 class="ui-page__title">Camera fit</h1>
+    <p class="ui-page__purpose">Line the camera up with the carrier before you print it.</p>
+  </header>
+  <section class="ui-section" aria-labelledby="steps-h">
+    <h2 class="ui-title" id="steps-h">Before you start</h2>
+    <p>Open the carrier in Fusion on the Mac, then keep this page open on the phone.</p>
+    <p><button class="ui-btn ui-btn--primary" type="button">Check the fit</button></p>
+  </section>
+</main>
+</body>
+</html>
