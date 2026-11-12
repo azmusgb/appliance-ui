@@ -12,7 +12,9 @@
     judge: 'Judge the print', approve: 'Approve or drop', send: 'Send it to the printer', fix_plan: 'Fix the plan',
     look: 'Look at the printer', open_bambuddy: 'Open Bambuddy', check_pc: 'Check the PC', not_answering: "{name} isn't answering",
     // The platform's terms (spec section 9), the same on every surface.
-    pc_off: 'The PC is off or asleep', assistant_down: "The Assistant isn't answering", source_down: "{name} isn't answering",
+    // 2.21 (Pi Hub A22 8.4): the PC that runs the Assistant sleeps, and that is normal. Asleep, then waking, then the page.
+    pc_off: 'The PC is asleep', pc_waking: 'The PC is waking up',
+    assistant_down: "The Assistant isn't answering", source_down: "{name} isn't answering",
     unknown_release: 'Not reported',
     // A1 (2.8.0): a Healthchecks.io check is Late, Down or Paused while the hub is up.
     outside_alarm_quiet: "The outside alarm isn't hearing from the Pi",

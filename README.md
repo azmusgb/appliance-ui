@@ -309,6 +309,9 @@ Approving an Assistant run is never a palette action (spec section 8.2): a provi
 
 ## Motion (2.5)
 
+`backbar.js` (a classic script; it sets `window.ApplianceBackbar`, 2.21) is optional beside `ui-backbar`: it sends a
+visitor who came from a Pi Hub page back to that page, and never anywhere else.
+
 `motion.js` (a classic script; it sets `window.ApplianceMotion`) holds the kit's one bit of number motion.
 `ApplianceMotion.countTo(el, to, {duration, decimals, format})` counts `el`'s shown number to `to` once (600 ms,
 ease-out) and ends exactly on `format(to)`. Point it at the number's own element, not a readout holding a unit span:

@@ -9,7 +9,8 @@
 #define UI_NEED_OPEN_BAMBUDDY "Open Bambuddy"
 #define UI_NEED_CHECK_PC "Check the PC"
 #define UI_NEED_NOT_ANSWERING "{name} isn't answering"
-#define UI_NEED_PC_OFF "The PC is off or asleep"
+#define UI_NEED_PC_OFF "The PC is asleep"
+#define UI_NEED_PC_WAKING "The PC is waking up"
 #define UI_NEED_ASSISTANT_DOWN "The Assistant isn't answering"
 #define UI_NEED_SOURCE_DOWN "{name} isn't answering"
 #define UI_NEED_UNKNOWN_RELEASE "Not reported"
@@ -28,7 +29,8 @@ static const UiNeedPhrase UI_NEED_PHRASES[] = {
   { "open_bambuddy", "Open Bambuddy" },
   { "check_pc", "Check the PC" },
   { "not_answering", "{name} isn't answering" },
-  { "pc_off", "The PC is off or asleep" },
+  { "pc_off", "The PC is asleep" },
+  { "pc_waking", "The PC is waking up" },
   { "assistant_down", "The Assistant isn't answering" },
   { "source_down", "{name} isn't answering" },
   { "unknown_release", "Not reported" },
@@ -38,4 +40,4 @@ static const UiNeedPhrase UI_NEED_PHRASES[] = {
   { "open_network", "Open Network" },
   { "see_usage", "See what's using it" },
 };
-#define UI_NEED_PHRASE_COUNT 17
+#define UI_NEED_PHRASE_COUNT 18

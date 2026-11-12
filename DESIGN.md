@@ -193,6 +193,9 @@ with the kit's tokens, not by a new kit component.
   list (`pages.json`, kit 2.17; Pi Hub amendment A22). The strip entry, the title, the ⌘K entry and the Site map row
   are that one `label`. A screen never writes a page's name itself; a new page, or a new name, is a change to the list.
 - **Pages in the shell** are links. Only another product's tool opens with "↗".
+- **A page of ours outside the shell** (the Assistant on its own address, Camera fit, the Privacy note) starts with
+  `ui-backbar`: one link, "← Pi Hub", named "Back to Pi Hub". With `backbar.js` loaded it returns a visitor to the Pi Hub
+  page they came from. Another product's page never gets it.
 - **Selection carries between related views.** The selected project, experiment, device or run carries in the URL
   (`?p=`, `?e=`, `#lab-E-025`), so Back, refresh and a shared link land in the same place.
 - **Layouts flow; they don't switch (A10 D2, D3).** A grid sets its columns by the smallest width its content can live
@@ -254,6 +257,7 @@ is added to this kit, never to one app.
 | A risky action | `ApplianceConfirm.ask` (`ui-confirm`, inline) |
 | Search and go | `AppliancePalette` (⌘K) |
 | Foot | `ui-tools` (Open in), `ui-sources` |
+| The way back from one of the platform's own pages outside the frame | `ui-backbar` (2.21): `<nav class="ui-backbar" aria-label="Pi Hub">` with one link, "← Pi Hub", the first thing in the document. Not sticky. Never on another product's page |
 
 - **Buttons:**
   - One primary per area.
@@ -278,7 +282,7 @@ is added to this kit, never to one app.
 |---|---|---|
 | Live | Read just now from its source | `ok`/`warn`/`bad` lamp; `--live` while running |
 | Stale | The last good reading, too old to trust | `unknown` lamp, "last seen 12m ago", and a `ui-notice--warn` above the faceplate saying how old and why |
-| Unavailable | The source isn't answering now | The phrase table's words (`source_down`, `pc_off`, `assistant_down`). Never an empty list: a list from a down source says it couldn't be read |
+| Unavailable | The source isn't answering now | The phrase table's words (`source_down`, `pc_off`, `pc_waking`, `assistant_down`). A sleeping PC is normal, so `pc_off` says "asleep", never "down". Never an empty list: a list from a down source says it couldn't be read |
 | Unknown | Never read, or unreadable | `unknown` lamp, "Not reported" (`unknown_release`) or "Unknown" |
 | Demonstration | Sample data, a prototype, a dry run | Labelled "Sample data" in the head, and never mixed with live data on one screen |
 
