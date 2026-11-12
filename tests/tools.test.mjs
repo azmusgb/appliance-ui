@@ -13,6 +13,7 @@ const node = args => spawnSync(process.execPath, args, { encoding: 'utf8' });
 const registry = JSON.parse(fs.readFileSync(path.join(root, 'tools.json'), 'utf8'));
 const tmp = prefix => fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 const buildTo = (args = []) => { const out = tmp('ui-tools-'); return { out, r: node([path.join(root, 'scripts/build.mjs'), '--out', out, ...args]) }; };
+const byId = (reg, id) => reg.tools.find(t => t.id === id);
 const withRegistry = edit => {
   const reg = structuredClone(registry);
   edit(reg);
@@ -41,7 +42,9 @@ test('toolUrl links a tool by its host, and an unknown id gives no link', async 
   assert.equal(toolUrl('nope'), null);
   assert.equal(tool('nope'), null);
   assert.equal(tool('hub').name, 'Pi Hub');
-  assert.deepEqual(toolsFor('documents').map(t => t.id), ['paperless', 'scan', 'homebox']);
+  assert.deepEqual(toolsFor('household').map(t => t.id), ['paperless', 'scan', 'plex'], 'Documents and Media are one area, Household (A22 2.2)');
+  assert.deepEqual(toolsFor('documents'), []);
+  assert.deepEqual(toolsFor('media'), []);
   assert.deepEqual(toolsFor('workshop').map(t => t.id), ['bambuddy'], 'the D4 hosts are not offered to people');
 });
 
@@ -58,7 +61,7 @@ test('the registry covers the gated tools of spec section 5.3 on their real name
 test('the D4 entries are marked and are the only ones on home.arpa', () => {
   const d4 = registry.tools.filter(t => t.boundary === 'D4');
   assert.deepEqual(d4.map(t => [t.id, t.host]), [['display', 'home.home.arpa'], ['ota', 'updates.home.arpa']]);
-  for (const t of registry.tools.filter(t => !t.boundary)) assert.doesNotMatch(t.host, /home\.arpa/, t.id);
+  for (const t of registry.tools.filter(t => !t.boundary && t.via === undefined)) assert.doesNotMatch(t.host, /home\.arpa/, t.id);
 });
 
 test('tools.h has a host and name per tool, and the D4 marks', () => {
@@ -75,7 +78,7 @@ test('tools.h has a host and name per tool, and the D4 marks', () => {
 });
 
 test('a duplicate id fails the build and writes nothing', () => {
-  const { out, r } = withRegistry(reg => reg.tools.push({ ...reg.tools[2] }));
+  const { out, r } = withRegistry(reg => reg.tools.push({ ...byId(reg, 'bambuddy') }));
   assert.equal(r.status, 1);
   assert.match(r.stderr, /duplicate id bambuddy/);
   assert.deepEqual(fs.readdirSync(out), []);
@@ -83,14 +86,14 @@ test('a duplicate id fails the build and writes nothing', () => {
 
 test('a host off the real name, an unknown area, a stray field or a non-ASCII name fails the build', () => {
   const cases = [
-    [reg => { reg.tools[2].host = 'bambuddy.home.arpa'; }, /host must be bambuddy\.rahe-home\.duckdns\.org/],
-    [reg => { reg.tools[2].host = 'https://10.0.0.80:8000/'; }, /host must be/],
-    [reg => { reg.tools[2].area = 'materials'; }, /area must be one of/],
-    [reg => { reg.tools[2].lan = 'http://x/'; }, /unknown field lan/],
-    [reg => { reg.tools[2].name = 'Bam"buddyé'; }, /name must be printable ASCII/],
+    [reg => { byId(reg, 'bambuddy').host = 'bambuddy.home.arpa'; }, /host must be bambuddy\.rahe-home\.duckdns\.org/],
+    [reg => { byId(reg, 'bambuddy').host = 'https://10.0.0.80:8000/'; }, /host must be/],
+    [reg => { byId(reg, 'bambuddy').area = 'materials'; }, /area must be one of/],
+    [reg => { byId(reg, 'bambuddy').lan = 'http://x/'; }, /unknown field lan/],
+    [reg => { byId(reg, 'bambuddy').name = 'Bam"buddyé'; }, /name must be printable ASCII/],
     [reg => { reg.tools.at(-1).boundary = 'D9'; }, /boundary can only be "D4"/],
     [reg => { reg.tools.at(-1).host = 'updates.rahe-home.duckdns.org'; }, /a D4 host stays on home\.arpa/],
-    [reg => { reg.tools[2].id = 'Bam-buddy'; }, /id must match/],
+    [reg => { byId(reg, 'bambuddy').id = 'Bam-buddy'; }, /id must match/],
     [reg => { reg.tools = []; }, /a non-empty list is required/],
   ];
   for (const [edit, why] of cases) {
@@ -126,18 +129,18 @@ test('a hand edit to an app\'s tools.js fails both checkers, naming the file', (
   assert.equal(b.status, 1); assert.match(b.stderr, /tools\.js/);
 });
 
-test('Plex is an outside tool of Media at app.plex.tv, the only one in that area, and never a gated name', async () => {
+test('Plex is an outside tool of Household at app.plex.tv, and never a gated name', async () => {
   const plex = registry.tools.find(t => t.id === 'plex');
   assert.ok(plex, 'plex is in the registry');
   assert.equal(plex.host, 'app.plex.tv');
   assert.equal(plex.base, '/desktop');
   assert.equal(plex.external, true);
   assert.equal(plex.name, 'Plex');
-  assert.equal(plex.area, 'media');
+  assert.equal(plex.area, 'household');
   assert.equal(plex.boundary, undefined);
   const { out } = buildTo();
   const { toolsFor, toolUrl } = await import(pathToFileURL(path.join(out, 'tools.js')).href);
-  assert.deepEqual(toolsFor('media').map(t => t.id), ['plex']);
+  assert.ok(toolsFor('household').some(t => t.id === 'plex'));
   assert.equal(toolUrl('plex'), 'https://app.plex.tv/desktop');
   assert.equal(toolUrl('plex', '#!/server/abc/details?key=%2Flibrary%2Fmetadata%2F42'), 'https://app.plex.tv/desktop/#!/server/abc/details?key=%2Flibrary%2Fmetadata%2F42');
   assert.equal(toolUrl('paperless', '/x'), 'https://paperless.rahe-home.duckdns.org/x', 'the gated tools are unchanged');
@@ -172,4 +175,59 @@ test('Healthchecks.io is an outside tool of System, linked to its site, which op
   const { toolsFor, toolUrl } = await import(pathToFileURL(path.join(out, 'tools.js')).href);
   assert.ok(toolsFor('system').map(t => t.id).includes('healthchecks'));
   assert.equal(toolUrl('healthchecks'), 'https://healthchecks.io/');
+});
+
+// Pi Hub A22 3.4 and step 12's plan (decisions 5 to 7): the areas are the five of pages.json, a retired tool stays listed
+// and leaves every "Open in" row, and n8n and ComfyUI are reached through the Assistant.
+test('a retired tool stays in the list with its host, and is in no area\'s row', async () => {
+  const retired = registry.tools.filter(t => t.retired).map(t => t.id);
+  assert.deepEqual(retired, ['homebox', 'status'], 'Homebox until the owner confirms it is empty; Uptime Kuma until step 15 stops it');
+  const { out } = buildTo();
+  const { TOOLS, tool, toolUrl, toolsFor } = await import(pathToFileURL(path.join(out, 'tools.js')).href);
+  for (const id of retired) {
+    assert.equal(tool(id).retired, true, id);
+    assert.equal(toolUrl(id), `https://${id}.rahe-home.duckdns.org/`, 'the Site map can still link it');
+  }
+  const areas = [...new Set(TOOLS.map(t => t.area))];
+  for (const area of areas) for (const t of toolsFor(area)) assert.ok(!t.retired, `${t.id} in ${area}`);
+  assert.deepEqual(toolsFor('network').map(t => t.id), ['devices', 'adguard', 'network']);
+});
+
+test('no tool is in an area that is gone: the areas are the five of the page list, and assistant', () => {
+  for (const t of registry.tools) assert.ok(['home', 'assistant', 'workshop', 'household', 'network', 'system'].includes(t.area), `${t.id}: ${t.area}`);
+});
+
+test('n8n and ComfyUI are reached through the Assistant: a path on its origin, no host of their own', async () => {
+  for (const [id, via] of [['n8n', '/go/n8n'], ['comfy', '/go/comfy']]) {
+    const t = byId(registry, id);
+    assert.ok(t, id);
+    assert.equal(t.via, via);
+    assert.equal(t.host, undefined);
+    assert.equal(t.area, 'assistant');
+  }
+  const { out } = buildTo();
+  const { toolUrl, toolsFor } = await import(pathToFileURL(path.join(out, 'tools.js')).href);
+  assert.equal(toolUrl('n8n'), 'https://assistant.rahe-home.duckdns.org/go/n8n');
+  assert.equal(toolUrl('comfy', '/anything'), 'https://assistant.rahe-home.duckdns.org/go/comfy', 'the Assistant sends it on; a path is not joined');
+  assert.deepEqual(toolsFor('assistant').map(t => t.id), ['assistant', 'n8n', 'comfy']);
+  const h = fs.readFileSync(path.join(out, 'tools.h'), 'utf8');
+  assert.match(h, /#define UI_TOOL_N8N_VIA "\/go\/n8n"/);
+  assert.doesNotMatch(h, /UI_TOOL_N8N_HOST/);
+});
+
+test('a tool with both a host and a via, with neither, or with a via that is not the Assistant\'s fails the build', () => {
+  const cases = [
+    [reg => { byId(reg, 'n8n').host = 'n8n.rahe-home.duckdns.org'; }, /a host or a via, not both/],
+    [reg => { delete byId(reg, 'n8n').via; }, /needs a host or a via/],
+    [reg => { byId(reg, 'n8n').via = 'https://pc:5678/'; }, /via must be \/go\/<name>/],
+    [reg => { byId(reg, 'n8n').area = 'system'; }, /reached through the Assistant is in the assistant area/],
+    [reg => { byId(reg, 'n8n').external = true; }, /a via tool has no external/],
+    [reg => { reg.tools = reg.tools.filter(t => t.id !== 'assistant'); }, /via needs the assistant tool/],
+    [reg => { byId(reg, 'homebox').retired = 'yes'; }, /retired can only be true/],
+  ];
+  for (const [edit, why] of cases) {
+    const { r } = withRegistry(edit);
+    assert.equal(r.status, 1, String(why));
+    assert.match(r.stderr, why);
+  }
 });
