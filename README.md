@@ -203,16 +203,41 @@ classified.
 ## Tools (2.0)
 
 `tools.json` is the one list of the house's tools (platform step 7, Decision 6): per tool an `id`, `name`, `host`,
-`area` (`home`, `assistant`, `workshop`, `documents`, `media`, `network`, `system`) and `purpose`. Every host is
+`area` (a Pi Hub area of `pages.json`: `home`, `workshop`, `household`, `network`, `system`; or `assistant`) and `purpose`. Every host is
 `<id>.rahe-home.duckdns.org`, except the display's D4 compatibility boundary (`display`, `ota`), which stays on
 `home.arpa` and is marked `"boundary": "D4"` until a firmware release can use the real name. The build refuses a
 duplicate id, a host off the real name outside D4 and outside tools, an unknown area or field, and non-ASCII text.
 A tool that is not behind the house's gate (Plex, which opens in Plex's own web app) is marked `"external": true` and
 keeps its own `host` and `base` path (`app.plex.tv`, `/desktop`); `toolUrl` joins a path onto the base.
+A tool reached through the Assistant (n8n, ComfyUI on the PC) has `via`, a `/go/<name>` path on the Assistant's origin,
+in place of a host. A tool marked `"retired": true` stays in the list (the Site map's "No longer used") and is in no
+"Open in" row.
 
 - `tools.js` (ES module, Pi Hub and Local AI): `TOOLS`, `tool(id)`, `toolUrl(id, path)` (null for an unknown id) and
-  `toolsFor(area)`, an area's "Open in …↗" row without the D4 hosts.
-- `tools.h` (C, the Workshop display; used from step 8): `UI_TOOL_<ID>_HOST`, `_NAME`, `_BOUNDARY`, `UI_TOOL_COUNT`.
+  `toolsFor(area)`, an area's tools without the D4 hosts and the retired ones.
+- `tools.h` (C, the Workshop display; used from step 8): `UI_TOOL_<ID>_HOST` (or `_VIA`), `_NAME`, `_BOUNDARY`, `UI_TOOL_COUNT`.
+
+## Pages (2.17)
+
+`pages.json` is the one list of the site's pages (Pi Hub amendment A22, section 3). A page's name, its one-line
+purpose and its address are written there and nowhere else; the rail, strips, ⌘K, the Site map and the old-address
+redirects are drawn from it.
+
+- `areas`: the rail's entries in order, each with its `label` and the page it lands on.
+- `pages`: per row an `id`, `system` (`hub`, `assistant`, `mac`), `area` (and `section` and `view` for an Assistant
+  page), `label`, `purpose`, `path`, `role`, `parent` (for a tab, filter, mode or detail), `reach` (every visible way
+  in), `aliases` (old addresses that redirect to it), `tools` (ids in `tools.json`: its "Open in" row) and `needs`
+  (`pc` or `mac`). `"built": false` marks a row whose page a later step builds; nothing draws it.
+- Roles: `page` (in its area's strip), `tab`, `filter`, `mode`, `detail` (opened from a card: `card:<page id>`),
+  `ambient` (no frame) and `standalone` (outside the frame on purpose). Every row has `palette` and `map` in `reach`.
+
+The build refuses a page with no way in, a tab without a parent, two rows on one address (a page and its first tab
+may share one), an alias with two owners, a strip of more than six pages (System: seven), and a tool that is not in
+`tools.json`, is retired, or is on no page. `tests/pages-words.test.mjs` keeps the names: no two pages share a label,
+labels are sentence case, and none is a retired word.
+
+- `pages.json`: the list without its comment, for a server or a test to read.
+- `pages.js` (ES module): `AREAS`, `PAGES` and `page(id)`.
 
 ## Palette (2.1)
 
@@ -266,7 +291,7 @@ same-origin with `opts.here` (default: the page), and is emitted as an absolute 
 input (e.g. `tool:x`, `hub:x`) goes to `opts.resolve(link)`, which must return an absolute http(s) URL; a relative result
 gives no link. A resolved link to another origin opens in a new tab and shows "↗".
 
-Change a colour or a tool here, never in an app's copy: `tokens.json` and `tools.json`, then `npm test`, bump
+Change a colour, a tool or a page's name here, never in an app's copy: `tokens.json`, `tools.json` and `pages.json`, then `npm test`, bump
 `version` in `tokens.json` and `package.json` (patch: a value; minor: a new component; major: a renamed variable, a removed file or a registry contract
 change), and sync each app. Each app's copy fails its tests if edited by hand.
 

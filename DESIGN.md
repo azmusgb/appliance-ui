@@ -94,8 +94,8 @@ for, and sync it into each app. Never edit an app's copy.
   `fs1` (12 px on a phone) is the floor, for meta lines only.
 - **Writing:** sentence case everywhere. No all-caps labels and no tracked-out eyebrows above headings.
 - **Numbers that change** (temperatures, progress, counts in columns) use tabular numerals.
-- **Words:** the spec's section 9 names (Filament, Assistant status, In progress, Print lab, …) and the phrase-table
-  keys. A screen never invents its own term for a platform thing.
+- **Words:** the spec's section 9 names (Filament, Assistant status, In progress, Print lab, …), the page list's
+  labels and the phrase-table keys. A screen never invents its own term for a platform thing.
 
 ### Space and shape
 
@@ -175,6 +175,9 @@ with the kit's tokens, not by a new kit component.
 ### Navigation
 
 - **The shell is constant:** the rail (or the phone tab bar), the page head and the strip.
+- **One name per page, written once.** A page's name, its one-line purpose and its address come from the kit's page
+  list (`pages.json`, kit 2.17; Pi Hub amendment A22). The strip entry, the title, the ⌘K entry and the Site map row
+  are that one `label`. A screen never writes a page's name itself; a new page, or a new name, is a change to the list.
 - **Pages in the shell** are links. Only another product's tool opens with "↗".
 - **Selection carries between related views.** The selected project, experiment, device or run carries in the URL
   (`?p=`, `?e=`, `#lab-E-025`), so Back, refresh and a shared link land in the same place.
