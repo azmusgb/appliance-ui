@@ -1,0 +1,12 @@
+{
+  "kit": "2.20.0",
+  "files": {
+    "src/components.css": {
+      "type": 3,
+      "space": 17,
+      "radius": 3,
+      "shadow": 3,
+      "motion": 2
+    }
+  }
+}

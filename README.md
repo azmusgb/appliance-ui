@@ -158,6 +158,43 @@ node scripts/sync.mjs --status ~/dev/pi-hub:hub/static/ui ~/dev/ai-harness/Local
 
 In a page: load `tokens.css` and `components.css` from that folder.
 
+## The literals check (2.20)
+
+`literals.mjs` is copied into each app beside `verify.mjs`. It counts what the app wrote by hand instead of taking from
+the kit (Pi Hub amendment A22 1.5) and holds each file to the count in the app's baseline:
+
+```sh
+node <folder>/literals.mjs <the app's interface folder>…    # 0: every count matches; 1: one rose or fell
+node <folder>/literals.mjs <…> --list                       # every finding: path:line, category, text
+node <folder>/literals.mjs <…> --write-baseline             # the first baseline, or lower counts; never a higher one
+node <folder>/literals.mjs <…> --remeasure                  # after a sync that changed the rules: measure again
+```
+
+| Category | Rejected | Use instead |
+|---|---|---|
+| `colour` | hex, `rgb()`, `hsl()` and the other colour functions, a named colour | `var(--ui-*)`, `color-mix()` of kit values, `transparent`, `currentColor` |
+| `type` | `font-size` or `font` with a px, rem or em number | `var(--ui-fs-N)` |
+| `space` | `margin*`, `padding*`, `gap`, `inset*` with a non-zero px, rem or em number | `var(--ui-s-N)`, `calc()` of kit values, `0`, `auto`, `env()` |
+| `radius` | a radius with a number | `var(--ui-r-N)`, `var(--ui-r-pill)`, `0`, `50%` |
+| `shadow` | a literal `box-shadow` | `var(--ui-shadow-N)`, `none` |
+| `motion` | a literal duration or easing in `transition*` or `animation*` | `var(--ui-dur-N)`, `var(--ui-ease)` |
+| `layer` | a `z-index` other than `0`, `1`, `-1` | `var(--ui-z-*)` |
+| `name` | a custom property that is not `--ui-*` | a kit value, or a per-instance name in the allow list |
+
+- **The baseline** (`.kit-literals-baseline.json`, in the app's root) holds the kit version that measured it and a
+  count per file and category. A count that rises fails. A count that falls fails until the baseline is lowered in the
+  same change. A new file starts at zero. A file that is gone must leave the baseline. A renamed file is a new file:
+  move its counts by hand, where the diff shows it.
+- **The allow list** (`.kit-literals-allow.json`): `files` are paths (`*` within a folder, `**` across folders) that
+  are art or third-party code, not interface; `names` are per-instance custom properties (`--pct`, `--wall-*`). Adding
+  to either needs a sentence in the PR saying why. An allowed name may still not carry a literal colour.
+- **What it reads:** a `.css` file, a `<style>` block and a `style="…"` attribute in every category; a script for
+  colour literals, and its `style="…"` attributes for the rest; a page's `fill`, `stroke`, `color`, `stop-color`,
+  `flood-color`, `bgcolor` and `content` attributes for colours. The kit's own folder is skipped.
+- **What it cannot see:** a size a script sets through `element.style`, and a colour a script builds from numbers. It
+  is a text scan, so in a script an element id such as `'#fed'` reads as a colour.
+- The kit holds itself to the same check: `npm run literals` over `src/`, in `npm test`.
+
 ## Keeping copies current
 
 `npm run drift` reads each consumer's `main` on GitHub (with `gh`; the list is `consumers.json`) and prints one

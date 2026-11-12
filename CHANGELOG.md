@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.20.0 — skippable
+`literals.mjs`, the check behind Pi Hub amendment A22 1.5, is copied into each app beside `verify.mjs`. It counts what an app wrote by hand instead of taking from the kit, in eight categories (colour, type size, spacing, radius, shadow, motion, layer, and custom-property names that are not `--ui-*`), and compares each file's counts with the app's `.kit-literals-baseline.json`: a count that rises fails, a count that falls must be written back, a new file starts at zero. Nothing runs it until an app turns it on in its own PR, so a sync past this release changes no behaviour. No value or component changes.
+
 ## 2.19.0 — skippable
 The values the apps wrote by hand (Pi Hub amendment A22 1.3), in `tokens.css` and `tokens.json`: eight steps of space `--ui-s-1` to `--ui-s-8` (4, 8, 12, 16, 24, 32, 48, 64 px on a phone, in rem), the pill radius `--ui-r-pill`, two shadows `--ui-shadow-1` (toast, popover) and `--ui-shadow-2` (sheet, dialog, palette) that differ by mode, `--ui-backdrop`, two durations `--ui-dur-1` (120 ms) and `--ui-dur-2` (220 ms), one easing `--ui-ease`, and four layers `--ui-z-bar` 50, `--ui-z-toast` 60, `--ui-z-sheet` 80, `--ui-z-palette` 90. Nothing existing changes value, and `--ui-space` stays. Web only: `tokens.h` is unchanged, because the display draws no sheet, shadow or animation from the kit. The palette's backdrop and its opening now use these values, so it opens in 120 ms on the kit's easing (was 140 ms ease-out). An app adopts the values in its own PRs; nothing here requires it.
 
