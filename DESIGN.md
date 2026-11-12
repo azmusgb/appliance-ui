@@ -99,8 +99,9 @@ for, and sync it into each app. Never edit an app's copy.
 
 ### Space and shape
 
-- **Spacing:** steps of `--ui-space` (4 px on a 360 px window, growing with the type). Related things are close (4–8), groups are separated (16–24), and sections
-  are separated more (32+).
+- **Spacing:** the eight steps `--ui-s-1` to `--ui-s-8` (4, 8, 12, 16, 24, 32, 48, 64 px on a 360 px window, growing
+  with the type). Related things are close (`s-1`, `s-2`), groups are separated (`s-4`, `s-5`), and sections are
+  separated more (`s-6` and up). `--ui-space` (the 4 px unit) stays for the kit's own `calc()`; a screen uses a step.
 - **Radii:**
   - `r2` (6) for the faceplate and panels
   - `r3` (9) for controls
@@ -109,7 +110,16 @@ for, and sync it into each app. Never edit an app's copy.
 
   Controls are rounder than the panels they sit in.
 - **Control heights:** 40 px, and 44 px on a coarse pointer (`ui-btn` and `ui-field` do this). Icons are 16 or 20 px.
-- **Shadows** only for things above the page: sheets, dialogs, the palette, toasts.
+- **The pill** (`--ui-r-pill`) is for a fully rounded end: a chip, a toggle's track. It is not a fifth step of the
+  radius scale.
+- **Shadows** only for things above the page: `--ui-shadow-1` for a toast or a popover, `--ui-shadow-2` for a sheet, a
+  dialog or the palette. Each has a dark and a light value. Nothing on the page itself casts one.
+- **The backdrop** behind a dialog or a sheet is `--ui-backdrop`, the same in both modes.
+- **Layers:** `--ui-z-bar` (the header, the rail, the tab bar), `--ui-z-toast`, `--ui-z-sheet` (sheets and dialogs
+  that are not in the top layer), `--ui-z-palette`, in that order. A part that only needs to sit above its neighbour
+  uses `0`, `1` or `-1`; no screen writes another number.
+- **Motion:** `--ui-dur-1` (120 ms: a press, a tint) and `--ui-dur-2` (220 ms: a sheet, the palette, anything that
+  moves), both on `--ui-ease`. A loop that shows waiting (the skeleton) keeps its own period.
 - **No panel inside a panel.** A heading and spacing say what belongs together.
 
 ## Layout
