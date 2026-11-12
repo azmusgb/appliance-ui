@@ -84,7 +84,7 @@
 .ui-tabs>:is(button,a):is([aria-selected="true"],[aria-current="page"]){background:var(--ui-accent-soft);color:var(--ui-accent-text);border-bottom-color:var(--ui-accent)}
 .ui-tabs>:is(button,a):is(:disabled,[aria-disabled="true"]){color:var(--ui-muted);cursor:default}
 .ui-tabs>:is(button,a):focus-visible{position:relative;z-index:1}
-/* Six tabs (2.17.0), ui-tabs--rows: six equal segments don't fit a phone, so they wrap onto rows, by the strip's own
+/* Six tabs (2.18.0), ui-tabs--rows: six equal segments don't fit a phone, so they wrap onto rows, by the strip's own
    width and never the window's: two to a row, three to a row from 25.5 rem, all six in one row from 51 rem (8.5 rem
    a segment, which holds a three-word label). Rows are always full, so no segment is left alone. A label too long for its
    segment wraps inside it and is never cut. The strip clips to its rounded corners, so the focus ring is drawn inside

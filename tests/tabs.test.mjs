@@ -96,7 +96,7 @@ test('tabs: focus shows a ring that is not hidden under the next tab', async () 
   assert.deepEqual(r, { outline: 'solid', width: '2px', z: '1', pos: 'relative' });
 });
 
-// 2.17.0 (Pi Hub A22 2.1: Settings' six groups): ui-tabs--rows. Six equal segments don't fit a phone, so they wrap onto
+// 2.18.0 (Pi Hub A22 2.1: Settings' six groups): ui-tabs--rows. Six equal segments don't fit a phone, so they wrap onto
 // full rows by the strip's own width: two to a row, then three, then all six.
 const rows = (page) => page.evaluate(() => {
   const strip = document.getElementById('settings-tabs');
