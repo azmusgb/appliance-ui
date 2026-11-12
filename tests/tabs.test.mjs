@@ -95,3 +95,71 @@ test('tabs: focus shows a ring that is not hidden under the next tab', async () 
   });
   assert.deepEqual(r, { outline: 'solid', width: '2px', z: '1', pos: 'relative' });
 });
+
+// 2.17.0 (Pi Hub A22 2.1: Settings' six groups): ui-tabs--rows. Six equal segments don't fit a phone, so they wrap onto
+// full rows by the strip's own width: two to a row, then three, then all six.
+const rows = (page) => page.evaluate(() => {
+  const strip = document.getElementById('settings-tabs');
+  const tabs = [...strip.querySelectorAll('[role="tab"]')];
+  const box = (el) => el.getBoundingClientRect();
+  const tops = [...new Set(tabs.map((t) => Math.round(box(t).top)))];
+  return {
+    count: tabs.length, perRow: tops.map((top) => tabs.filter((t) => Math.round(box(t).top) === top).length),
+    widths: tabs.map((t) => Math.round(box(t).width)), heights: tabs.map((t) => Math.round(box(t).height)),
+    cut: tabs.filter((t) => t.scrollWidth > t.clientWidth + 1 || t.scrollHeight > t.clientHeight + 1).map((t) => t.textContent),
+    overflow: document.documentElement.scrollWidth > innerWidth,
+    inside: tabs.every((t) => box(t).right <= box(strip).right + 0.5 && box(t).bottom <= box(strip).bottom + 0.5),
+  };
+});
+
+test('six tabs wrap onto full rows by the strip\'s width: two to a row on a phone, then three, then all six', async () => {
+  for (const [width, perRow] of [[320, [2, 2, 2]], [390, [2, 2, 2]], [600, [3, 3]], [820, [3, 3]], [1024, [6]], [1920, [6]]]) {
+    for (const scheme of ['dark', 'light']) {
+      const page = await open(width, scheme);
+      const r = await rows(page);
+      assert.equal(r.count, 6);
+      assert.deepEqual(r.perRow, perRow, `${width} px: rows are full, no tab is left alone`);
+      assert.ok(Math.max(...r.widths) - Math.min(...r.widths) <= 1, `${width} px, equal shares: ${r.widths}`);
+      assert.ok(r.heights.every((h) => h >= 48), `${width} px: ${r.heights}`);
+      assert.deepEqual(r.cut, [], `${width} px: no label is cut`);
+      assert.equal(r.overflow, false, `${width} px: nothing wider than the screen`);
+      assert.ok(r.inside, `${width} px: every tab is inside the strip`);
+      await page.context().close();
+    }
+  }
+});
+
+test('six tabs follow the strip, not the window: a narrow column on a wide screen still gets two to a row', async () => {
+  const page = await open(1440);
+  await page.evaluate(() => { document.getElementById('settings-tabs').parentElement.style.maxWidth = '20rem'; });
+  assert.deepEqual((await rows(page)).perRow, [2, 2, 2]);
+});
+
+test('six tabs: a label too long for its segment wraps inside it and is never cut', async () => {
+  const page = await open(320);
+  await page.evaluate(() => { document.querySelector('#settings-tabs [role="tab"]:nth-child(3)').textContent = 'Weather, calendar and the morning digest'; });
+  const r = await rows(page);
+  assert.deepEqual(r.cut, []);
+  assert.equal(r.overflow, false);
+  assert.deepEqual(r.perRow, [2, 2, 2]);
+});
+
+test('six tabs: the focus ring is drawn inside the tab, because the strip clips to its rounded corners', async () => {
+  const page = await open(390);
+  await page.focus('#settings-tabs [role="tab"]:nth-child(4)');
+  const r = await page.evaluate(() => {
+    const t = document.activeElement, s = getComputedStyle(t);
+    return { outline: s.outlineStyle, width: s.outlineWidth, offset: s.outlineOffset, clip: getComputedStyle(t.parentElement).overflow };
+  });
+  assert.deepEqual(r, { outline: 'solid', width: '2px', offset: '-2px', clip: 'hidden' });
+});
+
+test('six tabs: the selected one is still marked three ways', async () => {
+  const page = await open(390);
+  const r = await page.evaluate(() => {
+    const s = (el) => getComputedStyle(el);
+    const sel = document.querySelector('#settings-tabs [aria-selected="true"]'), other = document.querySelector('#settings-tabs [aria-selected="false"]');
+    return { bg: s(sel).backgroundColor !== s(other).backgroundColor, color: s(sel).color !== s(other).color, bar: s(sel).borderBottomWidth, barColor: s(sel).borderBottomColor !== s(other).borderBottomColor };
+  });
+  assert.deepEqual(r, { bg: true, color: true, bar: '3px', barColor: true });
+});

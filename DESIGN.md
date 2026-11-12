@@ -226,6 +226,7 @@ is added to this kit, never to one app.
 |---|---|
 | Page head, strip, filters | `ui-page__head`, `ui-strip`, `ui-chips` |
 | The views of one area (two to five) | `ui-tabs` (2.16): `role="tablist"`, arrow keys move between tabs |
+| Six views of one area (Settings' groups) | `ui-tabs ui-tabs--rows` (2.17): the same tabs on full rows, two to a row on a phone, then three, then all six, by the strip's own width. Six is the most; a seventh view means the page is two pages |
 | The page's state and main action | `ui-faceplate` with `ui-readout`, `ui-chip`, `ui-btn--primary` |
 | Lists of things | `ui-rows` / `ui-row--lamp` (lamp, value, one action on the right) |
 | Comparing records | `ui-table`, `ui-table__num`, `ui-table--stack` (2.7) |
