@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Copies dist/, fonts/ and the checkers into an app, with a VERSION file of SHA-256 checksums.
+// Copies dist/, fonts/ and the checkers (verify, and literals since 2.20) into an app, with a VERSION file of SHA-256 checksums.
 //   node scripts/sync.mjs <repo> --dir <folder>        copy (refuses to replace a newer copy: exit 2)
 //   ... --display                                       also copy the display kit, dist/display/ (C++ parts and fonts; 2.11)
 //   ... --pr                                            sync in a `wt new` worktree, run the app's check, open a kit-sync PR (never merges)
@@ -48,7 +48,7 @@ const walk = (base, rel = '') => fs.readdirSync(path.join(base, rel), { withFile
   .flatMap(e => e.isDirectory() ? walk(base, path.posix.join(rel, e.name)) : [path.posix.join(rel, e.name)]);
 const withDisplay = args.includes('--display');
 const sources = [...walk(path.join(root, 'dist')).filter(f => withDisplay || !f.startsWith('display/')).map(f => ['dist', f]),
-  ...fs.readdirSync(path.join(root, 'fonts')).map(f => ['fonts', f]), ['check', 'verify.mjs'], ['check', 'verify.py']];
+  ...fs.readdirSync(path.join(root, 'fonts')).map(f => ['fonts', f]), ['check', 'verify.mjs'], ['check', 'verify.py'], ['check', 'literals.mjs']];
 const files = {};
 for (const [from, name] of sources) {
   const body = fs.readFileSync(path.join(root, from, name));

@@ -39,6 +39,10 @@ Use the kit's tokens (`tokens.json`, built to `dist/tokens.css` as `--ui-*`). Ne
 shadow on a single screen. If a token is missing, propose a small addition to `tokens.json` in this repo, say what it is
 for, and sync it into each app. Never edit an app's copy.
 
+A check holds each app to this (2.20): `literals.mjs`, copied with the kit, counts the colours, sizes, spacings, radii,
+shadows, durations, layers and private names an app wrote by hand, and fails a change that adds one. README, "The
+literals check", says how to run it.
+
 ### Colour
 
 | Token | Use |
