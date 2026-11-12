@@ -131,7 +131,7 @@ test('1.4 tokens pass on the well', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
   const r = build(['--out', out]);
   assert.equal(r.status, 0, r.stderr);
-  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^2\.18\.\d+$/);
+  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^2\.19\.\d+$/);
 });
 
 // 1.4 faceplate: the font file the face names ships, and radii keep their order (panels r2 under controls r3).
@@ -217,4 +217,51 @@ test('stacked tables and Needs you arrange by their container, not the window (A
   assert.match(comp, /@container \(max-width:[\d.]+rem\)\{\.ui-table--stack/);
   assert.match(needs, /\.ui-needs\{[^}]*container:ui-needs\/inline-size/);
   assert.match(needs, /@container ui-needs \(min-width:[\d.]+rem\)\{/);
+});
+
+// 2.19 (Pi Hub A22 1.3): the values the apps wrote by hand.
+test('tokens.css ships the steps of space, the pill, the backdrop, motion and the layers, once, on :root', () => {
+  const { css } = built();
+  const t = JSON.parse(fs.readFileSync(path.join(root, 'tokens.json'), 'utf8'));
+  const dark = css.match(/:root\{([^}]*)\}/)[1];
+  for (const [k, px] of Object.entries(t.space.steps)) assert.ok(dark.includes(`--ui-s-${k.slice(1)}:${px / 16}rem;`), k);
+  assert.deepEqual(Object.values(t.space.steps), [4, 8, 12, 16, 24, 32, 48, 64]);
+  for (const decl of ['--ui-r-pill:999px;', '--ui-backdrop:rgb(0 0 0 / .50);', '--ui-dur-1:120ms;', '--ui-dur-2:220ms;',
+    '--ui-ease:cubic-bezier(.2, 0, 0, 1);', '--ui-z-bar:50;', '--ui-z-toast:60;', '--ui-z-sheet:80;', '--ui-z-palette:90;']) {
+    assert.ok(dark.includes(decl), decl);
+    assert.equal(css.split(decl).length - 1, 1, `${decl} is the same in both modes, so it is written once`);
+  }
+  assert.doesNotMatch(css, /--ui-s-\d:[\d.]+px/, 'the steps are rem, so they follow the fluid root');
+  const z = Object.values(t.layer);
+  assert.deepEqual(z, [...z].sort((a, b) => a - b), 'bar under toast under sheet under palette');
+});
+
+test('the two shadows differ by mode and follow the device and data-theme', () => {
+  const { css } = built();
+  const block = re => css.match(re)[1];
+  const dark = block(/:root\{([^}]*)\}/), forcedDark = block(/\[data-theme="dark"\]\{([^}]*)\}/);
+  const byDevice = block(/@media \(prefers-color-scheme: light\)\{:root:not\(\[data-theme="dark"\]\)\{([^}]*)\}/);
+  const forcedLight = block(/\[data-theme="light"\]\{([^}]*)\}/);
+  for (const b of [dark, forcedDark]) {
+    assert.ok(b.includes('--ui-shadow-1:0 2px 8px rgb(0 0 0 / .40);'));
+    assert.ok(b.includes('--ui-shadow-2:0 12px 32px rgb(0 0 0 / .50);'));
+  }
+  for (const b of [byDevice, forcedLight]) {
+    assert.ok(b.includes('--ui-shadow-1:0 2px 8px rgb(22 26 24 / .12);'));
+    assert.ok(b.includes('--ui-shadow-2:0 12px 32px rgb(22 26 24 / .18);'));
+  }
+});
+
+test('the new values are web values: tokens.h names no shadow, layer, step or duration', () => {
+  const { h } = built();
+  assert.doesNotMatch(h, /SHADOW|BACKDROP|UI_Z_|UI_S_|UI_DUR|EASE|PILL/);
+});
+
+test("the palette's backdrop and motion are the kit's values, not literals", () => {
+  const { out } = built();
+  const css = fs.readFileSync(path.join(out, 'palette.css'), 'utf8');
+  assert.match(css, /\.ui-palette::backdrop\{background:var\(--ui-backdrop\)\}/);
+  assert.doesNotMatch(css, /rgba?\(|#[0-9a-f]{3,8}\b/i);
+  assert.doesNotMatch(css, /animation:[^;}]*[\d.]+m?s\b/);
+  assert.match(css, /animation:ui-palette-in var\(--ui-dur-1\) var\(--ui-ease\)/);
 });
