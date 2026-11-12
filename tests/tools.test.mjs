@@ -40,7 +40,7 @@ test('toolUrl links a tool by its host, and an unknown id gives no link', async 
   assert.equal(toolUrl('paperless', '//evil.com/x'), 'https://paperless.rahe-home.duckdns.org/evil.com/x');
   assert.equal(toolUrl('nope'), null);
   assert.equal(tool('nope'), null);
-  assert.equal(tool('hub').name, 'Home');
+  assert.equal(tool('hub').name, 'Pi Hub');
   assert.deepEqual(toolsFor('documents').map(t => t.id), ['paperless', 'scan', 'homebox']);
   assert.deepEqual(toolsFor('workshop').map(t => t.id), ['bambuddy'], 'the D4 hosts are not offered to people');
 });
