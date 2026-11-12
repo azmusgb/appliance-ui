@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.16.1 — skippable
+The tool registry names the hub "Pi Hub" (it was "Home", which is also the start page's name). Pi Hub amendment A22, step 11: one name per thing. No class, token or behaviour changes; a consumer that shows the `hub` tool's name shows the new one after its next sync.
+
 ## 2.16.0 — skippable
 `ui-tabs`, the web's tabs: the views of one area as two to five equal segments, 48 px high with 16 px labels, the selected one marked by an accent wash, accent text and a 3 px accent bar, as the display's `Tabs` (2.12). Additive; nothing that exists changes. Pi Hub's Lists page and its Room view Adjust panel (amendment A23) are the first users.
 
