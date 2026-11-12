@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.18.0 — skippable
+`ui-tabs--rows`: six tabs (Settings' groups, Pi Hub amendment A22 2.1) wrap onto full rows by the strip's own width: two to a row on a phone, three from 25.5 rem, all six from 51 rem. Rows are always full, and a long label wraps inside its segment and is never cut. The strip clips to its rounded corners, so a tab's focus ring is drawn inside it. Additive: `ui-tabs` alone is unchanged and stays two to five.
+
 ## 2.17.0 — needs consumer change (web): `toolsFor('documents')` and `toolsFor('media')` are now `toolsFor('household')`; a page's "Open in" row comes from its `tools` in `pages.js`
 `pages.json`, the one list of the site's pages (Pi Hub amendment A22, section 3; step 12): every page's name, one-line purpose, address, role, ways in, old addresses and "Open in" tools, for Pi Hub, the Assistant and the Mac. The build checks it and writes `pages.json` and `pages.js` (`AREAS`, `PAGES`, `page(id)`); a sync copies both. Nothing reads them until an app does. In `tools.json`: the areas `documents` and `media` are `household`; Uptime Kuma and Homebox are `retired: true` and leave `toolsFor`; `n8n` and `comfy` are added with `via`, a path on the Assistant's origin, which `toolUrl` returns; the Assistant's purpose reads "Runs on the PC, which may be asleep". No class or token changes.
 
