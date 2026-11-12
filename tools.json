@@ -2,7 +2,7 @@
   "$comment": "The one list of the house's tools (platform step 7, Decision 6). Each app gets tools.js and the display tools.h from it; change it here, never in a copy. host is <id>.<real> except the D4 boundary, which stays on home.arpa until a firmware release can use the real name.",
   "real": "rahe-home.duckdns.org",
   "tools": [
-    { "id": "hub", "name": "Home", "host": "hub.rahe-home.duckdns.org", "area": "home", "purpose": "Pi Hub, the house's front door" },
+    { "id": "hub", "name": "Pi Hub", "host": "hub.rahe-home.duckdns.org", "area": "home", "purpose": "Pi Hub, the house's front door" },
     { "id": "assistant", "name": "Assistant", "host": "assistant.rahe-home.duckdns.org", "area": "assistant", "purpose": "Local AI on the PC, which may sleep" },
     { "id": "bambuddy", "name": "Bambuddy", "host": "bambuddy.rahe-home.duckdns.org", "area": "workshop", "purpose": "The printer, spools and print history" },
     { "id": "paperless", "name": "Paperless", "host": "paperless.rahe-home.duckdns.org", "area": "documents", "purpose": "Find and file documents" },
