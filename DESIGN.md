@@ -300,6 +300,10 @@ is added to this kit, never to one app.
 
 - **Contrast:** 4.5:1 for text and 3:1 for large text, focus rings, field borders and status marks, measured in
   `docs/contrast.md`. Any new pairing is measured before it ships.
+- **More contrast:** when the person asks their device for more contrast (`prefers-contrast: more`), the kit's values
+  answer, so every part that reads them follows without a rule of its own: `muted` is drawn as `text`, `line` as `line2`
+  and `line2` as `fieldLine`, in both themes (2.22; `contrastMore` in `tokens.json`). Each is a colour the kit already
+  measures. An app never writes its own more-contrast colours; a part that needs more than this is a kit change.
 - **Focus:** a visible ring (`2px` accent, offset `2px`) that is never clipped or covered. Check it in strips, inside
   overflow containers and under sticky headers. A page that refreshes itself puts focus back where it was. A redraw
   never drops a keyboard user to the top.

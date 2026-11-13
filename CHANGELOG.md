@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.22.0 — skippable
+More contrast, when the person asks their device for it (`prefers-contrast: more`; Pi Hub amendment A22, step 13): `tokens.css` redraws `--ui-muted` as the text colour, `--ui-line` as `line2` and `--ui-line-2` as `fieldLine`, in both themes and under `data-theme`. `tokens.json` names the three in `contrastMore`; each points at a colour the kit already has, so `docs/contrast.md` gains no row. Web only: `tokens.h` is unchanged. Nothing changes for anyone who has not asked for more contrast. An app that kept its own more-contrast rule for muted text or lines can drop it once the stylesheet it covers reads `--ui-*`.
+
 ## 2.21.0 — needs consumer change (web): an app that keeps its own copy of the `pc_off` text drops it and reads the kit's `PHRASES`; "The PC is off or asleep" is now "The PC is asleep"
 `ui-backbar` (Pi Hub amendment A22 6.4): the "← Pi Hub" bar for the platform's own pages that live outside Pi Hub's frame (the Assistant on its own address, Camera fit, the Privacy note), never for another product's page. One link in `<nav aria-label="Pi Hub">`, first in the document, 44 px high, not sticky, the arrow `aria-hidden` and the link named "Back to Pi Hub". `backbar.js` (a classic script, `window.ApplianceBackbar`) sends a visitor who came from a Pi Hub page back to that page, and leaves the link alone for any other referrer. The phrase table (A22 8.4): `pc_off` is "The PC is asleep" (was "The PC is off or asleep") and `pc_waking`, "The PC is waking up", is new; `needs.h` carries both, so the display shows the new words after its next sync with no change of its own.
 

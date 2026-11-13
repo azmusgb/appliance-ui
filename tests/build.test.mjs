@@ -20,6 +20,33 @@ test('contrast is the WCAG ratio', async () => {
   assert.ok(Math.abs(contrast('#ffffff', '#000000') - 21) < 0.01);
 });
 
+// 2.22: more contrast, asked for on the device. The same three places a theme is set, each inside the media query, after
+// the themes so they win at equal specificity; every value is a colour the kit already has.
+test('tokens.css strengthens muted text and the lines under prefers-contrast: more, in each theme', () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
+  const r = build(['--out', out]);
+  assert.equal(r.status, 0, r.stderr);
+  const css = fs.readFileSync(path.join(out, 'tokens.css'), 'utf8');
+  const t = JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8'));
+  assert.deepEqual(t.contrastMore, { muted: 'text', line: 'line2', line2: 'fieldLine' });
+  const want = mode => `--ui-muted:${t.color.text[mode]};--ui-line:${t.color.line2[mode]};--ui-line-2:${t.color.fieldLine[mode]};`;
+  assert.ok(css.includes(`@media (prefers-contrast: more){:root{${want('dark')}}}`), 'dark by default');
+  assert.ok(css.includes(`@media (prefers-contrast: more) and (prefers-color-scheme: light){:root:not([data-theme="dark"]){${want('light')}}}`), 'light by device');
+  assert.ok(css.includes(`@media (prefers-contrast: more){[data-theme="light"]{${want('light')}}[data-theme="dark"]{${want('dark')}}}`), 'by data-theme');
+  assert.ok(css.indexOf('prefers-contrast: more') > css.indexOf('[data-theme="dark"]{--ui-bg'), 'after the themes');
+  assert.equal((css.match(/prefers-contrast/g) || []).length, 3);
+});
+
+test('a contrastMore entry that names a colour the kit does not have fails the build', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
+  const t = JSON.parse(fs.readFileSync(path.join(root, 'tokens.json'), 'utf8'));
+  t.contrastMore.muted = 'ink';
+  fs.writeFileSync(path.join(dir, 'tokens.json'), JSON.stringify(t));
+  const r = build(['--out', path.join(dir, 'out'), '--tokens', path.join(dir, 'tokens.json')]);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /contrastMore: muted → ink names a colour that is not in color/);
+});
+
 test('tokens.css has dark on :root, light by device and by data-theme, and the header height in rem', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
   const r = build(['--out', out]);
@@ -131,7 +158,7 @@ test('1.4 tokens pass on the well', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
   const r = build(['--out', out]);
   assert.equal(r.status, 0, r.stderr);
-  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^2\.21\.\d+$/);
+  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^2\.22\.\d+$/);
 });
 
 // 1.4 faceplate: the font file the face names ships, and radii keep their order (panels r2 under controls r3).
