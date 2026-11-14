@@ -1,5 +1,6 @@
 [
   { "name": "pi-hub", "repo": "azmusgb/pi-hub", "folder": "hub/static/ui", "kit": "web", "check": "python3 -I hub/static/ui/verify.py hub/static/ui" },
   { "name": "LocalAI", "repo": "azmusgb/LocalAI", "folder": "app/public/ui", "kit": "web", "check": "node app/public/ui/verify.mjs app/public/ui" },
-  { "name": "bambuhelper-smart-display", "repo": "azmusgb/bambuhelper-smart-display", "folder": "assets/ui", "kit": "display", "check": "python3 -I assets/ui/verify.py assets/ui" }
+  { "name": "bambuhelper-smart-display", "repo": "azmusgb/bambuhelper-smart-display", "folder": "assets/ui", "kit": "display", "check": "python3 -I assets/ui/verify.py assets/ui" },
+  { "name": "print-lab", "repo": "azmusgb/print-lab", "folder": "tools/ui", "kit": "web", "check": "python3 -I tools/ui/verify.py tools/ui" }
 ]
