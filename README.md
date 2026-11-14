@@ -147,7 +147,7 @@ Since 1.2.0 every check also runs on the well (`surface2`, behind buttons and me
 npm ci && npm test                      # build dist/ and run every check
 node scripts/sync.mjs <app-repo> --dir <folder>   # copy into an app (writes <folder>/VERSION)
 node scripts/sync.mjs --status ~/dev/pi-hub:hub/static/ui ~/dev/ai-harness/LocalAI:app/public/ui \
-  ~/dev/bambuhelper-smart-display:assets/ui
+  ~/dev/bambuhelper-smart-display:assets/ui ~/dev/print-lab:tools/ui
 ```
 
 | App | Folder | Its test runs |
@@ -155,6 +155,7 @@ node scripts/sync.mjs --status ~/dev/pi-hub:hub/static/ui ~/dev/ai-harness/Local
 | Home (Pi Hub) | `hub/static/ui` | `python3 hub/static/ui/verify.py hub/static/ui` |
 | Assistant (Local AI) | `app/public/ui` | `node app/public/ui/verify.mjs app/public/ui` |
 | Workshop OS | `assets/ui` | `python3 assets/ui/verify.py assets/ui` (staged: the portal and firmware don't load it yet) |
+| print-lab | `tools/ui` | `python3 tools/ui/verify.py tools/ui` (Camera fit serves it at `/ui/`; the Fusion panel links it by a relative path) |
 
 In a page: load `tokens.css` and `components.css` from that folder.
 
