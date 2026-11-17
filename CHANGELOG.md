@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.23.0 — needs consumer change (web): the Assistant's admin pages are drawn in Pi Hub's System strip, Atlas is its own Assistant page, and there is no `setup` section
+Pi Hub amendment A27 (D1 to D3), step 1. In `pages.json`: the ten admin rows (`assistant-status`, now labelled "Assistant", with its tabs `models`, `developer-tools`, `assistant-settings`, `audit-log` and the five `tools-*` cards) have `area: system` and no `section`, so System's strip gains one page (the checker's cap for System is now eight); `atlas` is a page in the Assistant's Improve section, not a tab of Changes; the `setup` section is gone. No path, view id or row count changes, so no link breaks. A consumer that draws the Assistant's section strip from `section` stops showing Setup, and one that draws System's strip from `area` shows the Assistant page after Settings; the page's tabs come from `parent` as before.
+
 ## 2.22.0 — skippable
 More contrast, when the person asks their device for it (`prefers-contrast: more`; Pi Hub amendment A22, step 13): `tokens.css` redraws `--ui-muted` as the text colour, `--ui-line` as `line2` and `--ui-line-2` as `fieldLine`, in both themes and under `data-theme`. `tokens.json` names the three in `contrastMore`; each points at a colour the kit already has, so `docs/contrast.md` gains no row. Web only: `tokens.h` is unchanged. Nothing changes for anyone who has not asked for more contrast. An app that kept its own more-contrast rule for muted text or lines can drop it once the stylesheet it covers reads `--ui-*`.
 

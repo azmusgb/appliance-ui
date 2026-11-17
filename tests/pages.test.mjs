@@ -63,7 +63,7 @@ test('each area\'s strip is 2.2\'s, in order', () => {
   assert.deepEqual(strip('workshop'), ['Printer', 'Print lab', 'Quick Print']);
   assert.deepEqual(strip('household'), ['Movies', 'Papers', 'Scan', 'Print', 'Lists', 'Drives']);
   assert.deepEqual(strip('network'), ['Lights', 'Internet', 'Weather']);
-  assert.deepEqual(strip('system'), ['Health', 'Backups', 'Versions', 'Alerts', 'Automations', 'Settings', 'Site map']);
+  assert.deepEqual(strip('system'), ['Health', 'Backups', 'Versions', 'Alerts', 'Automations', 'Settings', 'Site map', 'Assistant']);
 });
 
 test('no Pi Hub address changes: every route of today is a row, at the same address', () => {
@@ -101,7 +101,7 @@ test('Print lab and Settings carry their tabs; the two tabs step 15 builds are m
   assert.deepEqual(list.pages.filter(p => p.built === false).map(p => p.id), ['lab-designs', 'lab-tools']);
 });
 
-test('the Assistant\'s 29 rows: each names its view, needs the PC, and sits in one of the five sections', () => {
+test('the Assistant\'s 29 rows: each names its view, needs the PC, and sits in one of the sections', () => {
   const rows = list.pages.filter(p => p.system === 'assistant');
   assert.equal(rows.length, 29);
   for (const p of rows) { assert.equal(p.needs, 'pc', p.id); assert.ok(p.path.startsWith('/assistant'), p.id); }
@@ -109,11 +109,13 @@ test('the Assistant\'s 29 rows: each names its view, needs the PC, and sits in o
   assert.deepEqual(view, {
     home: 'Ask', ask: 'Chat', create: 'Image', inbox: 'Decisions', work: 'Work', agents: 'Agent World', automationStudio: 'Assistant automations',
     spreadsheets: 'Spreadsheets', projects: 'Projects', knowledge: 'Sources', memory: 'Memory', library: 'Library', backlog: 'Changes',
-    inProgress: 'In progress', shipped: 'Shipped', signals: 'Signals', claude: 'Claude Code', architecture: 'Atlas', status: 'Assistant status',
+    inProgress: 'In progress', shipped: 'Shipped', signals: 'Signals', claude: 'Claude Code', architecture: 'Atlas', status: 'Assistant',
     models: 'Models', tools: 'Developer tools', workbench: 'Files', repoTools: 'Repository', powershell: 'PowerShell', actions: 'Browser & computer',
     automations: 'n8n workflows', settings: 'Assistant settings', activity: 'Audit log',
   });
-  assert.deepEqual([...new Set(rows.filter(p => p.section).map(p => p.section))], ['ask', 'work', 'projects', 'improve', 'setup']);
+  assert.deepEqual([...new Set(rows.filter(p => p.section).map(p => p.section))], ['ask', 'work', 'projects', 'improve']);
+  assert.deepEqual(rows.filter(p => p.area === 'system').map(p => p.id), ['assistant-status', 'models', 'developer-tools', 'tools-files', 'tools-repository', 'tools-powershell', 'tools-browser', 'tools-n8n', 'assistant-settings', 'audit-log']);
+  assert.deepEqual([row(list, 'atlas').role, row(list, 'atlas').parent], ['page', undefined]);
   assert.equal(row(list, 'run').path, '/assistant/run/<id>');
 });
 
@@ -175,7 +177,8 @@ test('a page\'s tools are in tools.json and offered to people, and every such to
 
 test('an Assistant page names its section and view, a Mac page needs the Mac, and stray or wrong fields are problems', () => {
   const cases = [
-    [l => { row(l, 'models').section = 'system'; }, /section must be one of ask, work, projects, improve, setup/],
+    [l => { row(l, 'chat').section = 'system'; }, /section must be one of ask, work, projects, improve/],
+    [l => { row(l, 'models').section = 'work'; }, /an Assistant page in System has no section/],
     [l => { delete row(l, 'models').view; }, /view must be the Assistant's own view id/],
     [l => { delete row(l, 'models').needs; }, /needs the PC/],
     [l => { row(l, 'camera-fit').needs = 'pc'; }, /needs the Mac/],
