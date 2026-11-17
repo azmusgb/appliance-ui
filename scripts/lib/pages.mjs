@@ -5,7 +5,7 @@ import { EXEMPT } from './tools.mjs';
 export const SYSTEMS = ['hub', 'assistant', 'mac'];
 export const ROLES = ['page', 'tab', 'filter', 'mode', 'detail', 'ambient', 'standalone'];
 // The Assistant's five sections (A22 3.3). Their names are drawn with the Assistant's frame (brief 4), not from here yet.
-export const SECTIONS = ['ask', 'work', 'projects', 'improve', 'setup'];
+export const SECTIONS = ['ask', 'work', 'projects', 'improve'];
 const WAYS = ['rail', 'strip', 'tabs', 'chips', 'button', 'foot', 'palette', 'map'];
 const FIELDS = ['id', 'system', 'area', 'section', 'label', 'purpose', 'path', 'role', 'parent', 'view', 'reach', 'aliases', 'tools', 'needs', 'built'];
 const AREA_FIELDS = ['id', 'label', 'order', 'landing'];
@@ -16,8 +16,8 @@ const ASSISTANT_PATH = /^\/assistant(\/([a-z0-9]+(-[a-z0-9]+)*|<[a-z]+>))*$/;
 const ALIAS = /^\/[a-z0-9]+(-[a-z0-9]+)*(\/[a-z0-9]+(-[a-z0-9]+)*)*$/;
 // What each role must have in reach (3.2's table). A page's rule is below: its strip, or the rail when it is its area's only page.
 const MUST = { tab: 'tabs', filter: 'chips', mode: 'button', ambient: 'foot' };
-// An area's strip holds six pages at most; System keeps seven (A22 2.2).
-const stripCap = area => (area === 'system' ? 7 : 6);
+// An area's strip holds six pages at most; System keeps eight (A22 2.2, A27 D3 adds the Assistant's admin page).
+const stripCap = area => (area === 'system' ? 8 : 6);
 // A row whose address needs a value filled in (a run's id) can't be a ⌘K entry or a Site map row.
 const template = p => typeof p.path === 'string' && p.path.includes('<');
 
@@ -82,10 +82,11 @@ export function checkPages(list, registry) {
       for (const k of ['section', 'view', 'needs']) if (p[k] !== undefined) errors.push(`${at}: a hub page has no ${k}`);
     } else if (p.system === 'assistant') {
       if (typeof p.path !== 'string' || !ASSISTANT_PATH.test(p.path)) errors.push(`${at}: path must be under /assistant`);
-      if (p.area !== 'assistant') errors.push(`${at}: an Assistant page's area is assistant`);
+      // The admin pages (A27 D3) are drawn in Pi Hub's System area; every other Assistant page is in the Assistant's own sections.
+      if (!['assistant', 'system'].includes(p.area)) errors.push(`${at}: an Assistant page's area is assistant, or system for the admin pages`);
       if (p.needs !== 'pc') errors.push(`${at}: an Assistant page needs the PC (needs: pc)`);
       if (!template(p)) {
-        if (!SECTIONS.includes(p.section)) errors.push(`${at}: section must be one of ${SECTIONS.join(', ')}`);
+        if (p.area === 'system' ? p.section !== undefined : !SECTIONS.includes(p.section)) errors.push(p.area === 'system' ? `${at}: an Assistant page in System has no section` : `${at}: section must be one of ${SECTIONS.join(', ')}`);
         if (typeof p.view !== 'string' || !/^[a-z][A-Za-z0-9]*$/.test(p.view)) errors.push(`${at}: view must be the Assistant's own view id`);
       }
     } else if (p.system === 'mac') {
