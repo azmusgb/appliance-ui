@@ -203,6 +203,26 @@ test('dense lists add the class, hide the source line, keep rows 44px+ and keep 
   await page.close();
 });
 
+test('2.23.1: a dense list with a long detail stays inside a narrow parent and keeps its action in view', async () => {
+  const page = await open(1440);
+  const r = await page.evaluate(h => {
+    const N = window.ApplianceNeeds;
+    const items = [{ id: 'a', source: 'Printer', tone: 'warn', title: 'Clear the plate', detail: 'Finished hex-tile E-021 on the X2D, plate 3 of 4, '.repeat(8), link: '/workshop', action: { key: 'look', link: '/workshop' } }];
+    const box = document.createElement('div');
+    box.style.width = '300px';
+    document.getElementById('host').append(box);
+    box.append(N.renderList(items, { resolve: l => l, here: new URL(h), self: 'Pi Hub', dense: true }));
+    const edge = box.getBoundingClientRect().right, li = box.querySelector('.ui-need'), act = li.querySelector('.ui-need__action'), det = li.querySelector('.ui-need__detail');
+    return { edge, row: li.getBoundingClientRect().right, action: act.getBoundingClientRect().right, actionW: act.getBoundingClientRect().width,
+      text: act.textContent, cut: det.scrollWidth > det.clientWidth };
+  }, here);
+  assert.ok(r.row <= r.edge + 0.5, `row ends at ${r.row}, parent at ${r.edge}`);
+  assert.ok(r.action <= r.edge + 0.5 && r.actionW > 0, `action ends at ${r.action}, parent at ${r.edge}`);
+  assert.equal(r.text, 'Look at the printer');
+  assert.ok(r.cut, 'the detail is ellipsized, not the row widened');
+  await page.close();
+});
+
 test('2.6.0: the meta line is "since <as_of> · <area>", the area else a foreign source; bad times are left out', async () => {
   const page = await open();
   const r = await page.evaluate(h => {
