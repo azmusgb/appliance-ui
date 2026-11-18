@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.23.1 — skippable
+A dense Needs-you list stays inside its parent. `.ui-needs` had no column template, so in a dense list (`renderList(..., {dense: true})`) each row's one-line, unwrapped detail sized the grid's implicit column to its full text, and rows ran far past their card (538 px over at 1440 wide, 865 px on a 390 px phone, in Local AI's Home), pushing the action and the ellipsis out of sight. `.ui-needs` now sets `grid-template-columns:minmax(0,1fr)`, so the row is the list's width and the detail ellipsizes. Non-dense lists look the same: the demo screens are unchanged. An app that worked around this with its own column rule (Local AI's `#homeNeedsList .ui-needs`) can drop it after its next sync.
+
 ## 2.23.0 — needs consumer change (web): the Assistant's admin pages are drawn in Pi Hub's System strip, Atlas is its own Assistant page, and there is no `setup` section
 Pi Hub amendment A27 (D1 to D3), step 1. In `pages.json`: the ten admin rows (`assistant-status`, now labelled "Assistant", with its tabs `models`, `developer-tools`, `assistant-settings`, `audit-log` and the five `tools-*` cards) have `area: system` and no `section`, so System's strip gains one page (the checker's cap for System is now eight); `atlas` is a page in the Assistant's Improve section, not a tab of Changes; the `setup` section is gone. No path, view id or row count changes, so no link breaks. A consumer that draws the Assistant's section strip from `section` stops showing Setup, and one that draws System's strip from `area` shows the Assistant page after Settings; the page's tabs come from `parent` as before.
 
