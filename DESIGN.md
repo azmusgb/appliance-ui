@@ -10,7 +10,7 @@ Home) come first. The
 kit's specs come next (`docs/superpowers/specs/`, Faceplate). This contract comes after both. It restates their rules in
 working form and adds the ones they leave open. A rule here that changes what an approved spec says needs an amendment.
 Changing this file is not enough. Where this contract and the shipped kit differ today, the difference is listed under
-"Open differences" at the end, and nothing else is assumed.
+"Decided differences" at the end, and nothing else is assumed.
 
 ## The product
 

@@ -286,7 +286,7 @@ Load `palette.css` after `tokens.css` and `components.css`, and `palette.js` as 
 
 ```js
 const palette = AppliancePalette.create({
-  providers: [{ name: 'Pi Hub', down: 'The PC is off or asleep', timeout: 4000, find: (query, { signal }) => results }],
+  providers: [{ name: 'Pi Hub', down: 'The PC is asleep', timeout: 4000, find: (query, { signal }) => results }],
   navigate: href => router.go(href),          // same-origin links; default location.assign
   confirm: (question, result) => askSheet(question),  // default window.confirm
   recentKey: 'pihub.palette.recent',          // localStorage key for "recent pages first"
@@ -325,7 +325,7 @@ The "Needs you" list is drawn by `needs.js` and `needs.css` (load them after `to
 `ApplianceNeeds.render(item, opts)` one `<li class="ui-need">`. An item is `{id, source, tone: "bad"|"attention"|"warn",
 title, detail, link?, action?: {key, link}}` (the bar is red for `bad`, amber for `attention` and `warn`, as the display's `NeedsRow` draws it); `action.key` is a phrase key and the renderer supplies the words
 (`ApplianceNeeds.PHRASES`). Since 2.0 the table also holds the platform's terms (spec section 9): `pc_off` "The PC is
-off or asleep", `assistant_down` "The Assistant isn't answering", `source_down` "{name} isn't answering" and
+asleep", `assistant_down` "The Assistant isn't answering", `source_down` "{name} isn't answering" and
 `unknown_release` "Not reported"; 2.8 adds `outside_alarm_quiet` "The outside alarm isn't hearing from the Pi"
 (Pi Hub amendment A1: a Healthchecks.io check is Late, Down or Paused). Text goes in as text. Links are judged by the kit: an input starting with `/`, `#` or a backslash, or with `http(s):`, is kept only if it is
 same-origin with `opts.here` (default: the page), and is emitted as an absolute URL with any userinfo removed. Any other
