@@ -15,6 +15,7 @@ export function pairs() {
   // The header sits on `bar` (the page head, and the display's Frame): its text, links and sub-line are measured there too.
   for (const fg of ['text', 'muted', 'accentText', 'unknown']) rows.push(['Text', `${fg} on bar (header)`, 4.5, (c, m) => [c[fg][m], c.bar[m]]]);
   rows.push(['Text', 'onAccent on accent (primary button label)', 4.5, (c, m) => [c.onAccent[m], c.accent[m]]]);
+  rows.push(['Text', 'onAccent on hovered primary (12% text into accent)', 4.5, (c, m) => [c.onAccent[m], mix(c.text[m], c.accent[m], 0.12)]]);
   for (const fg of STATUS) for (const bg of BGS) {
     rows.push(['Text', `${fg} chip (18% tint) on ${bg}`, 4.5, (c, m) => [c[fg][m], mix(c[fg][m], c[bg][m], 0.18)]]);
   }

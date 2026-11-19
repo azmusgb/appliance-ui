@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.23.2 — skippable
+The primary button's hover keeps its label legible. Hover mixed 12% of `onAccent` into `accent`, which in light mode lightened the fill under a white label to 4.09:1 (below 4.5:1). It now mixes 12% of `text` into `accent`: the fill darkens in light mode and lightens in dark, away from the label either way (light 5.99:1, dark 7.57:1). `docs/contrast.md` gains the hovered-primary row, so the build refuses a hover that drops under 4.5:1 again. Web only.
+
 ## 2.23.1 — skippable
 A dense Needs-you list stays inside its parent. `.ui-needs` had no column template, so in a dense list (`renderList(..., {dense: true})`) each row's one-line, unwrapped detail sized the grid's implicit column to its full text, and rows ran far past their card (538 px over at 1440 wide, 865 px on a 390 px phone, in Local AI's Home), pushing the action and the ellipsis out of sight. `.ui-needs` now sets `grid-template-columns:minmax(0,1fr)`, so the row is the list's width and the detail ellipsizes. Non-dense lists look the same: the demo screens are unchanged. An app that worked around this with its own column rule (Local AI's `#homeNeedsList .ui-needs`) can drop it after its next sync.
 
