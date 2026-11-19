@@ -5,7 +5,7 @@
 .ui-btn:not(:disabled,[aria-disabled="true"]):hover{background:color-mix(in srgb,var(--ui-text) 8%,var(--ui-surface-2))}
 .ui-btn:disabled,.ui-btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed}
 .ui-btn--primary{background:var(--ui-accent);color:var(--ui-on-accent)}
-.ui-btn--primary:not(:disabled,[aria-disabled="true"]):hover{background:color-mix(in srgb,var(--ui-text) 12%,var(--ui-accent))}
+.ui-btn--primary:not(:disabled,[aria-disabled="true"]):hover{background:color-mix(in srgb,var(--ui-text) 20%,var(--ui-accent))}
 .ui-btn--ghost{background:transparent;border-color:var(--ui-line-2);color:var(--ui-text)}
 .ui-btn--ghost:not(:disabled,[aria-disabled="true"]):hover{background:var(--ui-surface-2)}
 .ui-btn--danger{background:color-mix(in srgb,var(--ui-bad) 16%,transparent);border-color:color-mix(in srgb,var(--ui-bad) 40%,transparent);color:var(--ui-bad)}
