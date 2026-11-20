@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.24.0 — skippable
+Conversation-first UI components for the Operational Assistant (Pi Hub amendment A30 Phase 2): `.ui-chat-thread`, `.ui-chat-msg` (with user, assistant, and streaming variants), `.ui-chat-composer` (input and action button with 44 px touch compliance), `.ui-disclosure` (<details>/<summary> disclosure container for route telemetry, models, and tool traces), and `.ui-result-card` (loading, error, and disabled states). Web only.
+
 ## 2.23.2 — skippable
 The primary button's hover keeps its label legible. Hover mixed 12% of `onAccent` into `accent`, which in light mode lightened the fill under a white label to 4.09:1 (below 4.5:1). It now mixes 20% of `text` into `accent`: the fill darkens in light mode and lightens in dark, away from the label either way (light 6.60:1, dark 7.90:1), and moves the same way as the default button's hover. `docs/contrast.md` gains the hovered-primary row, and a test reads the hover rule from `components.css` and refuses a mix that drops the label under 4.5:1. The row's display column measures a state the Workshop display never draws (it has no hover). Web only.
 

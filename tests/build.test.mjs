@@ -158,7 +158,7 @@ test('1.4 tokens pass on the well', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-build-'));
   const r = build(['--out', out]);
   assert.equal(r.status, 0, r.stderr);
-  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^2\.23\.\d+$/);
+  assert.match(JSON.parse(fs.readFileSync(path.join(out, 'tokens.json'), 'utf8')).version, /^2\.24\.\d+$/);
 });
 
 // 1.4 faceplate: the font file the face names ships, and radii keep their order (panels r2 under controls r3).
