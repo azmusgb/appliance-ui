@@ -1,4 +1,4 @@
-# Measured contrast (appliance-ui 2.23.2)
+# Measured contrast (appliance-ui 2.24.0)
 
 Generated from `tokens.json` by `npm run contrast`; do not edit. Ratios are WCAG 2 contrast. Tints are measured as the
 components lay them. A pair is legible only as far as its number here says.
