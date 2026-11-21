@@ -68,8 +68,8 @@ test('the names section 8.1 settled are the labels', () => {
   const label = Object.fromEntries(list.pages.map(p => [p.id, p.label]));
   for (const [id, name] of Object.entries({
     wall: 'Wall display', printer: 'Printer', papers: 'Papers', movies: 'Movies', drives: 'Drives', lights: 'Lights', internet: 'Internet',
-    health: 'Health', settings: 'Settings', 'assistant-automations': 'Assistant automations', 'assistant-status': 'Assistant',
-    'assistant-settings': 'Assistant settings', ask: 'Ask', decisions: 'Decisions', changes: 'Changes', 'changes-in-progress': 'In progress',
+    health: 'Health', settings: 'Settings', 'assistant-automations': 'Assistant automations', 'assistant-system': 'Assistant', status: 'Assistant status',
+    'assistant-settings': 'Assistant settings', ask: 'Ask', decisions: 'Decisions', changes: 'Changes',
     atlas: 'Atlas', 'claude-code': 'Claude Code', 'lab-tools': 'Lab tools', 'developer-tools': 'Developer tools',
   })) assert.equal(label[id], name, id);
 });

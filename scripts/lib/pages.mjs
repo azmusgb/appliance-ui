@@ -7,7 +7,11 @@ export const ROLES = ['page', 'tab', 'filter', 'mode', 'detail', 'ambient', 'sta
 // The Assistant's five sections (A22 3.3). Their names are drawn with the Assistant's frame (brief 4), not from here yet.
 export const SECTIONS = ['ask', 'work', 'projects', 'improve'];
 const WAYS = ['rail', 'strip', 'tabs', 'chips', 'button', 'foot', 'palette', 'map'];
-const FIELDS = ['id', 'system', 'area', 'section', 'label', 'purpose', 'path', 'role', 'parent', 'view', 'reach', 'aliases', 'tools', 'needs', 'built'];
+const FIELDS = ['id', 'system', 'area', 'section', 'label', 'purpose', 'path', 'role', 'parent', 'view', 'reach', 'aliases', 'tools', 'cards', 'needs', 'built'];
+const CARD_FIELDS = ['id', 'label', 'purpose', 'path', 'view'];
+const REDIRECT_FIELDS = ['id', 'path', 'to', 'stage', 'card'];
+// The stages of a change (A27 D2): a redirect to Changes may name the one to filter by.
+export const STAGES = ['backlog', 'in-progress', 'shipped'];
 const AREA_FIELDS = ['id', 'label', 'order', 'landing'];
 const ID = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 const TEXT = /^[\x20-\x7e]+$/;  // printable ASCII, as tools.json: safe wherever a consumer writes it
@@ -24,7 +28,7 @@ const template = p => typeof p.path === 'string' && p.path.includes('<');
 export function checkPages(list, registry) {
   const errors = [];
   if (!list || typeof list !== 'object') return ['pages.json: not an object'];
-  for (const k of Object.keys(list)) if (!['$comment', 'version', 'areas', 'pages'].includes(k)) errors.push(`unknown field ${k}`);
+  for (const k of Object.keys(list)) if (!['$comment', 'version', 'areas', 'pages', 'redirects'].includes(k)) errors.push(`unknown field ${k}`);
   if (list.version !== 1) errors.push('version: must be 1');
   if (!Array.isArray(list.areas) || !list.areas.length) return [...errors, 'areas: a non-empty list is required'];
   if (!Array.isArray(list.pages) || !list.pages.length) return [...errors, 'pages: a non-empty list is required'];
@@ -163,13 +167,58 @@ export function checkPages(list, registry) {
     const kids = pages.filter(q => q.role === 'tab' && q.parent === p.id);
     if (kids.length > 6) errors.push(`${p.id}: ${kids.length} tabs, more than six`);
   }
+  // Cards (A27 D1): a tool that opens in place on its page is no page of its own, so it has no row and no way in of its own.
+  const cardPaths = new Map();
+  for (const p of pages) {
+    if (p.cards === undefined) continue;
+    const at = `${p.id}: cards`;
+    if (!Array.isArray(p.cards) || !p.cards.length) { errors.push(`${at} is a non-empty list`); continue; }
+    if (p.system !== 'assistant') errors.push(`${at} are only for an Assistant page`);
+    const seen = new Set();
+    for (const c of p.cards) {
+      if (!c || typeof c !== 'object') { errors.push(`${at}: not an object`); continue; }
+      for (const k of Object.keys(c)) if (!CARD_FIELDS.includes(k)) errors.push(`${at} (${c.id}): unknown field ${k}`);
+      if (typeof c.id !== 'string' || !ID.test(c.id)) errors.push(`${at}: id must match ${ID}`);
+      else if (seen.has(c.id)) errors.push(`${at}: duplicate id ${c.id}`);
+      else seen.add(c.id);
+      for (const k of ['label', 'purpose']) if (typeof c[k] !== 'string' || !TEXT.test(c[k]) || c[k].endsWith('.')) errors.push(`${at} (${c.id}): ${k} must be one line of printable ASCII text, without a full stop`);
+      if (typeof c.path !== 'string' || !ASSISTANT_PATH.test(c.path)) errors.push(`${at} (${c.id}): path must be under /assistant`);
+      else if (paths.has(c.path) || aliasOf.has(c.path) || cardPaths.has(c.path)) errors.push(`${at} (${c.id}): path ${c.path} is already an address`);
+      else cardPaths.set(c.path, c);
+      if (typeof c.view !== 'string' || !/^[a-z][A-Za-z0-9]*$/.test(c.view)) errors.push(`${at} (${c.id}): view must be the Assistant's own view id`);
+    }
+  }
+
+  // Redirects (A27 D1 to D3): a retired page id keeps resolving, to a page, a stage of Changes or a card, so no link or Needs link breaks.
+  const redirected = new Set();
+  const redirectPaths = new Set();
+  if (list.redirects !== undefined && !Array.isArray(list.redirects)) errors.push('redirects: must be a list');
+  else (list.redirects || []).forEach((r, i) => {
+    const at = `redirects[${i}]${r && typeof r.id === 'string' ? ` (${r.id})` : ''}`;
+    if (!r || typeof r !== 'object') { errors.push(`${at}: not an object`); return; }
+    for (const k of Object.keys(r)) if (!REDIRECT_FIELDS.includes(k)) errors.push(`${at}: unknown field ${k}`);
+    if (typeof r.id !== 'string' || !ID.test(r.id)) errors.push(`${at}: id must match ${ID}`);
+    else if (byId.has(r.id)) errors.push(`${at}: ${r.id} is still a page, so it is no redirect`);
+    else if (redirected.has(r.id)) errors.push(`${at}: duplicate redirect ${r.id}`);
+    else redirected.add(r.id);
+    const to = byId.get(r.to);
+    if (!to) { errors.push(`${at}: to names no page`); return; }
+    if (r.stage !== undefined && !(r.to === 'changes' && STAGES.includes(r.stage))) errors.push(`${at}: stage is one of ${STAGES.join(', ')}, and only for a redirect to changes`);
+    if (r.card !== undefined && !(Array.isArray(to.cards) && to.cards.some(c => c.id === r.card))) errors.push(`${at}: card ${JSON.stringify(r.card)} is no card of ${r.to}`);
+    if (r.path !== undefined) {
+      if (typeof r.path !== 'string' || !ASSISTANT_PATH.test(r.path)) errors.push(`${at}: path must be under /assistant`);
+      else if (paths.has(r.path) || aliasOf.has(r.path) || redirectPaths.has(r.path)) errors.push(`${at}: path ${r.path} is a live address, so it needs no redirect`);
+      else redirectPaths.add(r.path);
+    }
+  });
+
   for (const t of tools.values()) if (offered(t) && !onAPage.has(t.id)) errors.push(`tools.json: ${t.id} is on no page's "Open in" row (retire it, or name it in a page's tools)`);
   return errors;
 }
 
 // The list as each app gets it: without the comment, in a fixed key order.
 const row = (o, fields) => Object.fromEntries(fields.filter(k => o[k] !== undefined).map(k => [k, o[k]]));
-export const built = list => ({ version: list.version, areas: list.areas.map(a => row(a, AREA_FIELDS)), pages: list.pages.map(p => row(p, FIELDS)) });
+export const built = list => ({ version: list.version, areas: list.areas.map(a => row(a, AREA_FIELDS)), pages: list.pages.map(p => row(p, FIELDS)), redirects: (list.redirects || []).map(r => row(r, REDIRECT_FIELDS)) });
 
 export function pagesJson(list) {
   return JSON.stringify(built(list), null, 1) + '\n';
@@ -180,18 +229,27 @@ export function pagesJs(list, banner) {
   return `// ${banner}
 // The site's pages (Pi Hub amendment A22, section 3): AREAS in the rail's order, PAGES in the list's order, page(id).
 // A page's label, purpose and path are written in pages.json and nowhere else. Its tools are ids in tools.js.
-// A row with built: false is a page a later step builds: draw nothing for it yet.
+// A row with built: false is a page a later step builds: draw nothing for it yet. redirect(id) answers a retired id.
 export const AREAS = Object.freeze([
 ${b.areas.map(a => `  Object.freeze(${JSON.stringify(a)}),`).join('\n')}
 ]);
-const deep = (p) => Object.freeze(Object.fromEntries(Object.entries(p).map(([k, v]) => [k, Array.isArray(v) ? Object.freeze(v) : v])));
+const deep = (p) => Object.freeze(Object.fromEntries(Object.entries(p).map(([k, v]) => [k, Array.isArray(v) ? Object.freeze(v.map((x) => (x && typeof x === 'object' ? Object.freeze(x) : x))) : v])));
 export const PAGES = Object.freeze([
 ${b.pages.map(p => `  deep(${JSON.stringify(p)}),`).join('\n')}
 ]);
+// A retired page id and where it goes now (a page, a stage of Changes with stage, or a card of its page with card).
+export const REDIRECTS = Object.freeze([
+${b.redirects.map(r => `  Object.freeze(${JSON.stringify(r)}),`).join('\n')}
+]);
 const BY_ID = new Map(PAGES.map((p) => [p.id, p]));
+const REDIRECT_BY_ID = new Map(REDIRECTS.map((r) => [r.id, r]));
 
 export function page(id) {
   return BY_ID.get(id) || null;
+}
+
+export function redirect(id) {
+  return REDIRECT_BY_ID.get(id) || null;
 }
 `;
 }

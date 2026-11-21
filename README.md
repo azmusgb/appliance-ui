@@ -268,14 +268,19 @@ redirects are drawn from it.
   (`pc` or `mac`). `"built": false` marks a row whose page a later step builds; nothing draws it.
 - Roles: `page` (in its area's strip), `tab`, `filter`, `mode`, `detail` (opened from a card: `card:<page id>`),
   `ambient` (no frame) and `standalone` (outside the frame on purpose). Every row has `palette` and `map` in `reach`.
+- `cards` (2.26, on an Assistant page): tools that open in place on that page and are no page of their own, each with
+  an `id`, `label`, `purpose`, `path` and `view`. Developer tools holds its five tools this way.
+- `redirects` (2.26): a retired page id and where it goes now: `to` (a page), plus `stage` (a stage of Changes to filter
+  by) or `card` (a card of that page), and `path` when the old address is no longer a live one. The build refuses a
+  redirect whose id is still a page, whose target or card does not exist, or whose path is a live address.
 
 The build refuses a page with no way in, a tab without a parent, two rows on one address (a page and its first tab
-may share one), an alias with two owners, a strip of more than six pages (System: seven), and a tool that is not in
+may share one), an alias with two owners, a strip of more than six pages (System: eight), and a tool that is not in
 `tools.json`, is retired, or is on no page. `tests/pages-words.test.mjs` keeps the names: no two pages share a label,
 labels are sentence case, and none is a retired word.
 
 - `pages.json`: the list without its comment, for a server or a test to read.
-- `pages.js` (ES module): `AREAS`, `PAGES` and `page(id)`.
+- `pages.js` (ES module): `AREAS`, `PAGES`, `REDIRECTS`, `page(id)` and `redirect(id)`.
 
 ## Palette (2.1)
 
