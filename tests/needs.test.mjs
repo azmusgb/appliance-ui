@@ -12,7 +12,7 @@ const { PHRASES, safeLink } = mod.exports;
 const here = new URL('http://10.0.0.80/home');
 const resolve = l => (l === 'bambuddy' ? 'https://bambuddy.home.arpa/' : l);
 
-test('PHRASES has the eighteen keys and texts, with the platform terms of spec section 9 and Pi Hub A22 8.4', () => {
+test('PHRASES has the thirty keys and texts, with the platform terms of spec section 9 and Pi Hub A22 8.4', () => {
   assert.deepEqual(PHRASES, {
     judge: 'Judge the print', approve: 'Approve or drop', send: 'Send it to the printer', fix_plan: 'Fix the plan',
     look: 'Look at the printer', open_bambuddy: 'Open Bambuddy', check_pc: 'Check the PC', not_answering: "{name} isn't answering",
