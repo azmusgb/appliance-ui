@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.25.0 — skippable
+`ApplianceConfirm.askTyped`: typed confirmation challenge for consequential and host-level actions (Pi Hub amendment A30 Phase 4 D3). The confirm button remains disabled until the person types the challenge word (e.g. "REBOOT") character-for-character. Web only.
+
 ## 2.24.0 — skippable
 Conversation-first UI components for the Operational Assistant (Pi Hub amendment A30 Phase 2): `.ui-chat-thread`, `.ui-chat-msg` (with user, assistant, and streaming variants), `.ui-chat-composer` (input and action button with 44 px touch compliance), `.ui-disclosure` (<details>/<summary> disclosure container for route telemetry, models, and tool traces), and `.ui-result-card` (loading, error, and disabled states). Web only.
 
