@@ -92,3 +92,38 @@ test('the line fits a phone: no horizontal overflow at 320 px', async () => {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   await page.close();
 });
+
+test('askTyped requires matching exact typed challenge before confirming (A30 Phase 4 D3)', async () => {
+  const page = await open();
+  const r = await page.evaluate(async () => {
+    const b = document.getElementById('pi');
+    window.typedAnswer = ApplianceConfirm.askTyped(b, {
+      what: 'Reboot the home server?',
+      challenge: 'REBOOT',
+      confirm: 'Reboot now'
+    });
+    const box = document.querySelector('.ui-confirm');
+    const input = box.querySelector('input.ui-field');
+    const yes = box.querySelector('button.ui-btn--danger');
+    const initialDisabled = yes.disabled;
+
+    input.value = 'REB';
+    input.dispatchEvent(new Event('input'));
+    const partialDisabled = yes.disabled;
+
+    input.value = 'REBOOT';
+    input.dispatchEvent(new Event('input'));
+    const matchedDisabled = yes.disabled;
+
+    yes.click();
+    const resolved = await window.typedAnswer;
+    return { hasInput: !!input, initialDisabled, partialDisabled, matchedDisabled, resolved };
+  });
+
+  assert.equal(r.hasInput, true);
+  assert.equal(r.initialDisabled, true);
+  assert.equal(r.partialDisabled, true);
+  assert.equal(r.matchedDisabled, false);
+  assert.equal(r.resolved, true);
+  await page.close();
+});
