@@ -249,6 +249,7 @@ is added to this kit, never to one app.
 | Comparing records | `ui-table`, `ui-table__num`, `ui-table--stack` (2.7) |
 | An icon-only control | `ui-btn--icon` (2.7) with `aria-label` |
 | What needs the owner | `ApplianceNeeds.renderList` (`ui-needs`), the only Needs-you list |
+| A question only the owner can answer | `ApplianceNeeds.renderDecisions` (`ui-decisions`, 2.27; Pi Hub A33): a "Decisions (n)" group after the condition items. Choice rows have two to four buttons with the recommended one marked in words; text rows have a box and one Send. A failed write keeps the row and says "Not recorded. Try again." An unreadable list is `state: "error"`, never an empty group |
 | Status | `ui-chip--ok/warn/bad/unknown`, with `--live` for something running now |
 | Progress | `ui-meter`, only with a real fraction |
 | Loading | `ui-skeleton` in the shape of what is coming |
