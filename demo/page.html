@@ -45,6 +45,7 @@
   <section class="ui-section" aria-labelledby="needs-h">
     <h2 id="needs-h">Needs you here</h2>
     <div id="needs"></div>
+    <div id="decisions"></div>
   </section>
   <section class="ui-section" aria-labelledby="fil-h">
     <h2 id="fil-h">Filament</h2>
@@ -82,6 +83,10 @@
   document.getElementById('needs').append(ApplianceNeeds.renderList([
     { id: 'judge', source: 'Print lab', area: 'Workshop', tone: 'attention', title: 'E-021 is ready to judge', detail: 'Hex tile, two plates. Takes about two minutes.', link: '#hist-h', action: { key: 'judge_it', link: '#hist-h' }, as_of: new Date(Date.now() - 36e5).toISOString() },
   ], { here: location.href, self: 'Pi Hub' }));
+  document.getElementById('decisions').append(ApplianceNeeds.renderDecisions([
+    { id: 'a27-shape', kind: 'choice', question: 'Which shape should the Assistant Activity page take?', options: ['A feed', 'A table', 'Cards'], recommended: 'A table', link: '#hist-h' },
+    { id: 'a30-line', kind: 'text', question: 'Write the one line the A30 listing should say.', options: [], link: '' },
+  ], { here: location.href, onAnswer: (id, answer) => new Promise(r => setTimeout(() => r(answer), 600)) }));
   const done = document.getElementById('done');
   for (const b of document.querySelectorAll('[data-what]')) {
     b.addEventListener('click', async () => {
