@@ -262,3 +262,20 @@ test('needs.css draws no animation or transition for the group (nothing for redu
   const css = (await import('node:fs')).readFileSync(path.join(root, 'dist/needs.css'), 'utf8');
   assert.doesNotMatch(css, /animation|transition|@keyframes/);
 });
+
+// Plan decision 5 (pi-hub docs/superpowers/plans/2026-11-21-a33-owner-decisions.md): a failed refresh keeps the last rows,
+// marked not current, never an empty group and never rows passed off as fresh.
+test('stale: the last rows stay with a Not current line; with no rows it says it could not be read', async () => {
+  const page = await open();
+  const r = await page.evaluate(() => {
+    const list = [{ id: 'a27-activity', question: 'Activity shape?', options: ['List', 'Cards'], recommended: 'List', kind: 'choice' }];
+    window.mount(list, { state: 'stale' });
+    const withRows = { status: document.querySelector('.ui-decisions__status').textContent, kind: document.querySelector('.ui-decisions__status').dataset.kind, rows: document.querySelectorAll('.ui-decision').length, title: document.querySelector('h3').textContent };
+    window.mount([], { state: 'stale' });
+    const none = { status: document.querySelector('.ui-decisions__status')?.textContent, rows: document.querySelectorAll('.ui-decision').length };
+    return { withRows, none };
+  });
+  assert.deepEqual(r.withRows, { status: "Not current: couldn't refresh the decisions", kind: 'stale', rows: 1, title: 'Decisions (1)' });
+  assert.deepEqual(r.none, { status: "Decisions couldn't be read", rows: 0 });
+  await page.close();
+});

@@ -26,6 +26,7 @@
 #define UI_NEED_DECISION_FAILED "Not recorded. Try again."
 #define UI_NEED_DECISION_NO_ANSWER "This decision can't be answered here"
 #define UI_NEED_DECISION_EMPTY "Write an answer first"
+#define UI_NEED_DECISIONS_STALE "Not current: couldn't refresh the decisions"
 #define UI_NEED_OUTSIDE_ALARM_QUIET "The outside alarm isn't hearing from the Pi"
 #define UI_NEED_JUDGE_IT "Judge it"
 #define UI_NEED_OPEN_PRINTER "Open printer"
@@ -58,10 +59,11 @@ static const UiNeedPhrase UI_NEED_PHRASES[] = {
   { "decision_failed", "Not recorded. Try again." },
   { "decision_no_answer", "This decision can't be answered here" },
   { "decision_empty", "Write an answer first" },
+  { "decisions_stale", "Not current: couldn't refresh the decisions" },
   { "outside_alarm_quiet", "The outside alarm isn't hearing from the Pi" },
   { "judge_it", "Judge it" },
   { "open_printer", "Open printer" },
   { "open_network", "Open Network" },
   { "see_usage", "See what's using it" },
 };
-#define UI_NEED_PHRASE_COUNT 30
+#define UI_NEED_PHRASE_COUNT 31

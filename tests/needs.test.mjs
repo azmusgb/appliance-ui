@@ -12,14 +12,14 @@ const { PHRASES, safeLink } = mod.exports;
 const here = new URL('http://10.0.0.80/home');
 const resolve = l => (l === 'bambuddy' ? 'https://bambuddy.home.arpa/' : l);
 
-test('PHRASES has the thirty keys and texts, with the platform terms of spec section 9 and Pi Hub A22 8.4 and A33 P1', () => {
+test('PHRASES has the thirty-one keys and texts, with the platform terms of spec section 9 and Pi Hub A22 8.4 and A33 P1', () => {
   assert.deepEqual(PHRASES, {
     judge: 'Judge the print', approve: 'Approve or drop', send: 'Send it to the printer', fix_plan: 'Fix the plan',
     look: 'Look at the printer', open_bambuddy: 'Open Bambuddy', check_pc: 'Check the PC', not_answering: "{name} isn't answering",
     pc_off: 'The PC is asleep', pc_waking: 'The PC is waking up',
     assistant_down: "The Assistant isn't answering", source_down: "{name} isn't answering",
     unknown_release: 'Not reported',
-    decisions_heading: 'Decisions ({n})', decisions_loading: 'Loading decisions', decisions_unreadable: "Decisions couldn't be read",
+    decisions_heading: 'Decisions ({n})', decisions_loading: 'Loading decisions', decisions_unreadable: "Decisions couldn't be read", decisions_stale: "Not current: couldn't refresh the decisions",
     decision_recommended: 'Recommended', decision_spec: 'Open the spec', decision_text_label: 'Your answer', decision_send: 'Send',
     decision_pending: 'Recording your answer', decision_recorded: 'Recorded: {answer}', decision_failed: 'Not recorded. Try again.',
     decision_no_answer: "This decision can't be answered here", decision_empty: 'Write an answer first',

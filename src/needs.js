@@ -8,7 +8,9 @@
 // open question the owner answers by a tap. decision: {id, question, options[], recommended?, link?, kind: "choice"|"text",
 // answered_at?, answer?}. opts.onAnswer(id, answer) → Promise does the write; a rejection or a resolved `false` is "not
 // recorded" (the row stays), anything else is recorded (a resolved string is the answer the hub holds, shown as recorded).
-// opts.state "loading" or "error" draws the group's own line instead of rows; an empty or missing list draws nothing.
+// opts.state "loading" or "error" draws the group's own line instead of rows; "stale" keeps the rows given (the last ones
+// read) under a Not current line, or says the decisions couldn't be read when there are none. An empty or missing list
+// with no state draws nothing.
 // opts.allowOrigins: absolute https origins a spec link may point at (others are dropped, as for items).
 (() => {
   // The state words and the age rules, one table with the display (src/words.json). The build puts it on the next line
@@ -27,6 +29,7 @@
     decision_recommended: 'Recommended', decision_spec: 'Open the spec', decision_text_label: 'Your answer', decision_send: 'Send',
     decision_pending: 'Recording your answer', decision_recorded: 'Recorded: {answer}', decision_failed: 'Not recorded. Try again.',
     decision_no_answer: "This decision can't be answered here", decision_empty: 'Write an answer first',
+    decisions_stale: "Not current: couldn't refresh the decisions",
     // A1 (2.8.0): a Healthchecks.io check is Late, Down or Paused while the hub is up.
     outside_alarm_quiet: "The outside alarm isn't hearing from the Pi",
     // Actions named by their verb (2.6.0, A7 P2): never "Open" alone.
@@ -245,7 +248,7 @@
     const out = doc.createDocumentFragment();
     const open = (Array.isArray(decisions) ? decisions : [])
       .filter(d => d && typeof d === 'object' && str(d.id) && typeof d.question === 'string' && d.question.trim() && !d.answered_at);
-    const state = o.state === 'loading' || o.state === 'error' ? o.state : '';
+    const state = ['loading', 'error', 'stale'].includes(o.state) ? (o.state === 'stale' && !open.length ? 'error' : o.state) : '';
     if (!open.length && !state) return out;
     const here = hereOf(o, doc);
     const sec = el(doc, 'section', 'ui-decisions');
@@ -273,7 +276,7 @@
     if (state) {
       title.textContent = text('decisions_heading', open.length);
       title.hidden = !open.length;
-      status.textContent = text(state === 'loading' ? 'decisions_loading' : 'decisions_unreadable');
+      status.textContent = text({ loading: 'decisions_loading', error: 'decisions_unreadable', stale: 'decisions_stale' }[state]);
       status.dataset.kind = state;
     } else {
       title.textContent = text('decisions_heading', open.length);
