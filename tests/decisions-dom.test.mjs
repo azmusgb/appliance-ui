@@ -263,6 +263,15 @@ test('needs.css draws no animation or transition for the group (nothing for redu
   assert.doesNotMatch(css, /animation|transition|@keyframes/);
 });
 
+// The recommended tag is drawn in its button's own label colour, a pair docs/contrast.md measures (onAccent on accent for
+// a primary button); fading it would make an unmeasured pair (DESIGN.md: a new pairing gets a row before it ships).
+test('the recommended tag is not faded: it keeps its button label colour', async () => {
+  const css = (await import('node:fs')).readFileSync(path.join(root, 'dist/needs.css'), 'utf8');
+  const rule = css.match(/\.ui-decision__rec\{[^}]*\}/)?.[0];
+  assert.ok(rule, 'the .ui-decision__rec rule exists');
+  assert.doesNotMatch(rule, /opacity|color/);
+});
+
 // Plan decision 5 (pi-hub docs/superpowers/plans/2026-11-21-a33-owner-decisions.md): a failed refresh keeps the last rows,
 // marked not current, never an empty group and never rows passed off as fresh.
 test('stale: the last rows stay with a Not current line; with no rows it says it could not be read', async () => {
