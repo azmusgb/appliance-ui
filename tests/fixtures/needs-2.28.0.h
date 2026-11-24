@@ -32,6 +32,9 @@
 #define UI_NEED_OPEN_PRINTER "Open printer"
 #define UI_NEED_OPEN_NETWORK "Open Network"
 #define UI_NEED_SEE_USAGE "See what's using it"
+#define UI_NEED_ACKNOWLEDGE "Acknowledge"
+#define UI_NEED_ACK_PENDING "Acknowledging"
+#define UI_NEED_ACK_FAILED "Not acknowledged. Try again."
 typedef struct { const char *key; const char *text; } UiNeedPhrase;
 static const UiNeedPhrase UI_NEED_PHRASES[] = {
   { "judge", "Judge the print" },
@@ -65,5 +68,8 @@ static const UiNeedPhrase UI_NEED_PHRASES[] = {
   { "open_printer", "Open printer" },
   { "open_network", "Open Network" },
   { "see_usage", "See what's using it" },
+  { "acknowledge", "Acknowledge" },
+  { "ack_pending", "Acknowledging" },
+  { "ack_failed", "Not acknowledged. Try again." },
 };
-#define UI_NEED_PHRASE_COUNT 31
+#define UI_NEED_PHRASE_COUNT 34
