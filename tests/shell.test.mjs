@@ -110,3 +110,43 @@ test('watch: head height and keyboard inset are published as variables, and stop
   assert.equal(await page.evaluate(() => document.documentElement.style.getPropertyValue('--ui-shell-head-h')), '');
   await page.close();
 });
+
+test('keyboard: the nav is one tab stop; Tab leaves it in one step, and the stop follows focus and the current area', async () => {
+  const page = await open(1280);
+  const stops = () => page.$$eval('.ui-rail a[data-area]', (l) => l.filter((a) => a.tabIndex === 0).map((a) => a.dataset.area));
+  assert.deepEqual(await stops(), ['workshop'], 'the current area is the one tab stop');
+  await page.focus('.ui-rail a[data-area="workshop"]');
+  await page.keyboard.press('Tab');
+  assert.equal(await page.evaluate(() => !!document.activeElement.closest('.ui-rail')), false, 'Tab leaves the nav');
+  await page.focus('.ui-rail a[data-area="home"]');
+  assert.deepEqual(await stops(), ['home'], 'the stop follows focus');
+  await page.evaluate(() => ApplianceShell.setCurrent(document.querySelector('.ui-rail'), 'system'));
+  assert.deepEqual(await stops(), ['system'], 'and the current area after setCurrent');
+  await page.evaluate(() => ApplianceShell.setCurrent(document.querySelector('.ui-rail'), 'nowhere'));
+  assert.deepEqual(await stops(), ['home'], 'no current area: the first link');
+  await page.close();
+});
+
+test('phone: at 320 to 430 px and 100% to 200% text, a tab\'s label, icon and count are inside it and never touch one another', async () => {
+  for (const width of [320, 360, 390, 430]) for (const text of [1, 1.3, 2]) {
+    const page = await open(width, { text });
+    await page.evaluate(() => { const n = document.querySelector('.ui-rail'); ApplianceShell.setBadge(n, 'home', 3); ApplianceShell.setBadge(n, 'workshop', 12); ApplianceShell.setBadge(n, 'network', 250); });
+    const r = await page.$$eval('.ui-rail a[data-area]', (links) => links.map((a) => {
+      const rect = (e) => e.getBoundingClientRect(), box = rect(a), l = rect(a.querySelector('.ui-rail-label')), i = rect(a.querySelector('.ui-rail-icon')), bd = a.querySelector('.ui-rail-badge'), b = bd && rect(bd);
+      const hit = (p, q) => p.left < q.right - 0.5 && p.right > q.left + 0.5 && p.top < q.bottom - 0.5 && p.bottom > q.top + 0.5;
+      const lab = a.querySelector('.ui-rail-label');
+      const inside = (r2) => r2.left >= box.left - 0.5 && r2.right <= box.right + 0.5 && r2.top >= box.top - 0.5 && r2.bottom <= box.bottom + 0.5;
+      return { area: a.dataset.area, lines: Math.round(l.height / parseFloat(getComputedStyle(lab).lineHeight)), label: inside(l), icon: inside(i), badge: !b || inside(b), badgeOnIcon: !!b && hit(b, i), badgeOnLabel: !!b && hit(b, l), iconOnLabel: hit(i, l) };
+    }));
+    for (const x of r) {
+      const at = `${width}px ×${text} ${x.area}`;
+      assert.equal(x.lines, 1, `${at}: the label is one line`);
+      assert.ok(x.label && x.icon && x.badge, `${at}: label, icon and count inside the tab`);
+      assert.equal(x.badgeOnIcon, false, `${at}: the count does not touch the icon`);
+      assert.equal(x.badgeOnLabel, false, `${at}: the count does not touch the label`);
+      assert.equal(x.iconOnLabel, false, `${at}: the icon does not touch the label`);
+    }
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}px ×${text}: no sideways scroll`);
+    await page.close();
+  }
+});

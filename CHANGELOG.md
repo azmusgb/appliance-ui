@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.31.0 — skippable
+Shell fixes found when Pi Hub adopted 2.29.0: the nav is one tab stop (a roving tabindex: Tab leaves it in one step, the arrow keys still move between links); a phone tab's label is sized by the bar's width (`min(fs-1, 3.85cqi)`, one line, no mid-word break at 320 to 430 px or 200% text); the count sits in the tab's top-right corner and stays inside its tab; a count above 99 reads `9+` on a bar under 28rem (the text and the name stay `99+`). A consumer that drew its own fixes for these can delete them.
+
 ## 2.30.0 — skippable
 A page row may carry `drawn: "hub"` (an Assistant page only): Pi Hub draws that page itself, from the Assistant's data through its own server, so it opens while the PC is asleep and shows what it last read, with its age. `needs: pc` stays and then means the page's actions and live data need the PC. Marked now: `status`, `models` and `run`. The run row is renamed Task ("One task the Assistant is working on or has finished"). A consumer that ignores the field behaves as before.
 
