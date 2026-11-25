@@ -110,3 +110,34 @@ test('watch: head height and keyboard inset are published as variables, and stop
   assert.equal(await page.evaluate(() => document.documentElement.style.getPropertyValue('--ui-shell-head-h')), '');
   await page.close();
 });
+
+test('keyboard: the nav is one tab stop; Tab leaves it in one step, and the stop follows focus and the current area', async () => {
+  const page = await open(1280);
+  const stops = () => page.$$eval('.ui-rail a[data-area]', (l) => l.filter((a) => a.tabIndex === 0).map((a) => a.dataset.area));
+  assert.deepEqual(await stops(), ['workshop'], 'the current area is the one tab stop');
+  await page.focus('.ui-rail a[data-area="workshop"]');
+  await page.keyboard.press('Tab');
+  assert.equal(await page.evaluate(() => !!document.activeElement.closest('.ui-rail')), false, 'Tab leaves the nav');
+  await page.focus('.ui-rail a[data-area="home"]');
+  assert.deepEqual(await stops(), ['home'], 'the stop follows focus');
+  await page.evaluate(() => ApplianceShell.setCurrent(document.querySelector('.ui-rail'), 'system'));
+  assert.deepEqual(await stops(), ['system'], 'and the current area after setCurrent');
+  await page.evaluate(() => ApplianceShell.setCurrent(document.querySelector('.ui-rail'), 'nowhere'));
+  assert.deepEqual(await stops(), ['home'], 'no current area: the first link');
+  await page.close();
+});
+
+test('phone: every tab label is one whole line at 320 to 430 px and at 200% text, and a count stays inside its tab (clear of the icon at normal text, a corner overlap at 200%)', async () => {
+  for (const [width, text] of [[320, 1], [360, 1], [390, 1], [430, 1], [390, 2], [320, 2]]) {
+    const page = await open(width, { text });
+    await page.evaluate(() => { const n = document.querySelector('.ui-rail'); ApplianceShell.setBadge(n, 'home', 3); ApplianceShell.setBadge(n, 'network', 250); });
+    const r = await page.$$eval('.ui-rail a[data-area]', (links) => links.map((a) => {
+      const l = a.querySelector('.ui-rail-label').getBoundingClientRect(), box = a.getBoundingClientRect(), i = a.querySelector('.ui-rail-icon').getBoundingClientRect(), bd = a.querySelector('.ui-rail-badge');
+      const b = bd && bd.getBoundingClientRect();
+      return { area: a.dataset.area, lines: Math.round(l.height / parseFloat(getComputedStyle(a.querySelector('.ui-rail-label')).lineHeight || 1)), inside: l.left >= box.left - 0.5 && l.right <= box.right + 0.5, overIcon: !b ? 0 : Math.max(0, Math.min(b.right, i.right) - Math.max(b.left, i.left)) * Math.max(0, Math.min(b.bottom, i.bottom) - Math.max(b.top, i.top)) / (b.width * b.height), badgeInside: !b || (b.left >= box.left - 0.5 && b.right <= box.right + 0.5) };
+    }));
+    for (const x of r) { assert.equal(x.inside, true, `${width}/${text} ${x.area}: label inside its tab`); assert.ok(x.overIcon <= (text > 1 ? 0.5 : 0.05), `${width}/${text} ${x.area}: badge covers ${Math.round(x.overIcon * 100)}% of its area over the icon`); assert.equal(x.badgeInside, true, `${width}/${text} ${x.area}: badge inside its tab`); }
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}/${text}: no sideways scroll`);
+    await page.close();
+  }
+});
