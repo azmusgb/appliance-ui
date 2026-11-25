@@ -24,7 +24,10 @@
   .ui-shell{grid-template-columns:minmax(0,1fr)}
   .ui-shell-main{padding-bottom:calc(var(--ui-s-7) + var(--ui-tabbar-h,calc(var(--ui-space)*14)) + env(safe-area-inset-bottom,0px) + var(--ui-kb-inset,0px))}
   .ui-rail{position:fixed;inset:auto 0 var(--ui-kb-inset,0px) 0;z-index:var(--ui-z-bar);height:auto;flex-direction:row;gap:0;overflow:visible;padding:0 max(0px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(0px,env(safe-area-inset-left,0px));border-right:0;border-top:1px solid var(--ui-line)}
-  .ui-rail a{flex:1 1 0;min-width:0;min-height:var(--ui-tabbar-h,calc(var(--ui-space)*14));border-radius:0;font-size:min(var(--ui-fs-2),4.6vw)}
+  .ui-rail{container-type:inline-size}
+  .ui-rail a{flex:1 1 0;min-width:0;min-height:var(--ui-tabbar-h,calc(var(--ui-space)*14));padding-inline:0;border-radius:0;font-size:min(var(--ui-fs-1),3.85cqi);white-space:nowrap}
   .ui-rail a[aria-current="page"]::before{inset:0 var(--ui-s-3) auto var(--ui-s-3);width:auto;height:calc(var(--ui-space)*.75)}
-  .ui-rail-badge{right:calc(50% - var(--ui-s-6))}
+  .ui-rail-badge{right:0;min-width:0;padding:0 calc(var(--ui-space)/2)}
 }
+/* A count above 99 is "99+"; a bar under 28rem has no room beside the icon for it and draws data-short (9+) instead. The text and the name stay "99+". */
+@container (max-width:28rem){.ui-rail-badge[data-short]{font-size:0}.ui-rail-badge[data-short]::after{content:attr(data-short);font:700 var(--ui-fs-1)/calc(var(--ui-space)*5) var(--ui-font)}}
