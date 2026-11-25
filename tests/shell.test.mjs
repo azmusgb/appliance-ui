@@ -127,17 +127,26 @@ test('keyboard: the nav is one tab stop; Tab leaves it in one step, and the stop
   await page.close();
 });
 
-test('phone: every tab label is one whole line at 320 to 430 px and at 200% text, and a count stays inside its tab (clear of the icon at normal text, a corner overlap at 200%)', async () => {
-  for (const [width, text] of [[320, 1], [360, 1], [390, 1], [430, 1], [390, 2], [320, 2]]) {
+test('phone: at 320 to 430 px and 100% to 200% text, a tab\'s label, icon and count are inside it and never touch one another', async () => {
+  for (const width of [320, 360, 390, 430]) for (const text of [1, 1.3, 2]) {
     const page = await open(width, { text });
-    await page.evaluate(() => { const n = document.querySelector('.ui-rail'); ApplianceShell.setBadge(n, 'home', 3); ApplianceShell.setBadge(n, 'network', 250); });
+    await page.evaluate(() => { const n = document.querySelector('.ui-rail'); ApplianceShell.setBadge(n, 'home', 3); ApplianceShell.setBadge(n, 'workshop', 12); ApplianceShell.setBadge(n, 'network', 250); });
     const r = await page.$$eval('.ui-rail a[data-area]', (links) => links.map((a) => {
-      const l = a.querySelector('.ui-rail-label').getBoundingClientRect(), box = a.getBoundingClientRect(), i = a.querySelector('.ui-rail-icon').getBoundingClientRect(), bd = a.querySelector('.ui-rail-badge');
-      const b = bd && bd.getBoundingClientRect();
-      return { area: a.dataset.area, lines: Math.round(l.height / parseFloat(getComputedStyle(a.querySelector('.ui-rail-label')).lineHeight || 1)), inside: l.left >= box.left - 0.5 && l.right <= box.right + 0.5, overIcon: !b ? 0 : Math.max(0, Math.min(b.right, i.right) - Math.max(b.left, i.left)) * Math.max(0, Math.min(b.bottom, i.bottom) - Math.max(b.top, i.top)) / (b.width * b.height), badgeInside: !b || (b.left >= box.left - 0.5 && b.right <= box.right + 0.5) };
+      const rect = (e) => e.getBoundingClientRect(), box = rect(a), l = rect(a.querySelector('.ui-rail-label')), i = rect(a.querySelector('.ui-rail-icon')), bd = a.querySelector('.ui-rail-badge'), b = bd && rect(bd);
+      const hit = (p, q) => p.left < q.right - 0.5 && p.right > q.left + 0.5 && p.top < q.bottom - 0.5 && p.bottom > q.top + 0.5;
+      const lab = a.querySelector('.ui-rail-label');
+      const inside = (r2) => r2.left >= box.left - 0.5 && r2.right <= box.right + 0.5 && r2.top >= box.top - 0.5 && r2.bottom <= box.bottom + 0.5;
+      return { area: a.dataset.area, lines: Math.round(l.height / parseFloat(getComputedStyle(lab).lineHeight)), label: inside(l), icon: inside(i), badge: !b || inside(b), badgeOnIcon: !!b && hit(b, i), badgeOnLabel: !!b && hit(b, l), iconOnLabel: hit(i, l) };
     }));
-    for (const x of r) { assert.equal(x.inside, true, `${width}/${text} ${x.area}: label inside its tab`); assert.ok(x.overIcon <= (text > 1 ? 0.5 : 0.05), `${width}/${text} ${x.area}: badge covers ${Math.round(x.overIcon * 100)}% of its area over the icon`); assert.equal(x.badgeInside, true, `${width}/${text} ${x.area}: badge inside its tab`); }
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}/${text}: no sideways scroll`);
+    for (const x of r) {
+      const at = `${width}px ×${text} ${x.area}`;
+      assert.equal(x.lines, 1, `${at}: the label is one line`);
+      assert.ok(x.label && x.icon && x.badge, `${at}: label, icon and count inside the tab`);
+      assert.equal(x.badgeOnIcon, false, `${at}: the count does not touch the icon`);
+      assert.equal(x.badgeOnLabel, false, `${at}: the count does not touch the label`);
+      assert.equal(x.iconOnLabel, false, `${at}: the icon does not touch the label`);
+    }
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}px ×${text}: no sideways scroll`);
     await page.close();
   }
 });

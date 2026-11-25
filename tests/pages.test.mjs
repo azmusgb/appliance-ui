@@ -169,6 +169,21 @@ test('drawn is "hub" and only on an Assistant page', () => {
   assert.equal(row(list, 'run').label, 'Task');
 });
 
+test('a drawn page keeps its route, parent, section and needs: pc, so routing and workstation semantics are unchanged', () => {
+  const drawn = list.pages.filter(p => p.drawn === 'hub');
+  assert.deepEqual(drawn.map(p => p.id), ['status', 'models', 'run']);
+  const was = { status: ['/assistant/status', 'assistant-system', 'system'], models: ['/assistant/models', 'assistant-system', 'system'], run: ['/assistant/run/<id>', undefined, 'assistant'] };
+  for (const p of drawn) {
+    assert.equal(p.system, 'assistant', `${p.id} stays on the Assistant's system`);
+    assert.deepEqual([p.path, p.parent, p.area], was[p.id], `${p.id}: path, parent and area as before`);
+    assert.equal(p.needs, 'pc', `${p.id} still needs the PC for its actions and live data`);
+    assert.ok(!p.reach.includes('rail'), `${p.id} is not in the rail`);
+  }
+  assert.match(problems(l => { delete row(l, 'status').needs; }).join('\n'), /a drawn page keeps needs: pc/);
+  assert.match(problems(l => { row(l, 'status').system = 'hub'; row(l, 'status').drawn = 'hub'; }).join('\n'), /drawn can only be "hub", on an Assistant page/);
+  assert.equal(list.areas.some(a => a.id === 'assistant'), false, 'the Assistant is still not a rail area');
+});
+
 test('an area is a rail entry with a landing page, and its strip has a cap', () => {
   const extra = id => ({ id, system: 'hub', area: 'household', label: id, purpose: 'x', path: `/${id}`, role: 'page', reach: ['strip', 'palette', 'map'] });
   assert.match(problems(l => { l.pages.push(extra('seventh')); }).join('\n'), /household\): its strip has 7 pages, more than 6/);

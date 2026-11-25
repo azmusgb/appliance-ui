@@ -265,7 +265,22 @@ redirects are drawn from it.
 - `pages`: per row an `id`, `system` (`hub`, `assistant`, `mac`), `area` (and `section` and `view` for an Assistant
   page), `label`, `purpose`, `path`, `role`, `parent` (for a tab, filter, mode or detail), `reach` (every visible way
   in), `aliases` (old addresses that redirect to it), `tools` (ids in `tools.json`: its "Open in" row) and `needs`
-  (`pc` or `mac`). `drawn: "hub"` (2.30, an Assistant page only) says Pi Hub draws the page itself, so it opens while the PC is asleep; `needs: pc` then means its actions and live data. `"built": false` marks a row whose page a later step builds; nothing draws it.
+  (`pc` or `mac`). `drawn: "hub"` (2.30, an Assistant page only): see "A page Pi Hub draws" below. `"built": false` marks a row whose page a later step builds; nothing draws it.
+### A page Pi Hub draws (`drawn: "hub"`, 2.30)
+
+`drawn: "hub"` says who paints a page, not where it lives. It changes one thing for a consumer: the page opens while the
+workstation is asleep, drawn from what Pi Hub last read, with its age. It changes nothing else:
+- **Routing is unchanged.** The row keeps its `system: assistant`, its `/assistant/...` path, its `view`, aliases and
+  `reach`; the palette, Site map and redirects read it as before. Pi Hub serves the same address itself.
+- **Parents are unchanged.** `parent`, `section`, `area` and the card it opens from stay as written (`run` stays a detail of
+  `work`; `status` and `models` stay details of `assistant-system`, whose other cards stay framed). That is why the row is
+  marked and not moved to `system: hub`: the build requires a page and its parent to share a system.
+- **Workstation availability is unchanged.** `needs: pc` is required on a drawn row (the build refuses it without). It now
+  means: the page's live data and every action (start, cancel, retry, change a setting) need the workstation. A drawn page
+  with the PC asleep shows what it last read with its age, disables each action with the reason, and says "needs the PC"
+  for a read it never kept. A page marked `needs: pc` and not drawn is still unavailable while the PC sleeps.
+- Today: `status`, `models` and `run` (named Task). A consumer that ignores the field behaves as before.
+
 - Roles: `page` (in its area's strip), `tab`, `filter`, `mode`, `detail` (opened from a card: `card:<page id>`),
   `ambient` (no frame) and `standalone` (outside the frame on purpose). Every row has `palette` and `map` in `reach`.
 - `cards` (2.26, on an Assistant page): tools that open in place on that page and are no page of their own, each with

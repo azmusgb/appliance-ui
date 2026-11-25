@@ -79,6 +79,7 @@ export function checkPages(list, registry) {
     if (p.purpose === undefined && p.system === 'hub' && ['page', 'ambient', 'standalone'].includes(p.role)) errors.push(`${at}: a page needs its one-line purpose`);
     if (p.built !== undefined && p.built !== false) errors.push(`${at}: built can only be false`);
     if (p.drawn !== undefined && (p.drawn !== 'hub' || p.system !== 'assistant')) errors.push(`${at}: drawn can only be "hub", on an Assistant page`);
+    if (p.drawn !== undefined && p.needs !== 'pc') errors.push(`${at}: a drawn page keeps needs: pc (its actions and live data still need the workstation)`);
 
     // Where it lives.
     if (p.system === 'hub') {
