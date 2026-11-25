@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.31.1 — skippable
+A phone tab's count text never goes under 12px: it was 10.2px at 320 to 440 px (the cqi cap), which failed Pi Hub's width sweep. The count is now flush to the tab's top-right corner with a tighter pad so the larger text still clears the icon (checked at 320 to 430 px, 100% to 200% text).
+
 ## 2.31.0 — skippable
 Shell fixes found when Pi Hub adopted 2.29.0: the nav is one tab stop (a roving tabindex: Tab leaves it in one step, the arrow keys still move between links); a phone tab's label is sized by the bar's width (`min(fs-1, 3.85cqi)`, one line, no mid-word break at 320 to 430 px or 200% text); the count sits in the tab's top-right corner and stays inside its tab; a count above 99 reads `9+` on a bar under 28rem (the text and the name stay `99+`). A consumer that drew its own fixes for these can delete them.
 
