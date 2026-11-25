@@ -188,7 +188,11 @@ with the kit's tokens, not by a new kit component.
 
 ### Navigation
 
-- **The shell is constant:** the rail (or the phone tab bar), the page head and the strip.
+- **The shell is constant:** the rail (or the phone tab bar), the page head and the strip. The kit draws it (`shell.js`,
+  `shell.css`, kit 2.29): `ApplianceShell.build` makes the rail from the page list's areas, so no app writes its own area
+  links. The document scrolls; only the rail (or tab bar) and the page head are pinned; the selected area is marked by an
+  accent bar, heavier text and a heavier icon as well as colour; arrow keys move between areas; the tab bar sits above the
+  on-screen keyboard and inside the safe areas. An app keeps its routing, sign-in, data and page content.
 - **One name per page, written once.** A page's name, its one-line purpose and its address come from the kit's page
   list (`pages.json`, kit 2.17; Pi Hub amendment A22). The strip entry, the title, the ⌘K entry and the Site map row
   are that one `label`. A screen never writes a page's name itself; a new page, or a new name, is a change to the list.
