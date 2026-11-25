@@ -6,8 +6,11 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.31.3 — skippable
+A short count (9+) on a phone tab is only as tall as its text. 2.31.2 fixed the two-digit count, but a count above 99 on a bar under 28rem still took a 40px box at 200% text and met its icon in Pi Hub: the hidden full text (99+) kept a line of its own under the drawn 9+. That line now has no height, and the kit's test checks the short count's box against its text's line height.
+
 ## 2.31.2 — skippable
-A phone tab's count clears its icon at large text: at 130% and 200% text the count's box was 32px tall and met the icon (by 0.7px in Pi Hub at 390 px, more at 320 px), because 2.31.1's 12px floor grows with the text size and the line height's floor grew with it. The line height's floor is now 3.25 spaces, not 4; at 100% text nothing moves. A count drawn in its short form (9+) also took a taller box than its text (40px at 200% text): its hidden full text kept a line of its own, which now has no height. The kit's test now asks for 2px of clear space between count and icon, not just no overlap.
+A phone tab's count clears its icon at large text: at 130% and 200% text the count's box was 32px tall and met the icon (by 0.7px in Pi Hub at 390 px, more at 320 px), because 2.31.1's 12px floor grows with the text size and the line height's floor grew with it. The line height's floor is now 3.25 spaces, not 4; at 100% text nothing moves. The kit's test now asks for 2px of clear space between count and icon, not just no overlap.
 
 ## 2.31.1 — skippable
 A phone tab's count text never goes under 12px: it was 10.2px at 320 to 440 px (the cqi cap), which failed Pi Hub's width sweep. The count is now flush to the tab's top-right corner with a tighter pad so the larger text still clears the icon (checked at 320 to 430 px, 100% to 200% text).
