@@ -265,7 +265,7 @@ redirects are drawn from it.
 - `pages`: per row an `id`, `system` (`hub`, `assistant`, `mac`), `area` (and `section` and `view` for an Assistant
   page), `label`, `purpose`, `path`, `role`, `parent` (for a tab, filter, mode or detail), `reach` (every visible way
   in), `aliases` (old addresses that redirect to it), `tools` (ids in `tools.json`: its "Open in" row) and `needs`
-  (`pc` or `mac`). `"built": false` marks a row whose page a later step builds; nothing draws it.
+  (`pc` or `mac`). `drawn: "hub"` (2.30, an Assistant page only) says Pi Hub draws the page itself, so it opens while the PC is asleep; `needs: pc` then means its actions and live data. `"built": false` marks a row whose page a later step builds; nothing draws it.
 - Roles: `page` (in its area's strip), `tab`, `filter`, `mode`, `detail` (opened from a card: `card:<page id>`),
   `ambient` (no frame) and `standalone` (outside the frame on purpose). Every row has `palette` and `map` in `reach`.
 - `cards` (2.26, on an Assistant page): tools that open in place on that page and are no page of their own, each with
