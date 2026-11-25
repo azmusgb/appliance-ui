@@ -136,11 +136,13 @@ test('phone: at 320 to 430 px and 100% to 200% text, a tab\'s label, icon and co
       const hit = (p, q) => p.left < q.right - 0.5 && p.right > q.left + 0.5 && p.top < q.bottom - 0.5 && p.bottom > q.top + 0.5;
       const lab = a.querySelector('.ui-rail-label');
       const inside = (r2) => r2.left >= box.left - 0.5 && r2.right <= box.right + 0.5 && r2.top >= box.top - 0.5 && r2.bottom <= box.bottom + 0.5;
-      return { area: a.dataset.area, lines: Math.round(l.height / parseFloat(getComputedStyle(lab).lineHeight)), label: inside(l), icon: inside(i), badge: !b || inside(b), badgeOnIcon: !!b && hit(b, i), badgeOnLabel: !!b && hit(b, l), iconOnLabel: hit(i, l) };
+      const bt = bd && (bd.dataset.short ? getComputedStyle(bd, '::after') : getComputedStyle(bd));
+      return { area: a.dataset.area, badgeText: bt ? parseFloat(bt.fontSize) : 99, lines: Math.round(l.height / parseFloat(getComputedStyle(lab).lineHeight)), label: inside(l), icon: inside(i), badge: !b || inside(b), badgeOnIcon: !!b && hit(b, i), badgeOnLabel: !!b && hit(b, l), iconOnLabel: hit(i, l) };
     }));
     for (const x of r) {
       const at = `${width}px ×${text} ${x.area}`;
       assert.equal(x.lines, 1, `${at}: the label is one line`);
+      assert.ok(x.badgeText >= 12, `${at}: the count's text is at least 12px (got ${x.badgeText})`);
       assert.ok(x.label && x.icon && x.badge, `${at}: label, icon and count inside the tab`);
       assert.equal(x.badgeOnIcon, false, `${at}: the count does not touch the icon`);
       assert.equal(x.badgeOnLabel, false, `${at}: the count does not touch the label`);
