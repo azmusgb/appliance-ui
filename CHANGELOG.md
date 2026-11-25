@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.30.0 — skippable
+A page row may carry `drawn: "hub"` (an Assistant page only): Pi Hub draws that page itself, from the Assistant's data through its own server, so it opens while the PC is asleep and shows what it last read, with its age. `needs: pc` stays and then means the page's actions and live data need the PC. Marked now: `status`, `models` and `run`. The run row is renamed Task ("One task the Assistant is working on or has finished"). A consumer that ignores the field behaves as before.
+
 ## 2.29.0 — skippable
 A shared shell: `shell.js` and `shell.css`. `ApplianceShell.build` draws the rail (wide window) and tab bar (narrow) from the page list's AREAS and PAGES, one link per area to its landing page; `setCurrent` marks the selected area (aria-current, an accent bar, heavier text and icon, never colour alone); `setBadge` shows a count; arrow keys, Home and End move between areas; `watch` publishes `--ui-shell-head-h` (so a sticky strip sits under the page head at any text size) and `--ui-kb-inset` (so the tab bar rises above the on-screen keyboard). The document scrolls; the rail or tab bar and the page head are the only pinned parts; safe areas are handled on all four sides. Nothing existing changes, so an app that does not load the two files is unaffected. Pi Hub and Local AI adopt it in their own PRs.
 

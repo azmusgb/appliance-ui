@@ -7,7 +7,7 @@ export const ROLES = ['page', 'tab', 'filter', 'mode', 'detail', 'ambient', 'sta
 // The Assistant's five sections (A22 3.3). Their names are drawn with the Assistant's frame (brief 4), not from here yet.
 export const SECTIONS = ['ask', 'work', 'projects', 'improve'];
 const WAYS = ['rail', 'strip', 'tabs', 'chips', 'button', 'foot', 'palette', 'map'];
-const FIELDS = ['id', 'system', 'area', 'section', 'label', 'purpose', 'path', 'role', 'parent', 'view', 'reach', 'aliases', 'tools', 'cards', 'needs', 'built'];
+const FIELDS = ['id', 'system', 'area', 'section', 'label', 'purpose', 'path', 'role', 'parent', 'view', 'reach', 'aliases', 'tools', 'cards', 'needs', 'drawn', 'built'];
 const CARD_FIELDS = ['id', 'label', 'purpose', 'path', 'view'];
 const REDIRECT_FIELDS = ['id', 'path', 'to', 'stage', 'card'];
 // The stages of a change (A27 D2): a redirect to Changes may name the one to filter by.
@@ -78,6 +78,7 @@ export function checkPages(list, registry) {
     if (p.purpose !== undefined && (typeof p.purpose !== 'string' || !TEXT.test(p.purpose) || p.purpose.endsWith('.'))) errors.push(`${at}: purpose must be one line of printable ASCII text, without a full stop`);
     if (p.purpose === undefined && p.system === 'hub' && ['page', 'ambient', 'standalone'].includes(p.role)) errors.push(`${at}: a page needs its one-line purpose`);
     if (p.built !== undefined && p.built !== false) errors.push(`${at}: built can only be false`);
+    if (p.drawn !== undefined && (p.drawn !== 'hub' || p.system !== 'assistant')) errors.push(`${at}: drawn can only be "hub", on an Assistant page`);
 
     // Where it lives.
     if (p.system === 'hub') {

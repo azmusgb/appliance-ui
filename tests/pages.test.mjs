@@ -161,6 +161,14 @@ test('two rows on one address are a problem, except a page and its first tab; an
   assert.match(problems(l => { row(l, 'models').path = '/models'; }).join('\n'), /path must be under \/assistant/);
 });
 
+test('drawn is "hub" and only on an Assistant page', () => {
+  assert.deepEqual(problems(l => { row(l, 'status').drawn = 'hub'; }), []);
+  assert.match(problems(l => { row(l, 'status').drawn = 'mac'; }).join('\n'), /drawn can only be "hub", on an Assistant page/);
+  assert.match(problems(l => { row(l, 'backups').drawn = 'hub'; }).join('\n'), /drawn can only be "hub", on an Assistant page/);
+  assert.deepEqual(['status', 'models', 'run'].filter(id => row(list, id).drawn === 'hub'), ['status', 'models', 'run']);
+  assert.equal(row(list, 'run').label, 'Task');
+});
+
 test('an area is a rail entry with a landing page, and its strip has a cap', () => {
   const extra = id => ({ id, system: 'hub', area: 'household', label: id, purpose: 'x', path: `/${id}`, role: 'page', reach: ['strip', 'palette', 'map'] });
   assert.match(problems(l => { l.pages.push(extra('seventh')); }).join('\n'), /household\): its strip has 7 pages, more than 6/);
