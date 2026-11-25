@@ -247,3 +247,110 @@ test('2.6.0: the meta line is "since <as_of> · <area>", the area else a foreign
   assert.equal(r.verb, 'Judge it');
   await page.close();
 });
+
+// ---- Acknowledge (2.28.0) ----
+const ackItems = `[
+  { id: 'hms:1', source: 'Pi Hub', tone: 'bad', title: 'Printer needs attention (0x2000b)', detail: 'Alert 0x2000b.', link: '/workshop', ack: true },
+  { id: 'hms:2', source: 'Pi Hub', tone: 'warn', title: 'Printer needs attention (0x3000a)', detail: 'Alert 0x3000a.', link: '/workshop', ack: true },
+  { id: 'pi', source: 'Pi Hub', tone: 'warn', title: 'Raspberry Pi', detail: 'Running hot.', link: '/system' },
+]`;
+
+test('acknowledge: a button only for ack items with an id, only with onAck, never in a dense list', async () => {
+  const page = await open();
+  const r = await page.evaluate(([items, h]) => {
+    const N = window.ApplianceNeeds, list = eval(items), o = { here: new URL(h), self: 'Pi Hub' };
+    const count = (ul) => ul.querySelectorAll('button.ui-need__ack').length;
+    const withAck = N.renderList(list, { ...o, onAck: async () => true });
+    document.getElementById('host').append(withAck);
+    const b = withAck.querySelector('button.ui-need__ack');
+    return { withAck: count(withAck), none: count(N.renderList(list, o)), dense: count(N.renderList(list, { ...o, dense: true, onAck: async () => true })),
+      noId: count(N.renderList([{ ...list[0], id: '' }], { ...o, onAck: async () => true })),
+      truthy: count(N.renderList([{ ...list[0], ack: 'yes' }], { ...o, onAck: async () => true })),
+      label: b.getAttribute('aria-label'), text: b.textContent, type: b.type, insideLink: !!b.closest('a'),
+      height: b.getBoundingClientRect().height };
+  }, [ackItems, here]);
+  assert.deepEqual({ withAck: r.withAck, none: r.none, dense: r.dense, noId: r.noId, truthy: r.truthy }, { withAck: 2, none: 0, dense: 0, noId: 0, truthy: 0 });
+  assert.equal(r.text, 'Acknowledge');
+  assert.equal(r.label, 'Acknowledge: Printer needs attention (0x2000b)');
+  assert.equal(r.type, 'button');
+  assert.equal(r.insideLink, false);
+  assert.ok(r.height >= 44, `button is ${r.height}px high`);
+  await page.close();
+});
+
+test('acknowledge: one call per row while pending, success removes the row and moves the focus on', async () => {
+  const page = await open();
+  const r = await page.evaluate(async ([items, h]) => {
+    const N = window.ApplianceNeeds, calls = [];
+    let finish;
+    const ul = N.renderList(eval(items), { here: new URL(h), self: 'Pi Hub', onAck: (id) => { calls.push(id); return new Promise(res => { finish = res; }); } });
+    document.getElementById('host').append(ul);
+    const b = ul.querySelector('button.ui-need__ack'), li = b.closest('li');
+    b.focus(); b.click(); b.click();
+    await new Promise(res => setTimeout(res, 0));
+    const during = { busy: li.getAttribute('aria-busy'), disabled: b.getAttribute('aria-disabled'), note: li.querySelector('.ui-need__note').textContent, focused: document.activeElement === b };
+    finish(true);
+    await new Promise(res => setTimeout(res, 0));
+    return { calls, during, rows: ul.querySelectorAll('li.ui-need').length, gone: !li.isConnected,
+      focus: document.activeElement.closest('li')?.querySelector('.ui-need__title')?.textContent || document.activeElement.tagName };
+  }, [ackItems, here]);
+  assert.deepEqual(r.calls, ['hms:1']);
+  assert.deepEqual(r.during, { busy: 'true', disabled: 'true', note: 'Acknowledging', focused: true });
+  assert.equal(r.rows, 2);
+  assert.equal(r.gone, true);
+  assert.equal(r.focus, 'Printer needs attention (0x3000a)');
+  await page.close();
+});
+
+test('acknowledge: a rejection, a resolved false and a throw keep the row, say so, and allow another try', async () => {
+  const page = await open();
+  const r = await page.evaluate(async ([items, h]) => {
+    const N = window.ApplianceNeeds, out = [];
+    const fails = [() => Promise.reject(new Error('x')), async () => false, () => { throw new Error('sync'); }];
+    for (const fail of fails) {
+      let n = 0;
+      const ul = N.renderList(eval(items), { here: new URL(h), onAck: () => (++n === 1 ? fail() : Promise.resolve()) });
+      document.getElementById('host').replaceChildren(ul);
+      const b = ul.querySelector('button.ui-need__ack'), li = b.closest('li'), note = li.querySelector('.ui-need__note');
+      b.click();
+      await new Promise(res => setTimeout(res, 0));
+      const failed = { kept: li.isConnected, note: note.textContent, kind: note.dataset.kind, role: note.getAttribute('role'), enabled: !b.hasAttribute('aria-disabled'), busy: li.hasAttribute('aria-busy'), focused: document.activeElement === b };
+      b.click();
+      await new Promise(res => setTimeout(res, 0));
+      out.push({ failed, calls: n, goneAfterRetry: !li.isConnected });
+    }
+    return out;
+  }, [ackItems, here]);
+  for (const x of r) {
+    assert.deepEqual(x.failed, { kept: true, note: 'Not acknowledged. Try again.', kind: 'failed', role: 'status', enabled: true, busy: false, focused: true });
+    assert.equal(x.calls, 2);
+    assert.equal(x.goneAfterRetry, true);
+  }
+  await page.close();
+});
+
+test('acknowledge: the last row leaves the empty line, focused; the button sits beside the text on a wide list and under it on a phone', async () => {
+  const wide = await open(1280);
+  const r = await wide.evaluate(async ([items, h]) => {
+    const N = window.ApplianceNeeds;
+    const ul = N.renderList([eval(items)[0]], { here: new URL(h), onAck: async () => undefined });
+    document.getElementById('host').append(ul);
+    const b = ul.querySelector('button.ui-need__ack'), a = ul.querySelector('a.ui-need__link');
+    const beside = b.getBoundingClientRect().left >= a.getBoundingClientRect().right - 1;
+    b.click();
+    await new Promise(res => setTimeout(res, 0));
+    const p = document.querySelector('#host > p.ui-needs__empty');
+    return { beside, empty: p?.textContent, focused: document.activeElement === p, list: !!document.querySelector('#host ul') };
+  }, [ackItems, here]);
+  assert.deepEqual(r, { beside: true, empty: 'Nothing needs you right now.', focused: true, list: false });
+  await wide.close();
+  const phone = await open(360);
+  const s = await phone.evaluate(([items, h]) => {
+    const ul = window.ApplianceNeeds.renderList(eval(items), { here: new URL(h), onAck: async () => true });
+    document.getElementById('host').append(ul);
+    const b = ul.querySelector('button.ui-need__ack'), a = ul.querySelector('a.ui-need__link');
+    return { under: b.getBoundingClientRect().top >= a.getBoundingClientRect().bottom - 1, overflow: document.documentElement.scrollWidth > innerWidth };
+  }, [ackItems, here]);
+  assert.deepEqual(s, { under: true, overflow: false });
+  await phone.close();
+});

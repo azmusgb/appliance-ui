@@ -337,6 +337,10 @@ same-origin with `opts.here` (default: the page), and is emitted as an absolute 
 input (e.g. `tool:x`, `hub:x`) goes to `opts.resolve(link)`, which must return an absolute http(s) URL; a relative result
 gives no link. A resolved link to another origin opens in a new tab and shows "↗".
 
+Since 2.28 an item with `ack: true` gets an Acknowledge button when the list is given `onAck(id, item)` (a promise): the
+app does the write and hides the item until it is raised again. A rejection or a resolved `false` keeps the row and
+says so; anything else removes it. A dense list draws no button.
+
 Change a colour, a tool or a page's name here, never in an app's copy: `tokens.json`, `tools.json` and `pages.json`, then `npm test`, bump
 `version` in `tokens.json` and `package.json` (patch: a value; minor: a new component; major: a renamed variable, a removed file or a registry contract
 change), and sync each app. Each app's copy fails its tests if edited by hand.

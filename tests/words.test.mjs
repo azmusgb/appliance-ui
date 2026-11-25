@@ -21,7 +21,7 @@ test('dist/words.h is the snapshot: state words and the age rules', () => {
 });
 
 test('dist/needs.h is the snapshot: every phrase key and text from needs.js', () => {
-  assert.equal(body('dist/needs.h'), read('tests/fixtures/needs-2.27.0.h'));
+  assert.equal(body('dist/needs.h'), read('tests/fixtures/needs-2.28.0.h'));
   const h = read('dist/needs.h');
   for (const [k, text] of Object.entries(PHRASES)) {
     assert.ok(h.includes(`#define UI_NEED_${k.toUpperCase()} ${JSON.stringify(text)}`), k);

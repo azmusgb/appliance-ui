@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.28.0 — skippable
+An Acknowledge button on a Needs-you row, for an item the owner has seen and that needs nothing more from them (first use: a printer alert the X2D still lists after it has passed). `ApplianceNeeds.render` and `renderList` draw the button for an item with `ack: true` and an `id`, only when the list is given `onAck(id, item)`, which returns a promise. The button sits outside the row's link (under it, and beside it when the list is at least 34 rem wide), is named "Acknowledge: <title>" for a screen reader, and is held from the first tap until the promise settles, so a second tap does not call again. Success removes the row and moves the focus to the next row, or to "Nothing needs you right now." when it was the last; a rejection or a resolved `false` keeps the row and says "Not acknowledged. Try again." in the row's status line. A dense list draws no button. `PHRASES` gains `acknowledge`, `ack_pending` and `ack_failed`, so `needs.h` gains the same defines; the display draws no button and needs no change. Nothing changes for a consumer that passes no `onAck`.
+
 ## 2.27.1 — skippable
 The Decisions group's "(Recommended)" tag is no longer faded (`opacity:.85` removed from `.ui-decision__rec` in `needs.css`). It now takes its button's own label colour, a pair `docs/contrast.md` already measures (for a primary button, onAccent on accent: 7.03 dark, 5.09 light), instead of an unmeasured faded one. It stays set apart by its smaller size, normal weight and brackets. No consumer draws the group yet.
 
