@@ -21,7 +21,7 @@ test('components.css defines the shared classes using only --ui-* colours', () =
     'ui-page', 'ui-page__head', 'ui-page__title', 'ui-page__purpose', 'ui-page__tool', 'ui-strip', 'ui-chips', 'ui-faceplate', 'ui-faceplate--aside',
     'ui-faceplate__main', 'ui-faceplate__nameplate', 'ui-faceplate__caption', 'ui-faceplate__readings', 'ui-faceplate__actions', 'ui-faceplate__aside',
     'ui-section', 'ui-section__note', 'ui-rows', 'ui-row--lamp', 'ui-row__title', 'ui-row__detail', 'ui-row__value', 'ui-tools', 'ui-sources',
-    'ui-confirm', 'ui-confirm__what',
+    'ui-confirm', 'ui-confirm__what', 'ui-confirm__input',
     // 2.7.0 (DESIGN.md open differences 2 and 3): the table and the icon-only button.
     'ui-table', 'ui-table__num', 'ui-btn--icon',
     // 2.16.0: tabs, the web's counterpart of the display's Tabs.

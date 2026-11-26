@@ -88,15 +88,20 @@ test('question, options and answers are text, never markup', async () => {
   await page.close();
 });
 
-test('a double tap calls onAnswer once; the row is disabled and says so while pending', async () => {
+test('a double tap calls onAnswer once; the row is aria-disabled, keeps focus and says so while pending', async () => {
   const page = await open();
   await page.evaluate(([c]) => window.mount([c]), [choice]);
   await page.locator('button', { hasText: 'Feed' }).dblclick();
-  const r = await page.evaluate(() => ({ calls: window.calls, disabled: [...document.querySelectorAll('.ui-decision button')].map(b => b.disabled),
+  const r = await page.evaluate(() => ({ calls: window.calls,
+    ariaDisabled: [...document.querySelectorAll('.ui-decision button')].map(b => b.getAttribute('aria-disabled')),
+    nativeDisabled: [...document.querySelectorAll('.ui-decision button')].map(b => b.disabled),
+    focused: document.activeElement?.textContent,
     note: document.querySelector('.ui-decision__note').textContent, busy: document.querySelector('.ui-decision').getAttribute('aria-busy'),
     state: document.querySelector('.ui-decision').dataset.state }));
   assert.deepEqual(r.calls, [['a27-shape', 'Feed']]);
-  assert.deepEqual(r.disabled, [true, true, true]);
+  assert.deepEqual(r.ariaDisabled, ['true', 'true', 'true']);
+  assert.deepEqual(r.nativeDisabled, [false, false, false]);
+  assert.equal(r.focused, 'Feed');
   assert.equal(r.note, 'Recording your answer');
   assert.equal(r.busy, 'true');
   assert.equal(r.state, 'pending');
@@ -272,20 +277,51 @@ test('the recommended tag is not faded: it keeps its button label colour', async
   assert.doesNotMatch(rule, /opacity|color/);
 });
 
-// Plan decision 5 (pi-hub docs/superpowers/plans/2026-11-21-a33-owner-decisions.md): a failed refresh keeps the last rows,
-// marked not current, never an empty group and never rows passed off as fresh.
-test('stale: the last rows stay with a Not current line; with no rows it says it could not be read', async () => {
+// Plan decision 5 (pi-hub docs/superpowers/plans/2026-11-21-a33-owner-decisions.md) & Issue #50: a failed refresh keeps
+// the last rows, marked not current in a warn notice above the rows (with age when as_of is given); with no rows it
+// draws a bad notice saying it could not be read.
+test('stale and error: notice sits above the rows, uses warn/bad border and text colour (never grey), and includes age when given', async () => {
   const page = await open();
   const r = await page.evaluate(() => {
+    const c = v => { const d = document.createElement('i'); d.style.color = `var(${v})`; document.body.append(d); return getComputedStyle(d).color; };
     const list = [{ id: 'a27-activity', question: 'Activity shape?', options: ['List', 'Cards'], recommended: 'List', kind: 'choice' }];
     window.mount(list, { state: 'stale' });
-    const withRows = { status: document.querySelector('.ui-decisions__status').textContent, kind: document.querySelector('.ui-decisions__status').dataset.kind, rows: document.querySelectorAll('.ui-decision').length, title: document.querySelector('h3').textContent };
+    const sec = document.querySelector('.ui-decisions');
+    const st = sec.querySelector('.ui-decisions__status');
+    const ul = sec.querySelector('.ui-decisions__list');
+    const withRows = {
+      status: st.textContent, kind: st.dataset.kind, rows: sec.querySelectorAll('.ui-decision').length,
+      title: sec.querySelector('h3').textContent,
+      aboveRows: (st.compareDocumentPosition(ul) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
+      color: getComputedStyle(st).color, border: getComputedStyle(st).borderLeftColor,
+      text: c('--ui-text'), warn: c('--ui-warn'), bad: c('--ui-bad'),
+    };
+    window.mount(list, { state: 'stale', as_of: '2026-11-25T14:00:00Z', now: '2026-11-25T15:30:00Z', when: () => '10:41 PM' });
+    const withAge = document.querySelector('.ui-decisions__status').textContent;
     window.mount([], { state: 'stale' });
-    const none = { status: document.querySelector('.ui-decisions__status')?.textContent, rows: document.querySelectorAll('.ui-decision').length };
-    return { withRows, none };
+    const stErr = document.querySelector('.ui-decisions__status');
+    const none = {
+      status: stErr?.textContent, rows: document.querySelectorAll('.ui-decision').length,
+      color: getComputedStyle(stErr).color, border: getComputedStyle(stErr).borderLeftColor,
+    };
+    window.mount([{ id: 'a30-line', question: 'Write the A30 line', options: [], kind: 'text' }]);
+    const labelSize = getComputedStyle(document.querySelector('.ui-decision__label')).fontSize;
+    const fs2 = (() => { const d = document.createElement('i'); d.style.fontSize = 'var(--ui-fs-2)'; document.body.append(d); return getComputedStyle(d).fontSize; })();
+    return { withRows, withAge, none, labelSize, fs2 };
   });
-  assert.deepEqual(r.withRows, { status: "Not current: couldn't refresh the decisions", kind: 'stale', rows: 1, title: 'Decisions (1)' });
-  assert.deepEqual(r.none, { status: "Decisions couldn't be read", rows: 0 });
+  assert.equal(r.withRows.status, "Not current: couldn't refresh the decisions");
+  assert.equal(r.withRows.kind, 'stale');
+  assert.equal(r.withRows.rows, 1);
+  assert.equal(r.withRows.title, 'Decisions (1)');
+  assert.equal(r.withRows.aboveRows, true, 'stale notice sits above the decision rows');
+  assert.equal(r.withRows.color, r.withRows.text, 'stale notice text is primary text colour, never grey');
+  assert.equal(r.withRows.border, r.withRows.warn, 'stale notice border is warn colour');
+  assert.equal(r.withAge, "Not current: couldn't refresh the decisions (since 10:41 PM)");
+  assert.equal(r.none.status, "Decisions couldn't be read");
+  assert.equal(r.none.rows, 0);
+  assert.equal(r.none.color, r.withRows.text, 'error notice text is primary text colour, never grey');
+  assert.equal(r.none.border, r.withRows.bad, 'error notice border is bad colour');
+  assert.equal(r.labelSize, r.fs2, 'Your answer label uses --ui-fs-2, not --ui-fs-1');
   await page.close();
 });
 

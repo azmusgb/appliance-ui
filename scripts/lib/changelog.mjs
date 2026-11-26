@@ -7,9 +7,19 @@ import { parseVersion, compareVersions } from './versions.mjs';
 
 const MARKER = /^<!--\s*classified-from:\s*(\S+)\s*-->/;
 const HEADING = /^## (\S+) — (.*?)\s*$/;
-const NEEDS = /^needs consumer change(?: \((web|display)\))?(?::\s*(.*))?$/;
+const AUDIENCES = new Set(['web', 'display', 'pi-hub', 'LocalAI', 'bambuhelper-smart-display', 'print-lab']);
+const NEEDS = /^needs consumer change(?: \(([^)]+)\))?(?::\s*(.*))?$/;
 
-// -> { entries: Map<version, {skip: boolean, note: string, audience: 'web' | 'display' | 'all'}>, classifiedFrom: string }
+function parseAudience(raw, version, line) {
+  if (!raw) return 'all';
+  const parts = raw.split(',').map(s => s.trim());
+  if (!parts.length || parts.some(p => !AUDIENCES.has(p))) {
+    throw new Error(`changelog entry ${version} has an unknown audience in: ${line}`);
+  }
+  return parts.join(', ');
+}
+
+// -> { entries: Map<version, {skip: boolean, note: string, audience: string}>, classifiedFrom: string }
 export function parseChangelog(text) {
   const lines = String(text).split(/\r?\n/);
   const marker = MARKER.exec(lines[0] ?? '');
@@ -23,7 +33,7 @@ export function parseChangelog(text) {
     if (entries.has(version)) throw new Error(`changelog lists ${version} twice`);
     const needs = NEEDS.exec(verdict);
     if (verdict === 'skippable') entries.set(version, { skip: true, note: '', audience: 'all' });
-    else if (needs) entries.set(version, { skip: false, note: needs[2] ?? '', audience: needs[1] ?? 'all' });
+    else if (needs) entries.set(version, { skip: false, note: needs[2] ?? '', audience: parseAudience(needs[1], version, line) });
     else throw new Error(`changelog entry ${version} must say "skippable" or "needs consumer change"`);
   }
   return { entries, classifiedFrom: marker[1] };

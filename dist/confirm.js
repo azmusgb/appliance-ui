@@ -39,12 +39,11 @@
     if (challenge && typeof challenge === 'string') {
       const promptText = ` Type "${challenge}" to confirm:`;
       what.textContent = o.what + promptText;
-      input = el('input', 'ui-field');
+      input = el('input', 'ui-field ui-confirm__input');
       input.type = 'text';
       input.autocomplete = 'off';
       input.spellcheck = false;
       input.setAttribute('aria-label', `Type ${challenge} to confirm`);
-      input.style.width = '140px';
       yes.disabled = true;
 
       input.addEventListener('input', () => {
