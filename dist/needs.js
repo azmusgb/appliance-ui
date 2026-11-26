@@ -307,7 +307,7 @@
       set.append(el(doc, 'legend', 'ui-decision__label', text('decision_choose_label')));
       const boxes = options.map((opt, n) => {
         const label = el(doc, 'label', 'ui-decision__check');
-        const box = el(doc, 'input');
+        const box = el(doc, 'input', 'ui-check');
         box.type = 'checkbox';
         box.value = opt;
         box.id = `${id}-o${n}`;
@@ -376,7 +376,7 @@
     const group = {
       recorded(li, answer) {
         const next = li.nextElementSibling || li.previousElementSibling;
-        const focusNext = next && next.querySelector('button,textarea');
+        const focusNext = next && next.querySelector('input,button,textarea');
         li.remove();
         const left = ul.children.length;
         title.textContent = text('decisions_heading', left);

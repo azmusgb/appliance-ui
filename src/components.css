@@ -26,10 +26,17 @@
 .ui-chip--unknown{color:var(--ui-unknown)}
 .ui-chip--unknown::before{background:transparent;box-shadow:inset 0 0 0 1.5px currentColor}
 .ui-chip--live::before{box-shadow:0 0 0 3px color-mix(in srgb,currentColor 28%,transparent)}
-/* Provenance (2.33, Pi Hub A35 §7.1): where a fact came from. Only live draws a lamp; the rest a hollow mark. */
+/* A checkbox (2.33): drawn from the field line (measured in docs/contrast.md), never the browser's own grey. */
+.ui-check{appearance:none;flex:none;display:inline-grid;place-content:center;box-sizing:border-box;width:calc(var(--ui-space)*5);height:calc(var(--ui-space)*5);margin:0;border:calc(var(--ui-space)*.5) solid var(--ui-field-line);border-radius:var(--ui-r-1);background:var(--ui-surface);cursor:pointer}
+.ui-check:checked{border-color:var(--ui-accent);background:var(--ui-accent)}
+.ui-check:checked::after{content:"";width:calc(var(--ui-space)*2.5);height:calc(var(--ui-space)*1.25);margin-block-start:calc(var(--ui-space)*-.5);border:solid var(--ui-on-accent);border-width:0 0 calc(var(--ui-space)*.5) calc(var(--ui-space)*.5);transform:rotate(-45deg)}
+.ui-check:disabled{cursor:not-allowed}
+.ui-check:focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}
+/* Provenance (2.33, Pi Hub A35 §7.1): where a fact came from. Only live draws a filled mark, in text colour: it says
+   fresh, never fine (the reading's own lamp carries ok, warn or bad). The rest draw a hollow mark. */
 .ui-prov{display:inline-flex;align-items:center;gap:calc(var(--ui-space)*1.5);font:500 var(--ui-fs-2)/1.3 var(--ui-font);color:var(--ui-muted);overflow-wrap:anywhere}
 .ui-prov::before{content:"";flex:none;box-sizing:border-box;width:calc(var(--ui-space)*2);height:calc(var(--ui-space)*2);border:calc(var(--ui-space)*.375) solid currentColor;border-radius:var(--ui-r-pill)}
-.ui-prov[data-level="live"]{color:var(--ui-ok)}
+.ui-prov[data-level="live"]{color:var(--ui-text)}
 .ui-prov[data-level="live"]::before{background:currentColor}
 .ui-prov[data-level="unavailable"]{color:var(--ui-unknown)}
 .ui-field{display:block;box-sizing:border-box;width:100%;min-height:40px;padding:0 12px;border-radius:var(--ui-r-3);border:1px solid var(--ui-field-line);background:var(--ui-bg);color:var(--ui-text);font:400 var(--ui-fs-4) var(--ui-font)}

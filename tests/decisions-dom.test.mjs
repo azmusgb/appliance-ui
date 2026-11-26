@@ -380,3 +380,15 @@ test('provenance: each level in its words; only live draws a lamp; a level missi
   assert.equal(r.markup, 0);
   await page.close();
 });
+
+test('after a row is recorded, focus lands on the next multi row\'s first box, not its Send; a multi row is one option per row', async () => {
+  const page = await open(820);
+  await page.evaluate(([y, m]) => window.mount([y, m]), [yesno, multi]);
+  const lefts = await page.evaluate(() => new Set([...document.querySelectorAll('.ui-decision__check')].map(l => Math.round(l.getBoundingClientRect().left))).size);
+  assert.equal(lefts, 1);
+  await page.locator('button', { hasText: 'No' }).click();
+  await page.evaluate(() => window.pending[0].res(true));
+  await page.waitForFunction(() => document.querySelectorAll('.ui-decision').length === 1);
+  assert.deepEqual(await page.evaluate(() => [document.activeElement.type, document.activeElement.value]), ['checkbox', 'Overview']);
+  await page.close();
+});

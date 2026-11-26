@@ -55,9 +55,9 @@ a.ui-need__link:hover .ui-need__action{text-decoration:underline}
 .ui-decision__send{justify-self:start}
 .ui-decision__context,.ui-decision__why{margin:0;color:var(--ui-muted);font-size:var(--ui-fs-2);overflow-wrap:anywhere;white-space:pre-line}
 .ui-decision__multi{margin:0;padding:0;border:0;min-inline-size:0}
-.ui-decision__multi>legend{padding:0;margin-block-end:calc(var(--ui-space)*1)}
-.ui-decision__check{display:flex;align-items:center;gap:calc(var(--ui-space)*2);min-height:44px;color:var(--ui-text);overflow-wrap:anywhere;cursor:pointer}
-.ui-decision__check>input{flex:none;width:calc(var(--ui-space)*5);height:calc(var(--ui-space)*5);margin:0;accent-color:var(--ui-accent)}
+.ui-decision__multi>legend{padding:0;margin-block-end:calc(var(--ui-space)*1);font-size:var(--ui-fs-2)}
+.ui-decision__check{display:flex;flex-wrap:wrap;align-items:center;gap:calc(var(--ui-space)*1) calc(var(--ui-space)*2);min-height:44px;color:var(--ui-text);overflow-wrap:anywhere;cursor:pointer}
+.ui-decision__check>.ui-decision__rec{white-space:nowrap}
 .ui-decision__link{display:inline-flex;align-items:center;min-height:44px;justify-self:start;color:var(--ui-text);font-size:var(--ui-fs-2);text-decoration:underline}
 .ui-decision__note{margin:0;color:var(--ui-muted);font-size:var(--ui-fs-2);overflow-wrap:anywhere}
 .ui-decision__note[data-kind="failed"]{color:var(--ui-bad);font-weight:600}
@@ -65,3 +65,5 @@ a.ui-need__link:hover .ui-need__action{text-decoration:underline}
 @container ui-decisions (min-width:34rem){
 .ui-decision__options{grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))}
 }
+/* A multi row is a checklist, read down: one option per row at every width. */
+.ui-decision__options.ui-decision__multi{grid-template-columns:minmax(0,1fr)}
