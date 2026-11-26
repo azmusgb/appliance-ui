@@ -324,3 +324,107 @@ test('stale and error: notice sits above the rows, uses warn/bad border and text
   assert.equal(r.labelSize, r.fs2, 'Your answer label uses --ui-fs-2, not --ui-fs-1');
   await page.close();
 });
+
+// 2.33.0 (Pi Hub A35 M1b): the multi and yes/no rows, the asker's context, and provenance labels.
+const multi = { id: 'a35-pick', question: 'Which tabs first?', options: ['Overview', 'Decisions', 'Evidence'], recommended: ['Overview', 'Evidence'], kind: 'multi',
+  context: 'M1b draws three of five tabs.', why_needed: 'It sets the order of PRs.', rationale: 'Overview answers most questions.' };
+const yesno = { id: 'a35-yes', question: 'Ship the summary view now?', options: [], recommended: 'Yes', kind: 'yesno' };
+
+test('a multi row is a labelled box per option and one Send; the answer is the ticked options in their order', async () => {
+  const page = await open();
+  await page.evaluate(([m]) => window.mount([m]), [multi]);
+  const before = await page.evaluate(() => {
+    const row = document.querySelector('.ui-decision');
+    return { legend: row.querySelector('legend').textContent, boxes: [...row.querySelectorAll('input[type=checkbox]')].map(b => b.labels[0].textContent),
+      context: row.querySelector('.ui-decision__context').textContent, why: [...row.querySelectorAll('.ui-decision__why')].map(p => p.textContent),
+      sends: row.querySelectorAll('button').length };
+  });
+  assert.equal(before.legend, 'Choose any that apply');
+  assert.deepEqual(before.boxes, ['OverviewRecommended', 'Decisions', 'EvidenceRecommended']);
+  assert.equal(before.context, 'M1b draws three of five tabs.');
+  assert.deepEqual(before.why, ['Why it is asked: It sets the order of PRs.', 'Why it is recommended: Overview answers most questions.']);
+  assert.equal(before.sends, 1);
+  await page.locator('.ui-decision__send').click();
+  const empty = await page.evaluate(() => ({ calls: window.calls.length, note: document.querySelector('.ui-decision__note').textContent, focus: document.activeElement.type }));
+  assert.deepEqual(empty, { calls: 0, note: 'Choose at least one first', focus: 'checkbox' });
+  await page.getByRole('checkbox', { name: 'Evidence' }).check();
+  await page.getByRole('checkbox', { name: 'Overview' }).check();
+  await page.locator('.ui-decision__send').dblclick();
+  await page.evaluate(() => window.pending[0].res(true));
+  await page.waitForFunction(() => document.querySelectorAll('.ui-decision').length === 0);
+  const r = await page.evaluate(() => ({ calls: window.calls, status: document.querySelector('.ui-decisions__status').textContent }));
+  assert.deepEqual(r.calls, [['a35-pick', ['Overview', 'Evidence']]]);
+  assert.equal(r.status, 'Recorded: Overview, Evidence');
+  await page.close();
+});
+
+test('a failed multi answer keeps the ticks and re-enables the boxes', async () => {
+  const page = await open();
+  await page.evaluate(([m]) => window.mount([m]), [multi]);
+  await page.getByRole('checkbox', { name: 'Decisions' }).check();
+  await page.locator('.ui-decision__send').click();
+  await page.evaluate(() => window.pending[0].res(false));
+  await page.waitForFunction(() => document.querySelector('.ui-decision').dataset.state === 'failed');
+  const r = await page.evaluate(() => ({ ticked: [...document.querySelectorAll('.ui-decision input:checked')].map(b => b.value),
+    disabled: [...document.querySelectorAll('.ui-decision input, .ui-decision button')].some(c => c.disabled) }));
+  assert.deepEqual(r, { ticked: ['Decisions'], disabled: false });
+  await page.close();
+});
+
+test('a yes/no row draws Yes and No in the kit\'s words, whatever options it carries', async () => {
+  const page = await open();
+  await page.evaluate(([y]) => window.mount([{ ...y, options: ['<b>Sure</b>'] }]), [yesno]);
+  const btns = await page.evaluate(() => [...document.querySelectorAll('.ui-decision button')].map(b => [b.textContent, b.classList.contains('ui-btn--primary')]));
+  assert.deepEqual(btns, [['YesRecommended', true], ['No', false]]);
+  await page.locator('button', { hasText: 'No' }).click();
+  assert.deepEqual(await page.evaluate(() => window.calls), [['a35-yes', 'No']]);
+  await page.close();
+});
+
+test('a kind the kit does not draw yet stays disabled with its reason', async () => {
+  const page = await open();
+  await page.evaluate(() => window.mount([{ id: 'a35-rank', question: 'Order these', options: ['a', 'b'], kind: 'rank' }]));
+  const r = await page.evaluate(() => ({ note: document.querySelector('.ui-decision__note').textContent,
+    disabled: [...document.querySelectorAll('.ui-decision button')].every(b => b.disabled) }));
+  assert.deepEqual(r, { note: "This decision can't be answered here", disabled: true });
+  await page.close();
+});
+
+test('provenance: each level in its words; only live draws a lamp; a level missing its words draws nothing', async () => {
+  const page = await open();
+  const r = await page.evaluate(() => {
+    const P = window.ApplianceNeeds.provenance;
+    const out = {};
+    for (const [lvl, v] of [['live', {}], ['reported', { when: '09:40' }], ['checked', { when: '09:40' }], ['imported', { source: 'pi-hub@4ef3c14' }],
+      ['owner', {}], ['unavailable', { when: '09:12' }], ['unavailable', {}]]) {
+      const s = P(lvl, v);
+      document.body.append(s);
+      out[lvl + (v.when || v.source ? '' : '-bare')] = [s.textContent, getComputedStyle(s, '::before').backgroundColor];
+    }
+    return { out, bad: [P('verified', {}), P('reported', {}), P('imported', { when: 'x' })].map(x => x === null),
+      markup: P('imported', { source: '<b>x</b>' }).children.length };
+  });
+  assert.equal(r.out['live-bare'][0], 'Live');
+  assert.equal(r.out.reported[0], 'Reported 09:40');
+  assert.equal(r.out.checked[0], 'Checked 09:40');
+  assert.equal(r.out.imported[0], 'Imported from pi-hub@4ef3c14');
+  assert.equal(r.out['owner-bare'][0], 'Recorded by you');
+  assert.equal(r.out.unavailable[0], 'No report since 09:12');
+  assert.equal(r.out['unavailable-bare'][0], 'No report yet');
+  for (const [k, [, bg]] of Object.entries(r.out)) assert.equal(bg === 'rgba(0, 0, 0, 0)', k !== 'live-bare', k);
+  assert.deepEqual(r.bad, [true, true, true]);
+  assert.equal(r.markup, 0);
+  await page.close();
+});
+
+test('after a row is recorded, focus lands on the next multi row\'s first box, not its Send; a multi row is one option per row', async () => {
+  const page = await open(820);
+  await page.evaluate(([y, m]) => window.mount([y, m]), [yesno, multi]);
+  const lefts = await page.evaluate(() => new Set([...document.querySelectorAll('.ui-decision__check')].map(l => Math.round(l.getBoundingClientRect().left))).size);
+  assert.equal(lefts, 1);
+  await page.locator('button', { hasText: 'No' }).click();
+  await page.evaluate(() => window.pending[0].res(true));
+  await page.waitForFunction(() => document.querySelectorAll('.ui-decision').length === 1);
+  assert.deepEqual(await page.evaluate(() => [document.activeElement.type, document.activeElement.value]), ['checkbox', 'Overview']);
+  await page.close();
+});

@@ -17,6 +17,8 @@ const ID = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 const TEXT = /^[\x20-\x7e]+$/;  // printable ASCII, as tools.json: safe wherever a consumer writes it
 const HUB_PATH = /^\/([a-z0-9]+(-[a-z0-9]+)*(\/[a-z0-9]+(-[a-z0-9]+)*)*)?(#[a-z0-9]+(-[a-z0-9]+)*)?$/;
 const ASSISTANT_PATH = /^\/assistant(\/([a-z0-9]+(-[a-z0-9]+)*|<[a-z]+>))*$/;
+// A hub detail whose address ends in one value to fill in (a mission's id, A35): /missions/<initiative>.
+const HUB_TEMPLATE = /^\/[a-z0-9]+(-[a-z0-9]+)*\/<[a-z]+>$/;
 const ALIAS = /^\/[a-z0-9]+(-[a-z0-9]+)*(\/[a-z0-9]+(-[a-z0-9]+)*)*$/;
 // What each role must have in reach (3.2's table). A page's rule is below: its strip, or the rail when it is its area's only page.
 const MUST = { tab: 'tabs', filter: 'chips', mode: 'button', ambient: 'foot' };
@@ -83,7 +85,7 @@ export function checkPages(list, registry) {
 
     // Where it lives.
     if (p.system === 'hub') {
-      if (typeof p.path !== 'string' || !HUB_PATH.test(p.path)) errors.push(`${at}: path must be a Pi Hub address`);
+      if (typeof p.path !== 'string' || !(HUB_PATH.test(p.path) || (p.role === 'detail' && HUB_TEMPLATE.test(p.path)))) errors.push(`${at}: path must be a Pi Hub address (a detail may end in one <value>)`);
       if (p.role === 'standalone' ? p.area !== undefined : !areaIds.has(p.area)) errors.push(`${at}: area must be one of ${[...areaIds].join(', ')} (a standalone page has none)`);
       for (const k of ['section', 'view', 'needs']) if (p[k] !== undefined) errors.push(`${at}: a hub page has no ${k}`);
     } else if (p.system === 'assistant') {
