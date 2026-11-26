@@ -297,6 +297,16 @@ labels are sentence case, and none is a retired word.
 - `pages.json`: the list without its comment, for a server or a test to read.
 - `pages.js` (ES module): `AREAS`, `PAGES`, `REDIRECTS`, `page(id)` and `redirect(id)`.
 
+## Decisions and provenance (2.33)
+
+Pi Hub amendment A35. `ApplianceNeeds.renderDecisions` draws `choice`, `text`, `multi` (boxes and one Send; the answer
+is a list) and `yesno`; any other kind is drawn disabled with its reason. `ApplianceNeeds.provenance(level, {when,
+source})` returns one `ui-prov` label saying where a fact came from: `live`, `reported`, `checked`, `imported`, `owner`
+or `unavailable` (A35 §7.1; DESIGN.md "Honest states"). Only `live` draws a lamp.
+
+A hub `detail` row's address may end in one `<value>` (`/missions/<initiative>`), as an Assistant run's does. It has no
+⌘K or Site map entry of its own; a consumer matches it as a pattern.
+
 ## Palette (2.1)
 
 `palette.js` and `palette.css` are the one ⌘K palette (platform spec section 8.1, step 7 Decision 7). Each app registers
