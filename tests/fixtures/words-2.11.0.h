@@ -24,3 +24,4 @@ static const UiAgeRule UI_AGE_RULES[] = {
 };
 #define UI_AGE_RULE_COUNT 2
 #define UI_AGE_SINCE_FMT "since %s"
+#define UI_AGE_UNTIL_FMT "until %s"

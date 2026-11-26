@@ -44,7 +44,9 @@
 #define UI_NEED_JUDGE_IT "Judge it"
 #define UI_NEED_OPEN_PRINTER "Open printer"
 #define UI_NEED_OPEN_NETWORK "Open Network"
+#define UI_NEED_OPEN_BACKUPS "Open Backups"
 #define UI_NEED_SEE_USAGE "See what's using it"
+#define UI_NEED_SEE_RUNNING "See what's running"
 #define UI_NEED_ACKNOWLEDGE "Acknowledge"
 #define UI_NEED_ACK_PENDING "Acknowledging"
 #define UI_NEED_ACK_FAILED "Not acknowledged. Try again."
@@ -93,9 +95,11 @@ static const UiNeedPhrase UI_NEED_PHRASES[] = {
   { "judge_it", "Judge it" },
   { "open_printer", "Open printer" },
   { "open_network", "Open Network" },
+  { "open_backups", "Open Backups" },
   { "see_usage", "See what's using it" },
+  { "see_running", "See what's running" },
   { "acknowledge", "Acknowledge" },
   { "ack_pending", "Acknowledging" },
   { "ack_failed", "Not acknowledged. Try again." },
 };
-#define UI_NEED_PHRASE_COUNT 47
+#define UI_NEED_PHRASE_COUNT 49

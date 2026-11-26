@@ -40,9 +40,10 @@ test('clean keeps a same-origin path or an http(s) URL, and marks another origin
 });
 
 test('clean drops scripts, protocol-relative and scheme-less links, unknown kinds, empty labels and userinfo', () => {
-  for (const href of ['javascript:alert(1)', '//evil.example/', '/\\evil.example/', 'tool:bambuddy', 'lab', 'data:text/html,x', '']) {
+  for (const href of ['javascript:alert(1)', '\x01javascript:alert(1)', '\v//evil.example/', '//evil.example/', '/\\evil.example/', 'tool:bambuddy', 'lab', 'data:text/html,x', '']) {
     assert.equal(clean({ kind: 'go', label: 'x', href }, here), null, href);
   }
+  assert.equal(clean({ kind: 'go', label: 'Lab', href: '\x01/lab\x1f' }, here).href, 'https://hub.rahe-home.duckdns.org/lab');
   assert.equal(clean({ kind: 'approve', label: 'x', href: '/x' }, here), null);
   assert.equal(clean({ kind: 'go', label: '  ', href: '/x' }, here), null);
   assert.equal(clean({ kind: 'go', label: 'x' }, here), null);

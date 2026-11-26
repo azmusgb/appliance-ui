@@ -67,6 +67,7 @@ test('the build refuses a words table with a bad rule', () => {
     [x => { x.age.ago.reverse(); }, /in order of under/],
     [x => { x.age.ago[1].per = undefined; }, /\{n\} and per go together/],
     [x => { x.age.since = 'since'; }, /needs \{when\}/],
+    [x => { x.age.until = 'until'; }, /needs \{when\}/],
     [x => { x.state.up = 'Üp'; }, /plain ASCII/],
   ];
   for (const [change, re] of bad) {

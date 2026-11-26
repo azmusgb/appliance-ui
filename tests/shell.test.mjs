@@ -90,6 +90,14 @@ test('badge: shown with a name for assistive tech, bare warn number (no accent p
     const g = await get();
     assert.equal(g && g[0], want, String(n));
   }
+  await page.evaluate(() => ApplianceShell.setBadge(document.querySelector('.ui-rail'), 'home', { text: '?', say: "couldn't check what needs you" }));
+  assert.deepEqual(await get(), ['?', "couldn't check what needs you"]);
+  await page.evaluate(() => ApplianceShell.setBadge(document.querySelector('.ui-rail'), 'home', { dot: true, say: '3D print running, 42%' }));
+  const dot = await page.evaluate(() => {
+    const b = document.querySelector('[data-area="home"] .ui-rail-badge');
+    return b && { text: b.textContent, dot: Object.hasOwn(b.dataset, 'dot'), say: b.getAttribute('aria-label'), w: b.getBoundingClientRect().width };
+  });
+  assert.deepEqual(dot, { text: '', dot: true, say: '3D print running, 42%', w: 8 });
   await page.close();
 });
 

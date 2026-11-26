@@ -20,6 +20,8 @@ export function checkWords(w) {
   for (const k of Object.keys(w.control || {})) if (!controls.includes(k)) out.push(`control.${k}: not a known control word`);
   text('age.since', w.age?.since);
   if (w.age?.since && !w.age.since.includes('{when}')) out.push('age.since: needs {when}');
+  text('age.until', w.age?.until);
+  if (w.age?.until && !w.age.until.includes('{when}')) out.push('age.until: needs {when}');
   const rules = w.age?.ago;
   if (!Array.isArray(rules) || !rules.length) out.push('age.ago: needs at least one rule');
   else rules.forEach((r, i) => {
@@ -49,7 +51,8 @@ export function wordsH(w, banner) {
     ...w.age.ago.map(r => `  { ${r.under}, ${r.per || 0}, ${cstr(fmt(r.text))} },`),
     '};',
     `#define UI_AGE_RULE_COUNT ${w.age.ago.length}`,
-    `#define UI_AGE_SINCE_FMT ${cstr(fmt(w.age.since))}`, ''].join('\n');
+    `#define UI_AGE_SINCE_FMT ${cstr(fmt(w.age.since))}`,
+    `#define UI_AGE_UNTIL_FMT ${cstr(fmt(w.age.until))}`, ''].join('\n');
 }
 
 // Placeholders stay as {name} in the text, as on the web: the caller fills them.

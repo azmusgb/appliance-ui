@@ -40,7 +40,7 @@
 
   function safeHref(href, here) {
     if (typeof href !== 'string' || !here) return null;
-    const input = href.replace(/[\t\n\r]/g, '').trim();
+    const input = href.replace(/[\t\n\r]/g, '').replace(/^[\x00-\x20]+|[\x00-\x20]+$/g, '');
     if (!input || /^\/[\/\\]/.test(input) || input.startsWith('\\')) return null;
     const relative = /^[\/#?]/.test(input);  // keeps the page's own scheme, so it can't become "javascript:"
     if (!relative && !/^[a-z][a-z0-9+.-]*:/i.test(input)) return null;  // a bare word like "lab"
