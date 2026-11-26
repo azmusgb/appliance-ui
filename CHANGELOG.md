@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.32.0 — skippable
+The spoken readout's parts (Pi Hub A37; spec 2026-11-25-spoken-readout-design), all opt-in: `say.js` (`ApplianceSay.compose` turns a page's structured reading into one or two sentences, with stale, unavailable, unknown and loading as their own wording; `render` writes them into the page's `h1` and touches the DOM only when the text changed), `ui-say`, `ui-vh`, `ui-page__head--say` with `ui-page__tools`, `ui-rows--grid` with `ui-row__name` and `ui-row__figure`, and `ui-faceplate--plate` with `ui-faceplate__job`. No existing rule changes, so a page that adopts none of them is the same after the sync. `demo/say.html` shows them. The kit's own literals baseline rises by one size: `ui-say`'s fluid size is the spec's own curve.
+
 ## 2.31.3 — skippable
 A short count (9+) on a phone tab is only as tall as its text. 2.31.2 fixed the two-digit count, but a count above 99 on a bar under 28rem still took a 40px box at 200% text and met its icon in Pi Hub: the hidden full text (99+) kept a line of its own under the drawn 9+. That line now has no height, and the kit's test checks the short count's box against its text's line height.
 
