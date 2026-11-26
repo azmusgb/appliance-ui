@@ -4,7 +4,7 @@
 // render(h1, composed) writes that into the page's <h1 class="ui-say">, and only when the text changed.
 // compose(input, opts) → { label, sentences: string[] (at most two, each at most 60 characters), loading }
 //   input: { page: "printer", label, reading }
-//        | { page: "home", label, asks (a whole number; anything else means the list couldn't be read), unread?: string[],
+//        | { page: "home", label, loading? (true before the first read), asks (a whole number; anything else means the list couldn't be read), unread?: string[],
 //            decisions?, conditions?: { tone: "bad"|"warn", title }[], printer?: reading }
 //   reading: { state: "live"|"stale"|"unavailable"|"unknown"|"loading", as_of? (ms), source?, name? ("X2D"),
 //     status?: "printing"|"paused"|"finished"|"failed"|"idle", percent?, job?, left_min?, done_at? (ms), finished_at? (ms),
@@ -16,6 +16,7 @@
 // does not know gets no sentences, so it keeps its plain title.
 (() => {
   const LIMIT = 60;  // characters per sentence, after substitution
+  const NAME_MAX = 16;  // a printer's name longer than this is said as "printer", so every sentence keeps its subject and fits
   const PHRASES = Object.freeze({
     printing: 'The {name} is {p}% through {job}.', printing_nop: 'The {name} is printing {job}.',
     eta_both: 'About {left} left, done around {time}.', eta_left: 'About {left} left.', eta_time: 'Done around {time}.',
@@ -26,7 +27,7 @@
     stale_printing: 'The {name} was {p}% through {job} {age}.', stale_other: 'The {name} was {word} {age}.',
     stale_source: "{source} hasn't answered since {time}.",
     unavailable: "The {name} isn't answering.", unknown: "The {name} hasn't reported yet.",
-    job_generic: 'its print', age_unknown: 'earlier',
+    job_generic: 'its print', name_generic: 'printer', age_unknown: 'earlier', age_moment: 'a moment ago',
     // Home. The count is the rows Home drew under "Needs you" (after Pi Hub A36, the asks).
     asks_none: 'Nothing needs you.', asks_none_here: 'Nothing needs you here.',
     asks_one: 'One thing needs you.', asks_many: '{N} things need you.', asks_unreadable: "Couldn't read what needs you.",
@@ -40,8 +41,10 @@
 
   const fill = (key, vals) => PHRASES[key].replace(/\{(\w+)\}/g, (m, k) => (Object.hasOwn(vals, k) ? String(vals[k]) : m));
   const text = v => (typeof v === 'string' ? v.trim() : '');
-  const time = v => (typeof v === 'number' && Number.isFinite(v) ? v : null);
-  const fits = s => s.length <= LIMIT;
+  // A moment in milliseconds that is a real date, or null.
+  const time = v => (typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= 8.64e15 ? v : null);
+  const fits = s => typeof s === 'string' && s.length > 0 && s.length <= LIMIT;
+  const firstFit = (...candidates) => candidates.find(fits) || '';
 
   // "One" to "Twelve", then digits; anything that isn't a whole count of at least one is no word at all.
   function count(n) {
@@ -59,73 +62,93 @@
   }
 
   const defaultClock = ms => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-  // A whole percent from 0 to 100, or null: a string, NaN or an out-of-range number is not a reading.
-  const percentOf = v => (typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 100 ? Math.round(v) : null);
-  // The sentence with the job's own name where that fits, else with "its print".
-  function withJob(key, vals, job) {
-    const named = job ? fill(key, { ...vals, job }) : '';
-    return named && fits(named) ? named : fill(key, { ...vals, job: PHRASES.job_generic });
+  // A whole percent from 0 to 100, or null: a string, NaN or an out-of-range number is not a reading. Rounded down, so a
+  // print still under way is never "100%".
+  const percentOf = v => (typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 100 ? Math.floor(v) : null);
+  // The printer's own name when it is short enough that every sentence still fits; otherwise the plain noun.
+  const nameOf = r => { const n = text(r.name); return !n ? 'X2D' : n.length <= NAME_MAX ? n : PHRASES.name_generic; };
+  // The caller's clock, read safely: a clock that throws or returns no text gives no time.
+  function clockText(o, ms) {
+    try { const t = o.clock(ms); return typeof t === 'string' ? t.trim() : ''; } catch (e) { return ''; }
+  }
+  // A clock time is only said for a moment earlier today: "at 3:06 PM" about another day, or about the future, would
+  // read as today. Without opts.now there is nothing to compare with, so no time is said.
+  function earlierToday(o, ms) {
+    const t = time(ms);
+    if (t == null || o.now == null || t > o.now || new Date(t).toDateString() !== new Date(o.now).toDateString()) return '';
+    return clockText(o, t);
+  }
+  // A finish time still to come.
+  const stillToCome = (o, ms) => { const t = time(ms); return t != null && o.now != null && t > o.now ? clockText(o, t) : ''; };
+  // How old a stale reading is: never "now". Under a minute is "a moment ago"; an age nothing can say is "earlier".
+  function ageOf(o, asOf) {
+    const t = time(asOf);
+    if (t == null || o.now == null || t > o.now) return PHRASES.age_unknown;
+    const seconds = (o.now - t) / 1000;
+    if (seconds < 60) return PHRASES.age_moment;
+    let said = null;
+    if (typeof o.ago === 'function') { try { said = o.ago(seconds); } catch (e) { said = null; } }
+    return typeof said === 'string' && said.trim() ? said.trim() : PHRASES.age_unknown;
   }
 
+  // The printer's sentences. The first always exists and names the printer; the second is said only when it fits.
   function printer(reading, o) {
     const r = reading && typeof reading === 'object' ? reading : {};
-    const name = text(r.name) || 'X2D';
-    const clock = ms => { const t = o.clock(ms); return typeof t === 'string' ? t : ''; };
+    const name = nameOf(r);
     if (r.state === 'unavailable') return [fill('unavailable', { name })];
     const status = Object.hasOwn(WAS, r.status) ? r.status : null;
     if ((r.state !== 'live' && r.state !== 'stale') || !status) return [fill('unknown', { name })];
-    const p = percentOf(r.percent), job = text(r.job);
+    const p = percentOf(r.percent), job = text(r.job), generic = PHRASES.job_generic;
+    // The job's own name where the sentence still fits, else "its print".
+    const jobs = (key, vals) => [job ? fill(key, { ...vals, job }) : '', fill(key, { ...vals, job: generic })];
+    let first = '';
+    const second = [];
 
     if (r.state === 'stale') {
-      const asOf = time(r.as_of);
-      const said = asOf != null && o.now != null && typeof o.ago === 'function' ? o.ago(Math.max(0, (o.now - asOf) / 1000)) : null;
-      const age = typeof said === 'string' && said ? said : PHRASES.age_unknown;
-      const first = status === 'printing' && p != null ? withJob('stale_printing', { name, p, age }, job)
-        : fill('stale_other', { name, word: WAS[status], age });
-      const source = text(r.source), since = asOf != null ? clock(asOf) : '';
-      const second = source && since ? fill('stale_source', { source, time: since }) : '';
-      return [first, second].filter(s => s && fits(s));
-    }
-
-    const out = [];
-    if (status === 'printing') {
-      out.push(p != null ? withJob('printing', { name, p }, job) : withJob('printing_nop', { name }, job));
-      const left = duration(r.left_min), doneAt = time(r.done_at);
-      const done = doneAt != null && o.now != null && doneAt > o.now ? clock(doneAt) : '';
-      if (left && done) out.push(fill('eta_both', { left, time: done }));
-      else if (left) out.push(fill('eta_left', { left }));
-      else if (done) out.push(fill('eta_time', { time: done }));
+      const ages = [ageOf(o, r.as_of), PHRASES.age_unknown];
+      first = status === 'printing' && p != null
+        ? firstFit(...ages.flatMap(age => jobs('stale_printing', { name, p, age })))
+        : firstFit(...ages.map(age => fill('stale_other', { name, word: WAS[status], age })));
+      const source = text(r.source), since = earlierToday(o, r.as_of);
+      if (source && since) second.push(fill('stale_source', { source, time: since }));
+    } else if (status === 'printing') {
+      first = firstFit(...(p != null ? jobs('printing', { name, p }) : jobs('printing_nop', { name })));
+      const left = duration(r.left_min), done = stillToCome(o, r.done_at);
+      if (left && done) second.push(fill('eta_both', { left, time: done }));
+      if (left) second.push(fill('eta_left', { left }));
+      if (done) second.push(fill('eta_time', { time: done }));
     } else if (status === 'paused') {
-      out.push(p != null ? fill('paused', { name, p }) : fill('paused_nop', { name }));
+      first = p != null ? fill('paused', { name, p }) : fill('paused_nop', { name });
     } else if (status === 'failed') {
-      out.push(p != null ? fill('failed', { name, p }) : fill('failed_nop', { name }));
+      first = p != null ? fill('failed', { name, p }) : fill('failed_nop', { name });
     } else if (status === 'finished') {
-      const at = time(r.finished_at) != null ? clock(r.finished_at) : '';
-      out.push(at ? withJob('finished_at', { name, time: at }, job) : withJob('finished', { name }, job));
-      if (r.plate_ask === true) out.push(PHRASES.clear_plate);
+      const at = earlierToday(o, r.finished_at);
+      first = firstFit(...(at ? jobs('finished_at', { name, time: at }) : []), ...jobs('finished', { name }));
+      if (r.plate_ask === true) second.push(PHRASES.clear_plate);
     } else {
-      out.push(fill('idle', { name }));
-      const at = time(r.finished_at);
-      if (at != null && o.now != null && new Date(at).toDateString() === new Date(o.now).toDateString()) {
-        const t = clock(at);
-        if (t) out.push(fill('idle_last', { time: t }));
-      }
+      first = fill('idle', { name });
+      const at = earlierToday(o, r.finished_at);
+      if (at) second.push(fill('idle_last', { time: at }));
     }
-    return out.filter(fits).slice(0, 2);
+    if (!first) return [fill('unknown', { name })];
+    const more = firstFit(...second);
+    return more ? [first, more] : [first];
   }
 
   // A whole number of things, zero included, or null: a count that can't be read is never "nothing".
   const whole = v => (typeof v === 'number' && Number.isInteger(v) && v >= 0 ? v : null);
-  const sentence = title => (/[.!?]$/.test(title) ? title : title + '.');
+  const sentence = title => (/[.!?…]$/.test(title) ? title : title + '.');
 
   function home(i, o) {
     const asks = whole(i.asks);
     if (asks == null) return [PHRASES.asks_unreadable];
     const unread = (Array.isArray(i.unread) ? i.unread : []).map(text).filter(Boolean);
+    // Decisions that were given but can't be counted were not read: that is "nothing here", never "nothing".
+    const decisionsUnread = i.decisions !== undefined && whole(i.decisions) == null;
     const decisions = whole(i.decisions) || 0;
     const first = asks === 1 ? PHRASES.asks_one : asks > 1 ? fill('asks_many', { N: count(asks) })
       : decisions === 1 ? PHRASES.decisions_one : decisions > 1 ? fill('decisions_many', { N: count(decisions) })
-      : unread.length ? PHRASES.asks_none_here : PHRASES.asks_none;
+      : unread.length || decisionsUnread ? PHRASES.asks_none_here : PHRASES.asks_none;
 
     // The second sentence: the first of these that exists and fits. One that is too long is skipped, never cut.
     const conditions = (Array.isArray(i.conditions) ? i.conditions : []).filter(c => c && typeof c === 'object' && text(c.title));
@@ -134,12 +157,11 @@
     const r = i.printer && typeof i.printer === 'object' ? i.printer : {};
     const p = percentOf(r.percent);
     if (r.state === 'live' && r.status === 'printing' && p != null) {
-      const name = text(r.name) || 'X2D', doneAt = time(r.done_at);
-      const t = doneAt != null && o.now != null && doneAt > o.now ? o.clock(doneAt) : '';
-      if (typeof t === 'string' && t) running.push(fill('home_printing_eta', { name, p, time: t }));
+      const name = nameOf(r), t = stillToCome(o, r.done_at);
+      if (t) running.push(fill('home_printing_eta', { name, p, time: t }));
       running.push(fill('home_printing', { name, p }));
     }
-    const second = [...unread.slice(0, 1).map(name => fill('not_read', { name })), ...titled('bad'), ...running, ...titled('warn')].find(fits);
+    const second = firstFit(...unread.slice(0, 1).map(name => fill('not_read', { name })), ...titled('bad'), ...running, ...titled('warn'));
     return second ? [first, second] : [first];
   }
 
@@ -156,7 +178,10 @@
       if (i.reading && i.reading.state === 'loading') return { label, sentences: [], loading: true };
       return { label, sentences: printer(i.reading, o), loading: false };
     }
-    if (i.page === 'home') return { label, sentences: home(i, o), loading: false };
+    if (i.page === 'home') {
+      if (i.loading === true) return { label, sentences: [], loading: true };
+      return { label, sentences: home(i, o), loading: false };
+    }
     return { label, sentences: [], loading: false };
   }
 

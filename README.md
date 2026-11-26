@@ -338,7 +338,7 @@ that uses none of it is unchanged. `demo/say.html` shows all of it.
 
 ```js
 const composed = ApplianceSay.compose(
-  { page: 'printer', label: 'Printer', reading },          // or { page: 'home', label, asks, unread, decisions, conditions, printer }
+  { page: 'printer', label: 'Printer', reading },          // or { page: 'home', label, loading, asks, unread, decisions, conditions, printer }
   { now: Date.now(), ago: ApplianceNeeds.ago });            // clock(ms) → "10:30 AM" is optional
 ApplianceSay.render(document.querySelector('h1.ui-say'), composed);   // true when it wrote
 ```
@@ -346,12 +346,16 @@ ApplianceSay.render(document.querySelector('h1.ui-say'), composed);   // true wh
 - `reading`: `{ state: "live" | "stale" | "unavailable" | "unknown" | "loading", as_of, source, name, status, percent,
   job, left_min, done_at, finished_at, plate_ask }`. `status` is `printing`, `paused`, `finished`, `failed` or `idle`.
   Times are milliseconds. A fact that is missing or unusable drops its clause; nothing is drawn as zero or `NaN`.
-- Stale is past tense with its age ("The X2D was 45% through Clip 12 min ago."); an age `ago` can't say is "earlier".
-  Unavailable, unknown and loading have their own output. `compose` reads no clock: without `now` it leaves out
-  estimates and ages.
+- Stale is past tense with its age ("The X2D was 45% through Clip 12 min ago."): under a minute is "a moment ago",
+  and an age `ago` can't say is "earlier", never "now". Unavailable, unknown and loading have their own output.
+  `compose` reads no clock: without `now` it leaves out estimates and ages.
+- A clock time is said only for a moment earlier today, and a finish estimate only while it is still to come; a time
+  on another day is left out rather than read as today's.
 - Home's `asks` is the number of rows the page drew under "Needs you". Anything that isn't a whole number means the
-  list couldn't be read, and says so; it is never "Nothing needs you".
-- A sentence is at most 60 characters; a job name that would pass that becomes "its print". The same input always
+  list couldn't be read, and says so; it is never "Nothing needs you". `decisions` that were passed but aren't a
+  whole number give "Nothing needs you here." Before the first read, pass `loading: true`.
+- A sentence is at most 60 characters; a job name that would pass that becomes "its print", and a printer
+  `name` over 16 characters becomes "printer". The same input always
   gives the same strings. A page the module doesn't know gets no sentences and keeps its plain title.
 - `render` puts the page's name in the `h1` for assistive tech (`ui-vh`), sets no `aria-live`, and leaves the DOM alone
   when the text hasn't changed.

@@ -125,7 +125,7 @@ test('count and duration', () => {
 
 test('PHRASES is frozen and every sentence template ends in a full stop', () => {
   assert.ok(Object.isFrozen(PHRASES));
-  for (const [k, v] of Object.entries(PHRASES)) if (!['job_generic', 'age_unknown'].includes(k)) assert.ok(v.endsWith('.'), k);
+  for (const [k, v] of Object.entries(PHRASES)) if (!['job_generic', 'name_generic', 'age_unknown', 'age_moment'].includes(k)) assert.ok(v.endsWith('.'), k);
 });
 
 // ---- Home (spec S2; Pi Hub A36 D7, A33) ----
@@ -150,7 +150,7 @@ test('home: decisions when there are no asks', () => {
   assert.equal(H({ asks: 0, decisions: 2 })[0], 'Two decisions are waiting.');
   assert.equal(H({ asks: 0, decisions: 1 })[0], 'One decision is waiting.');
   assert.equal(H({ asks: 3, decisions: 2 })[0], 'Three things need you.');
-  assert.equal(H({ asks: 0, decisions: NaN })[0], 'Nothing needs you.');
+  assert.equal(H({ asks: 0, decisions: undefined })[0], 'Nothing needs you.');
 });
 test('home: bad beats running, running beats warn, a stale printer is not "running"', () => {
   const c = [{ tone: 'warn', title: 'The Pi ran hot' }, { tone: 'bad', title: 'The internet is down.' }];
@@ -170,3 +170,76 @@ test('home: an over-long condition is skipped, not cut', () => {
   assert.deepEqual(H({ asks: 0, conditions: [null, { tone: 'bad' }, { tone: 'bad', title: '  ' }, 'x'] }), ['Nothing needs you.']);
 });
 test('home: empty input', () => assert.deepEqual(H({}), ["Couldn't read what needs you."]));
+
+// ---- Found by the branch review (25 Nov 2026) ----
+const needsMod = { exports: {} };
+new Function('module', fs.readFileSync(path.join(root, 'dist/needs.js'), 'utf8'))(needsMod);
+const realAgo = needsMod.exports.ago;
+
+test('review 1: a stale reading never says "now", with the real ApplianceNeeds.ago', () => {
+  const st = (as_of, status = 'paused') => P({ state: 'stale', status, as_of }, { ago: realAgo })[0];
+  assert.equal(st(now - 20000), 'The X2D was paused a moment ago.');
+  assert.equal(st(now - 59000), 'The X2D was paused a moment ago.');
+  assert.equal(st(now), 'The X2D was paused a moment ago.');
+  assert.equal(st(now + 60000), 'The X2D was paused earlier.');            // a reading from the future has no age
+  assert.equal(st(now - 720000), 'The X2D was paused 12 min ago.');
+  assert.equal(st(now - 3 * 3600000), 'The X2D was paused earlier.');       // past the last age rule, ago() is null
+  for (const s of [20, 59, 0, 720, 7200]) assert.ok(!/\bnow\b/.test(st(now - s * 1000, 'printing')), String(s));
+});
+
+test('review 2: a long name never drops the subject or passes 60 characters', () => {
+  const long = 'A printer with a name far too long to fit in any sentence at all';
+  for (const name of [long, 'x'.repeat(41), 'Seventeen chars!!']) {
+    assert.deepEqual(P({ state: 'unavailable', name }), ["The printer isn't answering."]);
+    assert.deepEqual(P({ state: 'unknown', name }), ["The printer hasn't reported yet."]);
+    assert.deepEqual(P({ state: 'live', status: 'idle', name }), ['The printer is idle.']);
+    assert.deepEqual(P({ state: 'live', status: 'printing', percent: 45, job: 'Clip', left_min: 20, name }),
+      ['The printer is 45% through Clip.', 'About 20 min left.']);
+    assert.equal(H({ asks: 0, printer: { state: 'live', status: 'printing', percent: 45, name } })[1], 'The printer is 45% through its print.');
+  }
+  assert.deepEqual(P({ state: 'live', status: 'idle', name: 'Sixteen chars!!!' }), ['The Sixteen chars!!! is idle.']);
+});
+
+test('review 2: no second sentence without a first, whatever the clock, the age or the source say', () => {
+  const wordy = { clock: () => 'half past ten in the morning, Eastern Standard Time, more or less', ago: () => 'a very long while ago, longer than anyone could say exactly' };
+  const cases = [
+    { state: 'live', status: 'printing', percent: 100, job: 'j'.repeat(80), left_min: 9999, done_at: now + 1000 },
+    { state: 'live', status: 'finished', job: 'Clip', finished_at: now - 1000, plate_ask: true },
+    { state: 'live', status: 'idle', finished_at: now - 1000 },
+    { state: 'stale', status: 'printing', percent: 100, job: 'Clip', as_of: now - 720000, source: 'Bambuddy' },
+    { state: 'stale', status: 'failed', as_of: now - 720000, source: 's'.repeat(70) },
+  ];
+  for (const name of ['X2D', 'Sixteen chars!!!']) for (const c of cases) for (const o of [{}, wordy]) {
+    const out = P({ ...c, name }, o);
+    assert.ok(out.length >= 1 && out.length <= 2, JSON.stringify(out));
+    assert.ok(out[0].startsWith(`The ${name} `), JSON.stringify(out));
+    for (const s of out) assert.ok(s.length <= 60, `${s.length}: ${s}`);
+  }
+  for (const i of [{ asks: 1, unread: ['u'.repeat(70)], conditions: [{ tone: 'bad', title: 'b'.repeat(70) }], printer: { ...cases[0], name: 'Sixteen chars!!!' } }])
+    for (const s of H(i, wordy)) assert.ok(s.length <= 60, s);
+});
+
+test('review 3: a time on another day, or in the future, is not said as a time today', () => {
+  assert.deepEqual(P({ state: 'live', status: 'finished', job: 'Clip', finished_at: now - 3 * 86400000, plate_ask: true }),
+    ['The X2D finished Clip.', 'Clear the plate.']);
+  assert.deepEqual(P({ state: 'live', status: 'finished', job: 'Clip', finished_at: now + 3600000 }), ['The X2D finished Clip.']);
+  assert.deepEqual(P({ state: 'live', status: 'idle', finished_at: now + 3600000 }), ['The X2D is idle.']);
+  assert.deepEqual(P({ state: 'stale', status: 'idle', as_of: now - 40 * 86400000, source: 'Bambuddy' }, { ago: realAgo }), ['The X2D was idle earlier.']);
+  assert.deepEqual(compose({ page: 'printer', reading: { state: 'live', status: 'finished', job: 'Clip', finished_at: now - 1000 } }, { clock }).sentences,
+    ['The X2D finished Clip.']);   // no now: nothing to compare the time with
+});
+
+test('review 4: Home has a loading state, and decisions that could not be read are not "nothing"', () => {
+  assert.deepEqual(compose({ page: 'home', label: 'Home', loading: true }, { now }), { label: 'Home', sentences: [], loading: true });
+  assert.deepEqual(compose({ page: 'home', label: 'Home', loading: true, asks: 3 }, { now }).loading, true);
+  for (const decisions of [null, NaN, -1, 1.5, '2', {}]) assert.deepEqual(H({ asks: 0, decisions }), ['Nothing needs you here.'], String(decisions));
+  assert.deepEqual(H({ asks: 0, decisions: 0 }), ['Nothing needs you.']);
+  assert.equal(H({ asks: 2, decisions: null })[0], 'Two things need you.');
+});
+
+test('review: a time that is not a date is no time, and a print under way is never "100%"', () => {
+  assert.deepEqual(P({ state: 'live', status: 'printing', percent: 45, job: 'Clip', done_at: 1e20 }), ['The X2D is 45% through Clip.']);
+  assert.deepEqual(H({ asks: 0, printer: { state: 'live', status: 'printing', percent: 45, done_at: 1e20 } }), ['Nothing needs you.', 'The X2D is 45% through its print.']);
+  assert.equal(P({ state: 'live', status: 'printing', percent: 99.6, job: 'Clip' })[0], 'The X2D is 99% through Clip.');
+  assert.equal(P({ state: 'live', status: 'printing', percent: 100, job: 'Clip' })[0], 'The X2D is 100% through Clip.');
+});
