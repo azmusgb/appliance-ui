@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spoken readout mockup</title>
+<style>
+/*TOKENS*/
+</style>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--ui-bg);color:var(--ui-text);font-family:var(--ui-font);font-size:var(--ui-fs-4);line-height:1.45;-webkit-text-size-adjust:100%}
+h1,h2,h3,p,ul,dl,dd{margin:0;padding:0}
+ul{list-style:none}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* Shell: one nav, a bottom bar on a narrow window and a rail on a wide one (the only window switch). */
+.nav{position:fixed;inset:auto 0 0 0;z-index:var(--ui-z-bar);display:flex;background:var(--ui-bar);border-top:1px solid var(--ui-line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav a{flex:1;display:grid;justify-items:center;gap:2px;padding:var(--ui-s-2) 0;min-height:3.25rem;font-size:var(--ui-fs-1);color:var(--ui-muted);text-decoration:none;position:relative;border-top:2px solid transparent;margin-top:-1px}
+.nav a[aria-current="page"]{color:var(--ui-text);font-weight:700;border-top-color:var(--ui-accent)}
+.nav a[aria-current="page"] svg{stroke-width:2.2}
+.nav svg{width:1.375rem;height:1.375rem;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.nav__n{position:absolute;top:var(--ui-s-1);left:calc(50% + .6rem);font-size:var(--ui-fs-1);font-weight:700;color:var(--ui-warn);font-variant-numeric:tabular-nums}
+.main{padding:var(--ui-s-3) var(--ui-s-4) calc(5rem + env(safe-area-inset-bottom,0px));max-width:84rem}
+@media (min-width:48rem){
+  .nav{inset:0 auto 0 0;width:5.5rem;flex-direction:column;justify-content:flex-start;gap:var(--ui-s-1);border-top:0;border-right:1px solid var(--ui-line);padding:var(--ui-s-4) 0}
+  .nav a{flex:none;border-top:0;margin-top:0;border-left:2px solid transparent;padding:var(--ui-s-3) 0}
+  .nav a[aria-current="page"]{border-left-color:var(--ui-accent)}
+  .main{margin-left:5.5rem;padding:var(--ui-s-4) var(--ui-s-6) var(--ui-s-8)}
+}
+
+/* Tools row */
+.tools{display:flex;align-items:center;gap:var(--ui-s-2);justify-content:flex-end}
+.tools .btn{padding:0 var(--ui-s-3)}
+@media (max-width:30rem){.tools kbd,.tools__long{display:none}}
+.tools__sample{margin-right:auto;font-size:var(--ui-fs-2);color:var(--ui-muted)}
+.btn{display:inline-flex;align-items:center;gap:var(--ui-s-2);min-height:2.75rem;padding:0 var(--ui-s-4);border:1px solid var(--ui-field-line);border-radius:var(--ui-r-3);background:transparent;font-weight:600;font-size:var(--ui-fs-3);text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--ui-surface-2)}
+.btn--quiet{border-color:transparent;background:var(--ui-surface-2)}
+.btn--primary{background:var(--ui-accent);border-color:var(--ui-accent);color:var(--ui-on-accent)}
+.btn--primary:hover{background:var(--ui-accent-text)}
+.btn--danger{color:var(--ui-bad);border-color:var(--ui-bad)}
+kbd{font-family:var(--ui-font);font-size:var(--ui-fs-1);color:var(--ui-muted);border:1px solid var(--ui-line-2);border-radius:var(--ui-r-1);padding:0 var(--ui-s-1)}
+
+/* The spoken readout: the page's reading, said in a sentence. The one loud element. */
+.say{font-stretch:var(--ui-stretch-readout);font-weight:700;font-size:clamp(2rem,1.45rem + 2.4vw,3.25rem);line-height:1.04;letter-spacing:-.005em;max-width:30ch;margin:var(--ui-s-5) 0 var(--ui-s-6);text-wrap:balance;font-variant-numeric:tabular-nums}
+.say span{display:block}
+.say span + span{margin-top:.18em}
+
+/* Lamp: dot and word */
+.lamp{display:inline-flex;align-items:center;gap:.4em;font-weight:650;font-size:var(--ui-fs-3);white-space:nowrap}
+.lamp::before{content:"";width:.55em;height:.55em;border-radius:50%;background:currentColor}
+.lamp--ok{color:var(--ui-ok)}.lamp--warn{color:var(--ui-warn)}.lamp--bad{color:var(--ui-bad)}
+.lamp--unknown{color:var(--ui-unknown)}.lamp--unknown::before{background:transparent;box-shadow:inset 0 0 0 1.5px currentColor}
+.lamp--live::before{box-shadow:0 0 0 3px color-mix(in srgb,currentColor 28%,transparent)}
+
+/* Running now: the page's one panel */
+.plate{background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:var(--ui-r-2);padding:var(--ui-s-4);container-type:inline-size}
+.plate__top{display:flex;align-items:baseline;gap:var(--ui-s-3);flex-wrap:wrap}
+.plate__name{font-weight:700}
+.plate__job{color:var(--ui-muted);font-size:var(--ui-fs-3);flex-basis:100%}
+.meter{height:.5rem;border-radius:var(--ui-r-pill);background:var(--ui-surface-2);margin:var(--ui-s-3) 0 var(--ui-s-4);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--ui-text);border-radius:inherit}
+.plate__body{display:grid;gap:var(--ui-s-4)}
+.reads{display:flex;flex-wrap:wrap;gap:var(--ui-s-3) var(--ui-s-5)}
+.reads div{display:grid}
+.reads dt{font-size:var(--ui-fs-2);color:var(--ui-muted)}
+.reads dd{font-stretch:var(--ui-stretch-readout);font-weight:700;font-size:var(--ui-fs-5);font-variant-numeric:tabular-nums;line-height:1.15}
+.acts{display:flex;gap:var(--ui-s-2);flex-wrap:wrap;align-items:center}
+@container (min-width:38rem){.plate__job{flex-basis:auto;margin-left:auto}.plate__body{grid-template-columns:1fr auto;align-items:end}}
+
+/* Columns flow by their own width */
+.cols{display:grid;gap:var(--ui-s-7) var(--ui-s-7);grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));margin-top:var(--ui-s-7);align-items:start}
+.sec h2{font-stretch:var(--ui-stretch-heading);font-size:var(--ui-fs-5);font-weight:700;margin-bottom:var(--ui-s-2);display:flex;gap:var(--ui-s-2);align-items:baseline}
+.sec h2 small{font-size:var(--ui-fs-3);font-weight:400;color:var(--ui-muted);font-stretch:100%}
+.stack > * + *{margin-top:var(--ui-s-7)}
+
+/* Needs you: rows, not boxes */
+.needs{container-type:inline-size;border-top:1px solid var(--ui-line)}
+.need{border-bottom:1px solid var(--ui-line);padding:var(--ui-s-3) 0 var(--ui-s-3) var(--ui-s-4);position:relative;display:grid;gap:var(--ui-s-2)}
+.need::before{content:"";position:absolute;left:0;top:var(--ui-s-3);bottom:var(--ui-s-3);width:3px;border-radius:2px;background:var(--ui-warn)}
+.need--bad::before{background:var(--ui-bad)}
+.need--note::before{background:var(--ui-line-2)}
+.sub{font-size:var(--ui-fs-4);font-weight:700;margin:var(--ui-s-5) 0 var(--ui-s-2);display:flex;gap:var(--ui-s-2);align-items:baseline}
+.sub small{font-size:var(--ui-fs-3);font-weight:400;color:var(--ui-muted)}
+.need__t{font-weight:700}
+.need__d{color:var(--ui-muted);font-size:var(--ui-fs-3);max-width:60ch}
+.need__act{justify-self:start}
+.need__m{font-size:var(--ui-fs-2);color:var(--ui-muted)}
+.need details{font-size:var(--ui-fs-2);color:var(--ui-muted)}
+.need summary{cursor:pointer;width:max-content;min-height:1.75rem;display:flex;align-items:center;text-decoration:underline;text-underline-offset:.2em;list-style:none}
+.need summary::-webkit-details-marker{display:none}
+.need details p{font-family:var(--ui-mono);padding:var(--ui-s-2) 0;overflow-wrap:anywhere;max-width:70ch}
+@container (min-width:34rem){.need{grid-template-columns:1fr auto;align-items:center;column-gap:var(--ui-s-4)}.need__act{grid-column:2;grid-row:1 / span 3}}
+
+/* Rack: every system on the same three columns */
+.rack{container-type:inline-size;border-top:1px solid var(--ui-line)}
+.sys{display:grid;grid-template-columns:1fr auto;gap:0 var(--ui-s-4);align-items:center;padding:var(--ui-s-3) 0;border-bottom:1px solid var(--ui-line);text-decoration:none;min-height:3.5rem}
+.sys:hover .sys__n{text-decoration:underline;text-underline-offset:.2em}
+.sys__h{display:flex;gap:var(--ui-s-3);align-items:baseline;flex-wrap:wrap}
+.sys__n{font-weight:700}
+.sys__d{grid-column:1;color:var(--ui-muted);font-size:var(--ui-fs-3)}
+.sys__v{grid-column:2;grid-row:1 / span 2;font-stretch:var(--ui-stretch-readout);font-weight:700;font-size:var(--ui-fs-6);font-variant-numeric:tabular-nums;text-align:right;line-height:1}
+.sys__v small{font-size:var(--ui-fs-2);font-weight:400;font-stretch:100%;color:var(--ui-muted);display:block;margin-top:2px}
+@container (min-width:36rem){.sys{grid-template-columns:13rem 1fr auto}.sys__h{flex-direction:column;gap:0}.sys__d{grid-column:2;grid-row:1}.sys__v{grid-column:3;grid-row:1}}
+
+/* Printer view */
+.duo{display:grid;gap:var(--ui-s-4);grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));align-items:stretch}
+.cam{min-height:13rem;border-radius:var(--ui-r-2);border:1px solid var(--ui-line);background:repeating-linear-gradient(135deg,var(--ui-surface) 0 10px,var(--ui-surface-2) 10px 11px);display:grid;place-items:end start;padding:var(--ui-s-3);font-size:var(--ui-fs-2);color:var(--ui-muted)}
+.sw{width:.9rem;height:.9rem;border-radius:50%;border:1px solid var(--ui-field-line);display:inline-block;vertical-align:-.1em;margin-right:var(--ui-s-2)}
+.line{display:flex;gap:var(--ui-s-3);align-items:center;flex-wrap:wrap}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Areas">
+  <a href="#home" data-view="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>Home<span class="nav__n" aria-label="1 needs you">1</span></a>
+  <a href="#workshop" data-view="workshop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v5H6zM9 9v3l3 3 3-3V9M12 15v5"/></svg>Workshop<span class="nav__n" aria-label="1 needs you">1</span></a>
+  <a href="#other" data-view="other"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17v-4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4M4 17h16M6 11V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3M6 17v2M18 17v2"/></svg>Household</a>
+  <a href="#other" data-view="other"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9a14 14 0 0 1 18 0M6.5 12.5a9 9 0 0 1 11 0M10 16a4 4 0 0 1 4 0"/><circle cx="12" cy="19" r=".6"/></svg>Network</a>
+  <a href="#other" data-view="other"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/><rect x="10" y="10" width="4" height="4"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>System</a>
+</nav>
+
+<div class="main">
+  <div class="tools">
+    <span class="tools__sample">Sample data</span>
+    <button class="btn btn--quiet" type="button">Search <kbd>⌘K</kbd></button>
+    <button class="btn" type="button"><span><span class="tools__long">Ask the </span>Assistant</span></button>
+    <button class="btn btn--quiet" type="button" id="theme" aria-pressed="false">Light</button>
+  </div>
+
+  <main>
+    <div id="v-home">
+      <h1 class="say"><span>One thing needs you.</span><span>The X2D is 45% through its print, done about 10:30 AM.</span></h1>
+
+      <section class="plate" aria-label="Running now">
+        <div class="plate__top">
+          <span class="plate__name">X2D</span>
+          <span class="lamp lamp--ok lamp--live">Printing</span>
+          <span class="plate__job">Rift10 pair70 clean, checked 20 s ago</span>
+        </div>
+        <div class="meter" role="progressbar" aria-label="Print progress" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"><i style="width:45%"></i></div>
+        <div class="plate__body">
+          <dl class="reads">
+            <div><dt>Layer</dt><dd>506 / 1306</dd></div>
+            <div><dt>Nozzle</dt><dd>216°</dd></div>
+            <div><dt>Bed</dt><dd>55°</dd></div>
+            <div><dt>Filament</dt><dd>PLA</dd></div>
+            <div><dt>AMS humidity</dt><dd>38%</dd></div>
+          </dl>
+          <div class="acts">
+            <button class="btn" type="button">Pause the print</button>
+            <a class="btn btn--quiet" href="#workshop" data-view="workshop">Open Printer</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="cols">
+        <section class="sec" aria-labelledby="h-needs">
+          <h2 id="h-needs">Needs you <small>1</small></h2>
+          <ul class="needs">
+            <li class="need">
+              <p class="need__t">E-028: the plan needs fixing</p>
+              <p class="need__d">Its test mesh differs from E-026-A's, so the two can't be compared as planned.</p>
+              <details><summary>Details</summary><p>geometry mesh differs (E-026-A vs E-028-ANCHOR): declare it as a dependent adjustment or fix the plan; 95.5 / 45 min per test; 44.1 / 25 g per test; 115.9 + 95.5 / 180 min for Q-007</p></details>
+              <p class="need__m">Since 7:40 AM, Print lab</p>
+              <button class="btn btn--primary need__act" type="button">Fix the plan</button>
+            </li>
+                      </ul>
+          <h3 class="sub">Heads up <small>2, nothing to do</small></h3>
+          <ul class="needs">
+            <li class="need need--note">
+              <p class="need__t">Wind advisory until 10:00 AM tomorrow</p>
+              <p class="need__d">National Weather Service, Greenville-Spartanburg.</p>
+              <p class="need__m">Since 1:14 AM, Weather</p>
+            </li>
+            <li class="need need--note">
+              <p class="need__t">The Pi ran hot</p>
+              <p class="need__d">71 °C now. It slowed itself earlier, and slows again at 80&nbsp;°C.</p>
+              <p class="need__m">Since 5:47 PM, Health</p>
+            </li>
+          </ul>
+        </section>
+
+        <section class="sec" aria-labelledby="h-sys">
+          <h2 id="h-sys">Systems</h2>
+          <div class="rack">
+            <a class="sys" href="#workshop" data-view="workshop"><span class="sys__h"><span class="sys__n">X2D</span><span class="lamp lamp--ok lamp--live">Printing</span></span><span class="sys__d">Layer 506 of 1306</span><span class="sys__v">45%<small>done 10:30 AM</small></span></a>
+            <a class="sys" href="#other" data-view="other"><span class="sys__h"><span class="sys__n">Raspberry Pi</span><span class="lamp lamp--warn">Ran hot</span></span><span class="sys__d">Memory 2 of 3.7 GB, up 11 days, up to date</span><span class="sys__v">71°<small>slows at 80°</small></span></a>
+            <a class="sys" href="#other" data-view="other"><span class="sys__h"><span class="sys__n">Network</span><span class="lamp lamp--ok">Fine</span></span><span class="sys__d">Internet fine, ad blocking on</span><span class="sys__v"></span></a>
+            <a class="sys" href="#other" data-view="other"><span class="sys__h"><span class="sys__n">Windows PC</span><span class="lamp lamp--ok">On</span></span><span class="sys__d">Local AI ready</span><span class="sys__v"></span></a>
+            <a class="sys" href="#other" data-view="other"><span class="sys__h"><span class="sys__n">Storage</span><span class="lamp lamp--ok">Fine</span></span><span class="sys__d">SD card</span><span class="sys__v">7.2<small>GB free</small></span></a>
+            <a class="sys" href="#other" data-view="other"><span class="sys__h"><span class="sys__n">Mac</span><span class="lamp lamp--unknown">Asleep</span></span><span class="sys__d">Lab mirror last read 12 h ago</span><span class="sys__v"></span></a>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="v-workshop" hidden>
+      <h1 class="say"><span>The X2D is 45% through Rift10 pair70.</span><span>About 11 h 24 min left, done around 10:30 AM.</span></h1>
+      <div class="duo">
+        <section class="plate" aria-label="Printer">
+          <div class="plate__top">
+            <span class="plate__name">Bambu X2D</span>
+            <span class="lamp lamp--ok lamp--live">Printing</span>
+            <span class="plate__job">Bambuddy, checked 20 s ago</span>
+          </div>
+          <div class="meter" role="progressbar" aria-label="Print progress" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"><i style="width:45%"></i></div>
+          <dl class="reads">
+            <div><dt>Layer</dt><dd>506 / 1306</dd></div>
+            <div><dt>Nozzle</dt><dd>216° / 215°</dd></div>
+            <div><dt>Bed</dt><dd>55° / 55°</dd></div>
+            <div><dt>AMS</dt><dd>38% RH</dd></div>
+          </dl>
+          <div class="acts" style="margin-top:var(--ui-s-4)">
+            <button class="btn" type="button">Pause the print</button>
+            <button class="btn btn--danger" type="button">Stop the print</button>
+          </div>
+        </section>
+        <div class="cam" role="img" aria-label="Camera placeholder">Camera, through the Pi</div>
+      </div>
+
+      <div class="cols">
+        <div class="stack">
+          <section class="sec" aria-labelledby="h-wn">
+            <h2 id="h-wn">Needs you here</h2>
+            <ul class="needs">
+              <li class="need">
+                <p class="need__t">E-028: the plan needs fixing</p>
+                <p class="need__d">Its test mesh differs from E-026-A's, so the two can't be compared as planned.</p>
+                <p class="need__m">Since 7:40 AM, Print lab</p>
+                <button class="btn btn--primary need__act" type="button">Fix the plan</button>
+              </li>
+            </ul>
+          </section>
+          <section class="sec" aria-labelledby="h-wk">
+            <h2 id="h-wk">This week</h2>
+            <p class="line">6 prints finished, 125.2 h printing <a class="btn" href="#other" data-view="other">Print history</a></p>
+          </section>
+        </div>
+        <section class="sec" aria-labelledby="h-fil">
+          <h2 id="h-fil">Filament loaded</h2>
+          <div class="rack">
+            <div class="sys"><span class="sys__h"><span class="sys__n"><i class="sw" style="background:#9a9c9a"></i>AMS 1</span></span><span class="sys__d">PLA, grey, in use</span><span class="sys__v">612<small>g left</small></span></div>
+            <div class="sys"><span class="sys__h"><span class="sys__n"><i class="sw" style="background:#f08a3c"></i>AMS 2</span></span><span class="sys__d">PLA, orange</span><span class="sys__v">840<small>g left</small></span></div>
+            <div class="sys"><span class="sys__h"><span class="sys__n"><i class="sw" style="background:#cdb4e6"></i>AMS 3</span></span><span class="sys__d">PLA, lilac</span><span class="sys__v">164<small>g left, low</small></span></div>
+            <div class="sys"><span class="sys__h"><span class="sys__n"><i class="sw"></i>AMS 4</span><span class="lamp lamp--unknown">Not reported</span></span><span class="sys__d">The spool has no tag</span><span class="sys__v"></span></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="v-other" hidden>
+      <h1 class="say"><span>This page isn't in the mockup.</span><span>Home and Workshop are.</span></h1>
+      <a class="btn" href="#home" data-view="home">Back to Home</a>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  var views = ['home', 'workshop', 'other'];
+  function show(name) {
+    if (views.indexOf(name) < 0) name = 'home';
+    views.forEach(function (v) { document.getElementById('v-' + v).hidden = v !== name; });
+    document.querySelectorAll('.nav a').forEach(function (a) {
+      if (a.dataset.view === name && name !== 'other') a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    window.scrollTo(0, 0);
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-view]');
+    if (a) { e.preventDefault(); show(a.dataset.view); }
+  });
+  var t = document.getElementById('theme');
+  t.addEventListener('click', function () {
+    var dark = document.documentElement.dataset.theme === 'dark';
+    document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+    t.textContent = dark ? 'Dark' : 'Light';
+  });
+  var q = new URLSearchParams(location.search);
+  if (q.get('theme') === 'light') t.click();
+  if (q.get('view')) show(q.get('view'));
+})();
+</script>
+</body>
+</html>
