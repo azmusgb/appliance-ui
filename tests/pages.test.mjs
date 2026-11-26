@@ -102,7 +102,7 @@ test('Print lab and Settings carry their tabs; the unbuilt rows are marked', () 
   assert.deepEqual(tabs('lab').map(p => [p.label, p.path, p.built]), [['Experiments', '/lab', undefined], ['Designs', '/lab/designs', false], ['Lab tools', '/lab/tools', false]]);
   assert.deepEqual(tabs('settings').map(p => [p.label, p.path]), [['General', '/settings'], ['Home', '/settings#group-home'],
     ['Weather and calendar', '/settings#group-outside'], ['Phone messages', '/settings#group-phone'], ['People and access', '/settings#group-people'], ['The Pi', '/settings#group-pi']]);
-  assert.deepEqual(list.pages.filter(p => p.built === false).map(p => p.id), ['lab-designs', 'lab-tools', 'missions', 'mission']);
+  assert.deepEqual(list.pages.filter(p => p.built === false).map(p => p.id), ['lab-designs', 'lab-tools']);
 });
 
 test('the Assistant\'s 23 rows: each names its view, needs the PC, and sits in one of the sections', () => {
