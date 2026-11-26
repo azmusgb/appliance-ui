@@ -6,6 +6,7 @@ import { classifyCopy } from '../scripts/lib/drift.mjs';
 const log = parseChangelog(`<!-- classified-from: 2.7.0 -->
 # Changelog
 
+## 2.13.0 — needs consumer change (pi-hub): draw /missions
 ## 2.11.0 — needs consumer change (display): drop level-one Back
 ## 2.10.0 — skippable
 ## 2.9.0 — needs consumer change (web): use the container layouts
@@ -30,6 +31,8 @@ const rows = [
   ['display-only release is skippable for a web consumer', { copyVersion: '2.10.0', kitVersion: '2.11.0' }, 'behind-skippable', 0, ['2.10.0', '2.11.0']],
   ['display-only release needs a change for the display', { copyVersion: '2.10.0', kitVersion: '2.11.0', kit: 'display' }, 'behind-needs-change', 1, ['2.11.0', 'drop level-one Back']],
   ['web-only release is skippable for the display', { copyVersion: '2.8.0', kitVersion: '2.10.0', kit: 'display' }, 'behind-skippable', 0, ['2.8.0', '2.10.0']],
+  ['consumer-named release needs a change for that consumer', { copyVersion: '2.11.0', kitVersion: '2.13.0', kit: 'web', name: 'pi-hub' }, 'behind-needs-change', 1, ['2.13.0', 'draw /missions']],
+  ['consumer-named release is skippable for another web consumer', { copyVersion: '2.11.0', kitVersion: '2.13.0', kit: 'web', name: 'LocalAI' }, 'behind-skippable', 0, ['2.11.0', '2.13.0']],
   ['no kit named: nothing is skipped by audience', { copyVersion: '2.10.0', kitVersion: '2.11.0', kit: undefined }, 'behind-needs-change', 1, ['2.11.0']],
   ['every needs-change release is named, not only the first', { copyVersion: '2.8.0', kitVersion: '2.11.0', kit: undefined }, 'behind-needs-change', 1, ['2.9.0, 2.11.0 need a consumer change', 'first: use the container layouts']],
 ];

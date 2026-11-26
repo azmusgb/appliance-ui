@@ -14,6 +14,7 @@ A new phrase.
 `;
 
 const audiences = `<!-- classified-from: 2.7.0 -->
+## 2.13.0 — needs consumer change (pi-hub, LocalAI): wire the new route
 ## 2.12.0 — needs consumer change (display): drop Back
 ## 2.11.0 — needs consumer change (web): use containers
 ## 2.10.0 — needs consumer change: everyone rewires
@@ -30,9 +31,10 @@ test('parseChangelog reads each heading into skip and note', () => {
   ]);
 });
 
-test('a needs-change heading may name its audience: (web), (display), or none meaning everyone', () => {
+test('a needs-change heading may name its audience: (web), (display), consumer names, or none meaning everyone', () => {
   const { entries } = parseChangelog(audiences);
   assert.deepEqual([...entries].map(([v, e]) => [v, e.audience, e.note]), [
+    ['2.13.0', 'pi-hub, LocalAI', 'wire the new route'],
     ['2.12.0', 'display', 'drop Back'],
     ['2.11.0', 'web', 'use containers'],
     ['2.10.0', 'all', 'everyone rewires'],

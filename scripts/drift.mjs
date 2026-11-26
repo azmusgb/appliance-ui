@@ -52,7 +52,7 @@ async function run(argv, opts) {
   let exit = 0;
   for (const c of chosen) {
     const copy = await readConsumer(c, fetchFile);
-    const r = classifyCopy({ ...copy, kitVersion, kit: c.kit }, changelog);
+    const r = classifyCopy({ ...copy, kitVersion, kit: c.kit, name: c.name }, changelog);
     out(`${c.name}\t${r.state}\t${r.line}`);
     exit = Math.max(exit, r.exit);
   }

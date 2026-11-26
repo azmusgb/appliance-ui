@@ -1,6 +1,6 @@
 {
   "name": "appliance-ui",
-  "version": "2.32.0",
+  "version": "2.32.1",
   "private": true,
   "description": "The home appliance's shared look: tokens, components, the Needs-you renderer and the tool registry, copied into each app.",
   "type": "module",
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node scripts/build.mjs && node --test tests/",
+    "test": "node scripts/build.mjs && node --test tests/*.test.mjs",
     "screens": "node scripts/build.mjs && node scripts/screens.mjs",
     "contrast": "node scripts/contrast.mjs",
     "display": "node scripts/build.mjs && node scripts/display.mjs",

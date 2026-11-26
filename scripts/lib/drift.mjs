@@ -2,12 +2,21 @@
 import { parseVersion, compareVersions } from './versions.mjs';
 import { releasesBetween } from './changelog.mjs';
 
-// input: { copyVersion: string | null, kitVersion: string, kit: 'web' | 'display' | undefined, modified: string[], unreachable: boolean }
-// kit is the consumer's kit; a needs-change release for the other kit is skippable here. No kit: nothing is skipped that way.
+// input: { copyVersion: string | null, kitVersion: string, kit: 'web' | 'display' | undefined, name?: string, modified: string[], unreachable: boolean }
+// kit is the consumer's kit and name is its consumers.json name; a needs-change release for another kit or consumer is skippable here.
+// No kit and no name: nothing is skipped that way.
 // log: what parseChangelog returns.
 // -> { state, exit, line }. Exit is 1 only for a modified copy, an unknown copy, or a copy behind across a release
 // that needs a consumer change.
-export function classifyCopy({ copyVersion, kitVersion, kit, modified, unreachable }, log) {
+const KITS = new Set(['web', 'display']);
+
+function appliesTo(audience, kit, name) {
+  if (!audience || audience === 'all') return true;
+  const targets = audience.split(',').map(s => s.trim());
+  return targets.some(t => (KITS.has(t) ? !kit || kit === t : !name || name === t));
+}
+
+export function classifyCopy({ copyVersion, kitVersion, kit, name, modified, unreachable }, log) {
   const result = (state, exit, line) => ({ state, exit, line });
   if (unreachable) return result('unreachable', 0, `unknown: could not reach the consumer (kit ${kitVersion})`);
   if (!parseVersion(copyVersion)) {
@@ -21,7 +30,7 @@ export function classifyCopy({ copyVersion, kitVersion, kit, modified, unreachab
   if (order === 0) return result('current', 0, `current at ${kitVersion}`);
   if (order > 0) return result('ahead', 0, `ahead: copy ${copyVersion}, kit ${kitVersion}`);
   const releases = releasesBetween(log, copyVersion, kitVersion);
-  const needs = releases.filter(r => r.skip === false && (!kit || r.audience === 'all' || r.audience === kit));
+  const needs = releases.filter(r => r.skip === false && appliesTo(r.audience, kit, name));
   if (needs.length) {
     const first = needs[0];
     const names = needs.map(r => r.version).join(', ');

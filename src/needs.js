@@ -230,7 +230,10 @@
     const run = async (answer, trigger) => {
       if (li.dataset.state === 'pending' || !answer) return;
       li.dataset.state = 'pending';
-      for (const c of controls) c.disabled = true;
+      for (const c of controls) {
+        c.setAttribute('aria-disabled', 'true');
+        if (c.tagName === 'TEXTAREA') c.readOnly = true;
+      }
       li.setAttribute('aria-busy', 'true');
       say(text('decision_pending'), 'pending');
       let result;
@@ -238,7 +241,10 @@
       li.removeAttribute('aria-busy');
       if (result === false) {
         li.dataset.state = 'failed';
-        for (const c of controls) c.disabled = false;
+        for (const c of controls) {
+          c.removeAttribute('aria-disabled');
+          if (c.tagName === 'TEXTAREA') c.readOnly = false;
+        }
         say(text('decision_failed'), 'failed');
         trigger.focus();
         return;
@@ -257,6 +263,7 @@
       const send = el(doc, 'button', 'ui-btn ui-btn--primary ui-decision__send', text('decision_send'));
       send.type = 'button';
       send.addEventListener('click', () => {
+        if (li.dataset.state === 'pending') return;
         const v = box.value.trim().slice(0, TEXT_MAX);
         if (!v) { say(text('decision_empty'), 'failed'); box.focus(); return; }
         run(v, send);
@@ -323,14 +330,16 @@
     if (state) {
       title.textContent = text('decisions_heading', open.length);
       title.hidden = !open.length;
-      status.textContent = text({ loading: 'decisions_loading', error: 'decisions_unreadable', stale: 'decisions_stale' }[state]);
+      const age = state === 'stale' ? since(o.as_of, o) : '';
+      const base = text({ loading: 'decisions_loading', error: 'decisions_unreadable', stale: 'decisions_stale' }[state]);
+      status.textContent = age ? `${base} (${age})` : base;
       status.dataset.kind = state;
     } else {
       title.textContent = text('decisions_heading', open.length);
     }
     for (const d of open) ul.append(renderDecision(d, o, here, group));
     ul.hidden = !open.length;
-    sec.append(title, ul, status);
+    sec.append(title, status, ul);
     out.append(sec);
     return out;
   }
