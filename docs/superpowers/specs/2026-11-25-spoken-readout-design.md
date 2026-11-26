@@ -13,7 +13,7 @@ the right of a row, for every list), A8 D3 (the rack's lamp on the left and its 
 page", "Home" and colour table (the meter's fill).
 
 Depends on: Pi Hub A36 (proposed 25 Nov; `hub/needs.py` has no `kind` yet). Home cannot move until A36's `kind` and
-asks-only `count` are live (Rollout, step 3). Where this spec and A36 differ, A36 wins.
+asks-only `count` are live (Rollout, step 5). Where this spec and A36 differ, A36 wins.
 
 The owner's direction, 25 Nov 2026: the design is for the owner alone, on an iPhone, an iPad and a laptop; "go as far
 as you recommend"; then "Yes, write it up" to the mockup of approach B below. Under the frozen baseline nothing here is
@@ -189,7 +189,7 @@ ApplianceSay.render(h1, composed)             → void   (writes the spans; no-o
 - **Technical text goes behind "Details".** An item may carry `more`: a string drawn in `--ui-mono` inside a closed
   `<details>` with the summary "Details". The source decides what is `detail` and what is `more`; the kit never splits
   a string. An item with no `more` draws no disclosure. Nothing emits `more` today (`hub/needs.py` sends a clipped
-  `detail`), so fault 5 is fixed only by Rollout step 3a: Local AI's `/api/needs` writes a plain `detail` and moves
+  `detail`), so fault 5 is fixed only by Rollout step 5a: Local AI's `/api/needs` writes a plain `detail` and moves
   the checker's output to `more` for lab items, and `hub/needs.py` passes `more` through.
 - **One primary.** The first ask's action is `ui-btn--primary` when the page has no other primary; every other ask's
   action is the default button.
@@ -214,6 +214,8 @@ own rack CSS in `home-dashboard.css` is deleted when Home moves.
 - **The lamp follows the name** in every list (this reverses A7 P3's lamp on the right, and A8 D3's lamp on the left
   for Home), and Home's warn wash goes. Names still line up down a list, which was P3's reason. A row that needs a
   look is found by its lamp's word and colour. A8 D2's order (Needs you first, Systems beside it) is unchanged.
+- **No reading is shown twice.** While Home's plate shows the printer, the X2D row keeps its name, lamp and line and
+  drops its figure.
 - A row that links to a page is one link (the whole row, min height 3.5 rem); a row is not also given an "Open …" link.
 
 ### S6. The accent only acts
@@ -226,8 +228,8 @@ own rack CSS in `home-dashboard.css` is deleted when Home moves.
   are unchanged.
   Measure `warn` on `bar` in both modes (text, 4.5:1) and add the row; if either mode fails, the number keeps `text`
   and gains a `warn` dot.
-- Links in rows are `text` with an underline on hover and focus, not `accentText`. `accentText` stays for a link in
-  running prose and the current strip item.
+- Links keep `accentText` as today. (The first draft made row links plain `text`; dropped, because an underline on
+  hover alone gives a touch screen nothing to see.)
 
 ### S7. By device
 
@@ -252,14 +254,18 @@ Home's order below the plate is Needs you and Heads up, Systems, then the Today 
 
 1. **Pi Hub amendment A37** (docs PR in pi-hub): restates S1, S3, S4 and S5 as changes to A7 P1, P2 and P3 and A8 D3
    and points here. Nothing below starts until it merges.
-2. **Kit release** (needs consumer change (web): a page that adopts `ui-say` removes its title, purpose line and
-   readout): `say.js`, `ui-say`, the row figure, the Needs-you rows, the meter and badge colours; `demo/page.html` and
-   a Home demo redrawn; `npm run screens`; `npm run contrast`; `DESIGN.md` updated in the same PR.
-3. **Pi Hub, one PR per page,** after the kit sync: Printer first (it needs nothing from A36), then Home once A36's
-   `kind` and asks-only `count` are live, then the rest in the rail's order. Home's PR also maps badges by area (S6)
-   and deletes the rack's own CSS (S5).
-   - **3a. `more`** (S4): one Local AI PR and one Pi Hub PR, any time after step 2; Home does not wait for it.
-4. **Local AI's own pages** after Pi Hub's, the same way.
+2. **Kit release one, additive (skippable):** `say.js`, `ui-say`, `ui-vh`, the row figure, and the faceplate without
+   a readout. Nothing existing changes, so a page that has not moved looks the same after the sync. `demo/page.html`
+   redrawn; `npm run screens`.
+3. **Pilot: Printer on Pi Hub,** one PR after the sync (it needs nothing from A36).
+   - **Gate.** The owner uses the live Printer page on the phone, the iPad and the laptop, then says go or stop.
+     Stopping costs one page's revert; nothing else has changed yet.
+4. **Kit release two, the restyle (skippable, but every page changes at its sync):** the Needs-you rows, the meter's
+   fill, the badge; `npm run contrast`; `DESIGN.md` updated in the same PR.
+5. **Pi Hub, one PR per page:** Home once A36's `kind` and asks-only `count` are live, then the rest in the rail's
+   order. Home's PR also maps badges by area (S6) and deletes the rack's own CSS (S5).
+   - **5a. `more`** (S4): one Local AI PR and one Pi Hub PR, any time after step 4; Home does not wait for it.
+6. **Local AI's own pages** after Pi Hub's, the same way.
 
 ## Checks
 
@@ -278,7 +284,8 @@ Home's order below the plate is Needs you and Heads up, Systems, then the Today 
 3. The page name stays for assistive tech and in the tab title, but is not drawn on a page that has a sentence.
 4. Home shows the plate only while something runs or is held.
 5. The lamp follows the name on Home too, and the warn wash goes (reverses A8 D3).
-6. Row links lose `accentText`.
+6. The kit ships in two releases with a go-or-stop gate after the Printer pilot, so the restyle of every page waits
+   on the owner seeing one real page.
 7. The mockup was redrawn after A36 was proposed, so it shows one ask and two heads-up, not "Three things need you".
    It draws Heads up open; on Home A36 D6 keeps it collapsed.
 8. With no asks and open decisions, Home says "{N} decisions are waiting." rather than "Nothing needs you."
