@@ -328,6 +328,62 @@ searchButton.onclick = () => palette.open();  // the phone header's search icon;
 
 Approving an Assistant run is never a palette action (spec section 8.2): a provider returns a `go` to the approval sheet.
 
+## The spoken readout (2.32)
+
+A page with a reading opens with one or two sentences that state it, in the readout face, in place of a static title
+(Pi Hub amendment A37; `docs/superpowers/specs/2026-11-25-spoken-readout-design.md`). Everything here is opt-in: a page
+that uses none of it is unchanged. `demo/say.html` shows all of it.
+
+`dist/say.js` writes the words. A page passes facts and never writes sentence text:
+
+```js
+const composed = ApplianceSay.compose(
+  { page: 'printer', label: 'Printer', reading },          // or { page: 'home', label, loading, asks, unread, decisions, conditions, printer }
+  { now: Date.now(), ago: ApplianceNeeds.ago });            // clock(ms) → "10:30 AM" is optional
+ApplianceSay.render(document.querySelector('h1.ui-say'), composed);   // true when it wrote
+```
+
+- `reading`: `{ state: "live" | "stale" | "unavailable" | "unknown" | "loading", as_of, source, name, status, percent,
+  job, left_min, done_at, finished_at, plate_ask }`. `status` is `printing`, `paused`, `finished`, `failed` or `idle`.
+  Times are milliseconds. A fact that is missing or unusable drops its clause; nothing is drawn as zero or `NaN`.
+- Stale is past tense with its age ("The X2D was 45% through Clip 12 min ago."): under a minute is "a moment ago",
+  and an age `ago` can't say is "earlier", never "now". Unavailable, unknown and loading have their own output.
+  `compose` reads no clock: without `now` it leaves out estimates and ages.
+- A clock time is said only for a moment earlier today, and a finish estimate only while it is still to come; a time
+  on another day is left out rather than read as today's.
+- Home's `asks` is the number of rows the page drew under "Needs you". Anything that isn't a whole number means the
+  list couldn't be read, and says so; it is never "Nothing needs you". `decisions` that were passed but aren't a
+  whole number give "Nothing needs you here." Before the first read, pass `loading: true`.
+- A sentence is at most 60 characters; a job name that would pass that becomes "its print", and a printer
+  `name` over 16 characters becomes "printer". The same input always
+  gives the same strings. A page the module doesn't know gets no sentences and keeps its plain title.
+- `render` puts the page's name in the `h1` for assistive tech (`ui-vh`), sets no `aria-live`, and leaves the DOM alone
+  when the text hasn't changed.
+
+```html
+<header class="ui-page__head ui-page__head--say">
+  <div class="ui-page__tools"><button class="ui-btn ui-btn--ghost" type="button">Search</button></div>
+  <h1 class="ui-say">Printer</h1>
+</header>
+
+<!-- The plate: a faceplate with no ui-readout or caption, because the head says the number. -->
+<section class="ui-faceplate ui-faceplate--plate" aria-label="Printer">
+  <div class="ui-faceplate__main">
+    <div class="ui-faceplate__nameplate"><span>Bambu X2D</span><span class="ui-chip ui-chip--ok ui-chip--live">Printing</span>
+      <span class="ui-faceplate__job">Rift10 pair70, checked 20 s ago</span></div>
+    <span class="ui-meter" role="progressbar" aria-label="Print progress" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"><i style="width:45%"></i></span>
+    <dl class="ui-faceplate__readings"><div><dt>Layer</dt><dd>506 / 1306</dd></div></dl>
+    <div class="ui-faceplate__actions"><button class="ui-btn" type="button">Pause the print</button></div>
+  </div>
+</section>
+
+<!-- Rows on one grid: the lamp follows the name; the figure is optional. A row that goes somewhere is <li><a class="ui-row">. -->
+<ul class="ui-rows ui-rows--grid">
+  <li class="ui-row"><span class="ui-row__name"><span class="ui-row__title">Storage</span><span class="ui-chip ui-chip--ok">Fine</span></span>
+    <span class="ui-row__detail">SD card</span><span class="ui-row__figure">7.2<small>GB free</small></span></li>
+</ul>
+```
+
 ## Motion (2.5)
 
 `backbar.js` (a classic script; it sets `window.ApplianceBackbar`, 2.21) is optional beside `ui-backbar`: it sends a
