@@ -53,7 +53,7 @@ test('components.css defines the shared classes using only --ui-* colours', () =
   // 2.6.0: the strip is underlined (one style in every app); the current page is marked by aria-current, not colour alone.
   assert.match(css, /\.ui-strip a\[aria-current="page"\],\.ui-strip a\[aria-current="true"\]\{[^}]*border-bottom-color:var\(--ui-accent\)/);
   assert.match(css, /\.ui-strip a\{[^}]*min-height:44px/, 'strip links are 44 px targets');
-  assert.match(css, /@media \(pointer:coarse\)\{\.ui-chips :is\(a,button\)\{min-height:44px\}\}/, 'chips are 44 px on touch');
+  assert.match(css, /@media \(pointer:coarse\)\{\.ui-chips :is\(a,button\)\{min-height:44px;min-width:44px;/, 'chips are 44 px on touch');
   assert.match(css, /\.ui-faceplate\{[^}]*border-radius:var\(--ui-r-2\)/, 'the faceplate is a panel: the low radius');
   assert.match(css, /\.ui-row--lamp>:first-child\{flex:1 1 220px\}/, 'the text takes the room, so lamps line up on the right');
   // 2.7.0: an icon-only button's outline is the 3:1 field line (the ghost border is decoration), and it is square.
