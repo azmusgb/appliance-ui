@@ -29,6 +29,9 @@ test('areaLinks: bad input yields no links, never a throw', () => {
   assert.deepEqual(areaLinks([{ id: 'a', label: 'A', landing: 'p' }], [{ id: 'p', path: '' }]), []);
 });
 
+const fontData = fs.readFileSync(path.join(root, 'fonts/archivo-latin-ui.woff2')).toString('base64');
+const fontFace = `@font-face{font-family:Archivo;src:url(data:font/woff2;base64,${fontData}) format("woff2");font-weight:400 750;font-stretch:75% 100%;font-display:swap}`;
+
 let browser;
 before(async () => { browser = await chromium.launch(); });
 after(async () => { await browser?.close(); });
@@ -36,12 +39,13 @@ after(async () => { await browser?.close(); });
 async function open(width, { text = 1 } = {}) {
   const page = await browser.newPage({ viewport: { width, height: 800 } });
   await page.setContent('<!doctype html><meta name="viewport" content="width=device-width,viewport-fit=cover"><body></body>');
-  await page.addStyleTag({ content: read('dist/tokens.css') + read('dist/components.css') + read('dist/shell.css') + `html{font-size:${text * 100}%}` });
+  await page.addStyleTag({ content: read('dist/tokens.css') + fontFace + read('dist/components.css') + read('dist/shell.css') + `html{font-size:${text * 100}%}` });
   await page.addScriptTag({ content: read('dist/shell.js') });
-  await page.evaluate(({ areas, pages }) => {
+  await page.evaluate(async ({ areas, pages }) => {
     document.body.innerHTML = '<div class="ui-shell"><div class="ui-shell-stage"><header class="ui-shell-head" data-ui-shell-head>Title</header><main class="ui-shell-main"><input id="f"><div style="height:3000px"></div></main></div></div>';
     const nav = ApplianceShell.build(document, { areas, pages, current: 'workshop', badges: { home: 3 }, icon: () => document.createElementNS('http://www.w3.org/2000/svg', 'svg') });
     document.querySelector('.ui-shell').prepend(nav);
+    await document.fonts.ready;
   }, list);
   return page;
 }
