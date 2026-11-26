@@ -228,6 +228,21 @@ test('the plate has no big readout and its actions sit beside the readings from 
       target: R('.ui-faceplate__actions .ui-btn').height >= 40 }; });
   assert.deepEqual(p, { jobBelow: true, actsBelow: true, target: true });
   await phone.close();
+  // With a camera --aside beside __main, at 820 px the outer plate is >= 38 rem but __main is ~23 rem: actions stay
+  // below readings until the plate reaches 64 rem (where __main itself is >= 32 rem).
+  const tablet = await openDemo(820);
+  const t = await tablet.evaluate(() => {
+    const plate = document.querySelector('.ui-faceplate--plate');
+    plate.classList.add('ui-faceplate--aside');
+    const aside = document.createElement('div');
+    aside.className = 'ui-faceplate__aside';
+    aside.textContent = 'Camera';
+    plate.append(aside);
+    const R = s => plate.querySelector(s).getBoundingClientRect();
+    return { actsBelowAt820: R('.ui-faceplate__actions').top >= R('.ui-faceplate__readings').bottom - 1 };
+  });
+  assert.deepEqual(t, { actsBelowAt820: true });
+  await tablet.close();
 });
 
 test('a linked row is one link with a visible focus ring', async () => {

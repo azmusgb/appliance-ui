@@ -46,8 +46,9 @@
     prov_owner: 'Recorded by you', prov_unavailable: 'No report since {when}', prov_never: 'No report yet',
     // A1 (2.8.0): a Healthchecks.io check is Late, Down or Paused while the hub is up.
     outside_alarm_quiet: "The outside alarm isn't hearing from the Pi",
-    // Actions named by their verb (2.6.0, A7 P2): never "Open" alone.
-    judge_it: 'Judge it', open_printer: 'Open printer', open_network: 'Open Network', see_usage: "See what's using it",
+    // Actions named by their verb (2.6.0, A7 P2; 2.34.1, A36 D4): never "Open" alone.
+    judge_it: 'Judge it', open_printer: 'Open printer', open_network: 'Open Network', open_backups: 'Open Backups',
+    see_usage: "See what's using it", see_running: "See what's running",
     // 2.28: the owner has seen an item that needs nothing more from them; the app hides it until it is raised again.
     acknowledge: 'Acknowledge', ack_pending: 'Acknowledging', ack_failed: 'Not acknowledged. Try again.',
   };
@@ -89,6 +90,7 @@
     return r ? r.text.replace('{n}', Math.floor(s / (r.per || 1))) : null;
   }
   const sinceText = when => WORDS.age.since.replace('{when}', () => when);
+  const untilText = when => (WORDS.age.until || 'until {when}').replace('{when}', () => when);
 
   // "since 4:29 AM" today, "since 3 Nov" before; nothing for a missing or unreadable time.
   function formatWhen(val, o) {
@@ -106,7 +108,7 @@
   }
   function until(untilVal, o) {
     const t = formatWhen(untilVal, o);
-    return t ? `until ${t}` : '';
+    return t ? untilText(t) : '';
   }
 
   const hereOf = (o, doc) => o.here || new URL(doc.defaultView.location.href);

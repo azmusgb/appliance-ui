@@ -12,7 +12,7 @@ const { PHRASES, safeLink } = mod.exports;
 const here = new URL('http://10.0.0.80/home');
 const resolve = l => (l === 'bambuddy' ? 'https://bambuddy.home.arpa/' : l);
 
-test('PHRASES has the forty-seven keys and texts, with the platform terms of spec section 9, Pi Hub A22 8.4, A33 P1 and A35 M1b', () => {
+test('PHRASES has the forty-nine keys and texts, with the platform terms of spec section 9, Pi Hub A22 8.4, A33 P1, A35 M1b and A36 D4', () => {
   assert.deepEqual(PHRASES, {
     judge: 'Judge the print', approve: 'Approve or drop', send: 'Send it to the printer', fix_plan: 'Fix the plan',
     look: 'Look at the printer', open_bambuddy: 'Open Bambuddy', check_pc: 'Check the PC', not_answering: "{name} isn't answering",
@@ -29,7 +29,8 @@ test('PHRASES has the forty-seven keys and texts, with the platform terms of spe
     prov_live: 'Live', prov_reported: 'Reported {when}', prov_checked: 'Checked {when}', prov_imported: 'Imported from {source}',
     prov_owner: 'Recorded by you', prov_unavailable: 'No report since {when}', prov_never: 'No report yet',
     outside_alarm_quiet: "The outside alarm isn't hearing from the Pi",
-    judge_it: 'Judge it', open_printer: 'Open printer', open_network: 'Open Network', see_usage: "See what's using it",
+    judge_it: 'Judge it', open_printer: 'Open printer', open_network: 'Open Network', open_backups: 'Open Backups',
+    see_usage: "See what's using it", see_running: "See what's running",
     acknowledge: 'Acknowledge', ack_pending: 'Acknowledging', ack_failed: 'Not acknowledged. Try again.',
   });
 });

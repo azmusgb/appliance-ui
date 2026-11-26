@@ -9,6 +9,7 @@
       { "under": 60, "text": "now" },
       { "under": 3600, "per": 60, "text": "{n} min ago" }
     ],
-    "since": "since {when}"
+    "since": "since {when}",
+    "until": "until {when}"
   }
 }

@@ -386,6 +386,7 @@ test('2.34.0: ui-need is a row with a 3px left bar, no box fill or radius; more 
       hasDetails: !!det,
       open: det?.open,
       summary: det?.querySelector('summary')?.textContent,
+      summaryH: det?.querySelector('summary')?.getBoundingClientRect().height,
       moreText: det?.querySelector('.ui-need__more')?.textContent,
       moreHtml: det?.querySelectorAll('b').length,
       insideLink: !!det?.closest('a'),
@@ -411,6 +412,7 @@ test('2.34.0: ui-need is a row with a 3px left bar, no box fill or radius; more 
   assert.equal(r.hasDetails, true);
   assert.equal(r.open, false);
   assert.equal(r.summary, 'Details');
+  assert.ok(r.summaryH >= 44, `Details summary meets 44px touch target (got ${r.summaryH})`);
   assert.equal(r.moreText, 'geometry mesh differs (E-026-A vs E-028-ANCHOR) <b>raw</b>');
   assert.equal(r.moreHtml, 0, 'more is inserted as text, never HTML');
   assert.equal(r.insideLink, false, 'details disclosure sits outside the anchor');
