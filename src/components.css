@@ -186,3 +186,14 @@
 .ui-result-card--loading{opacity:.7;border-style:dashed}
 .ui-result-card--error{border-color:var(--ui-bad);background:color-mix(in srgb,var(--ui-bad) 8%,var(--ui-surface))}
 .ui-result-card--disabled{opacity:.5;cursor:not-allowed}
+/* The spoken readout (2.32, Pi Hub A37; spec 2026-11-25-spoken-readout-design S1): the page's head is its reading, said
+   in one or two sentences in the readout face. ApplianceSay.render (say.js) writes it. All of this is opt-in. */
+.ui-vh{position:absolute;width:1px;height:1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.ui-say{margin:0;max-width:30ch;font:700 clamp(var(--ui-fs-7),1.45rem + 2.4vw,calc(var(--ui-fs-7)*1.5))/1.04 var(--ui-font);font-stretch:var(--ui-stretch-readout);font-variant-numeric:tabular-nums;letter-spacing:-.005em;color:var(--ui-text);text-wrap:balance;overflow-wrap:anywhere}
+.ui-say__s{display:block}
+.ui-say__s+.ui-say__s,.ui-say__wait+.ui-say__wait{margin-top:var(--ui-s-2)}
+.ui-say__wait{width:min(100%,18ch)}
+.ui-say__wait+.ui-say__wait{width:min(100%,26ch)}
+/* The tools (Search, the Assistant) are a row above the sentence, at the right. */
+.ui-page__head--say{grid-template-columns:minmax(0,1fr);gap:var(--ui-s-4)}
+.ui-page__tools{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:var(--ui-s-2)}

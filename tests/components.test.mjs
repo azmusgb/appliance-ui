@@ -27,7 +27,9 @@ test('components.css defines the shared classes using only --ui-* colours', () =
     // 2.16.0: tabs, the web's counterpart of the display's Tabs.
     'ui-tabs',
     // 2.21.0 (Pi Hub A22 6.4): the bar back to Pi Hub, on the platform's own pages outside the frame.
-    'ui-backbar']) {
+    'ui-backbar',
+    // 2.32.0 (Pi Hub A37): the spoken readout.
+    'ui-vh', 'ui-say', 'ui-say__s', 'ui-say__wait', 'ui-page__head--say', 'ui-page__tools']) {
     assert.match(css, new RegExp(`\\.${cls}[\\s{.,:>]`), cls);
   }
   assert.match(css, /:focus-visible\{[^}]*outline:2px solid var\(--ui-accent\)/);

@@ -2,7 +2,7 @@
   "kit": "2.23.0",
   "files": {
     "src/components.css": {
-      "type": 3,
+      "type": 4,
       "space": 17,
       "radius": 3,
       "shadow": 3,

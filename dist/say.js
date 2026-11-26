@@ -2,6 +2,7 @@
 // ApplianceSay (2.32.0, Pi Hub amendment A37; spec 2026-11-25-spoken-readout-design S1 and S2): a page says its reading
 // as one or two sentences. compose() turns a structured reading into the words; a page never writes sentence text.
 // The same input always gives the same strings: compose reads no clock (the caller passes opts.now) and nothing random.
+// render(h1, composed) writes that into the page's <h1 class="ui-say">, and only when the text changed.
 // compose(input, opts) → { label, sentences: string[] (at most two, each at most 60 characters), loading }
 //   input: { page: "printer", label, reading }
 //        | { page: "home", label, asks (a whole number; anything else means the list couldn't be read), unread?: string[],
@@ -160,7 +161,33 @@
     return { label, sentences: [], loading: false };
   }
 
-  const api = { compose, count, duration, PHRASES };
+  // Writes a composed reading into the page's <h1 class="ui-say">: the page's name for assistive tech (visually hidden),
+  // then one span per sentence. Loading is two skeleton lines; no sentences is the page's name as a plain, visible title.
+  // The DOM is touched only when what it would say changed, so a refresh never disturbs focus, a selection or a screen
+  // reader's place. It sets no aria-live: the head states the reading, it doesn't announce it. Text goes in by
+  // textContent only. Returns true when it wrote.
+  function render(h1, composed) {
+    if (!h1 || h1.nodeType !== 1 || !composed || typeof composed !== 'object') return false;
+    const label = text(composed.label);
+    const sentences = (Array.isArray(composed.sentences) ? composed.sentences : []).filter(s => typeof s === 'string' && s);
+    const loading = composed.loading === true;
+    const key = JSON.stringify([label, sentences, loading]);
+    if (h1.dataset.say === key) return false;
+    const doc = h1.ownerDocument;
+    const span = (cls, t) => { const e = doc.createElement('span'); e.className = cls; if (t != null) e.textContent = t; return e; };
+    const nodes = [];
+    if (loading || sentences.length) {
+      if (label) nodes.push(span('ui-vh', label + ': '));
+      if (loading) for (let n = 0; n < 2; n++) { const w = span('ui-skeleton ui-say__wait'); w.setAttribute('aria-hidden', 'true'); nodes.push(w); }
+      else for (const s of sentences) nodes.push(span('ui-say__s', s));
+    } else if (label) nodes.push(doc.createTextNode(label));
+    h1.replaceChildren(...nodes);
+    if (loading) h1.setAttribute('aria-busy', 'true'); else h1.removeAttribute('aria-busy');
+    h1.dataset.say = key;
+    return true;
+  }
+
+  const api = { compose, render, count, duration, PHRASES };
   if (typeof window !== 'undefined') window.ApplianceSay = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })();
