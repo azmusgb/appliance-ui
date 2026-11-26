@@ -12,7 +12,8 @@ title and purpose lines, and the faceplate's readout), A7 P2 as drawn (Needs-you
 the right of a row, for every list), A8 D3 (the rack's lamp on the left and its warn wash), and `DESIGN.md`'s "The
 page", "Home" and colour table (the meter's fill).
 
-Depends on: Pi Hub A36 (proposed 25 Nov; `hub/needs.py` has no `kind` yet). Home cannot move until A36's `kind` and
+Depends on: Pi Hub A36 (approved, merged at `a248214`, not yet built: `hub/needs.py` has no `kind`). The Pi Hub
+amendment for this spec is A37 (`pi-hub/docs/superpowers/specs/2026-11-25-amendment-a37-spoken-readout.md`, proposed). Home cannot move until A36's `kind` and
 asks-only `count` are live (Rollout, step 5). Where this spec and A36 differ, A36 wins.
 
 The owner's direction, 25 Nov 2026: the design is for the owner alone, on an iPhone, an iPad and a laptop; "go as far
