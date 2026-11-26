@@ -44,7 +44,7 @@
 .ui-field:disabled{opacity:.5;cursor:not-allowed}
 .ui-field[aria-invalid="true"]{border-color:var(--ui-bad)}
 .ui-meter{display:block;height:8px;border-radius:var(--ui-r-1);background:var(--ui-surface-2);overflow:hidden}
-.ui-meter>i{display:block;height:100%;border-radius:inherit;background:var(--ui-accent)}
+.ui-meter>i{display:block;height:100%;border-radius:inherit;background:var(--ui-text)}
 .ui-row{display:flex;align-items:center;gap:calc(var(--ui-space)*3);min-height:44px;box-sizing:border-box;padding:calc(var(--ui-space)*2) 0;border-bottom:1px solid var(--ui-line)}
 .ui-row>:first-child{min-width:0;overflow-wrap:anywhere}
 .ui-row>:last-child:not(:first-child){margin-left:auto}

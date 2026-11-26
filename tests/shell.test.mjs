@@ -72,10 +72,19 @@ test('keyboard: arrows, Home and End move focus between areas', async () => {
   await page.close();
 });
 
-test('badge: shown with a name for assistive tech, capped at 99+, removed at zero or a non-number', async () => {
+test('badge: shown with a name for assistive tech, bare warn number (no accent pill), capped at 99+, removed at zero or a non-number', async () => {
   const page = await open(1280);
   const get = () => page.evaluate(() => { const b = document.querySelector('[data-area="home"] .ui-rail-badge'); return b && [b.textContent, b.getAttribute('aria-label')]; });
   assert.deepEqual(await get(), ['3', '3 items need you']);
+  const style = await page.evaluate(() => {
+    const b = document.querySelector('[data-area="home"] .ui-rail-badge');
+    const d = document.createElement('i'); d.style.color = 'var(--ui-warn)'; document.body.append(d);
+    const s = getComputedStyle(b);
+    return { color: s.color, warn: getComputedStyle(d).color, bg: s.backgroundColor, weight: s.fontWeight };
+  });
+  assert.equal(style.color, style.warn, 'A37 S6: badge number is warn colour');
+  assert.equal(style.bg, 'rgba(0, 0, 0, 0)', 'A37 S6: badge has no pill fill');
+  assert.equal(style.weight, '700');
   for (const [n, want] of [[250, '99+'], [0, null], [3, '3'], [NaN, null], ['5', null], [-1, null]]) {
     await page.evaluate((n) => ApplianceShell.setBadge(document.querySelector('.ui-rail'), 'home', n), n);
     const g = await get();

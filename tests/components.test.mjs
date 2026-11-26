@@ -40,6 +40,7 @@ test('components.css defines the shared classes using only --ui-* colours', () =
   assert.match(css, /\.ui-chip::before\{[^}]*background:currentColor/, 'a lamp is a dot in the status colour, beside its word');
   assert.match(css, /\.ui-card\{[^}]*border-radius:var\(--ui-r-2\)/, 'panels use the low radius');
   assert.match(css, /\.ui-btn\{[^}]*border-radius:var\(--ui-r-3\)/, 'controls are rounder than panels');
+  assert.match(css, /\.ui-meter>i\{[^}]*background:var\(--ui-text\)/, 'A37 S3: the meter fills with text, not accent');
   assert.match(css, /@media \(prefers-reduced-motion:no-preference\)\{\.ui-skeleton\{animation:/, 'the wait pulse only runs when motion is welcome');
   // Motion lives only in no-preference blocks: the wait pulse and the attention beam (2.5.0).
   assert.doesNotMatch(css.replace(/@media \(prefers-reduced-motion:no-preference\)\{(?:[^{}]*\{[^}]*\})*\}/g, ''), /animation:/, 'no other animation');

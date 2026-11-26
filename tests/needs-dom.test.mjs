@@ -136,7 +136,7 @@ test('needs.css has no literal colours and only gated --ui-* colour tokens', () 
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
   assert.doesNotMatch(css, /\brgba?\(|\bhsla?\(/i);
   const allowed = new Set(['--ui-bad', '--ui-warn', '--ui-muted', '--ui-text', '--ui-surface', '--ui-line', '--ui-fs-1', '--ui-fs-2', '--ui-fs-3', '--ui-accent']);
-  const nonColour = /^--ui-(space|r-\d+|font)$/;
+  const nonColour = /^--ui-(space|r-\d+|font|mono)$/;
   for (const [, v] of css.matchAll(/var\((--ui-[a-z0-9-]+)/g)) {
     if (nonColour.test(v)) continue;
     assert.ok(allowed.has(v), v);
@@ -353,4 +353,73 @@ test('acknowledge: the last row leaves the empty line, focused; the button sits 
   }, [ackItems, here]);
   assert.deepEqual(s, { under: true, overflow: false });
   await phone.close();
+});
+
+// ---- Spoken readout kit release two (2.34.0, Pi Hub A37 S4 & A36 D5): rows, more disclosure, heads_up ----
+test('2.34.0: ui-need is a row with a 3px left bar, no box fill or radius; more draws a closed mono Details disclosure; heads_up uses the muted bar and until', async () => {
+  const page = await open(1280);
+  const r = await page.evaluate(h => {
+    const N = window.ApplianceNeeds, here = new URL(h), now = '2026-11-26T04:00:00';
+    const colour = v => { const d = document.createElement('i'); d.style.color = `var(${v})`; document.body.append(d); return getComputedStyle(d).color; };
+    const ul = N.renderList([
+      { id: 'e28', source: 'Print lab', area: 'Workshop', tone: 'warn', title: 'E-028: the plan needs fixing',
+        detail: "Its test mesh differs from E-026-A's.", more: 'geometry mesh differs (E-026-A vs E-028-ANCHOR) <b>raw</b>',
+        as_of: '2026-11-26T01:40:00', link: '/lab', action: { key: 'fix_plan', link: '/lab' } },
+      { id: 'wind', source: 'Pi Hub', area: 'Weather', kind: 'heads_up', tone: 'warn', title: 'Wind advisory',
+        detail: 'National Weather Service.', as_of: '2026-11-26T01:14:00', until: '2026-11-26T10:00:00',
+        link: '/weather', action: { key: 'open_network', link: '/weather' } },
+    ], { here, self: 'Pi Hub', now });
+    document.getElementById('host').replaceChildren(ul);
+    const [ask, hu] = [...ul.querySelectorAll('li.ui-need')];
+    const askStyle = getComputedStyle(ask), huStyle = getComputedStyle(hu), ulStyle = getComputedStyle(ul);
+    const det = ask.querySelector('details.ui-need__details');
+    return {
+      ulTop: parseFloat(ulStyle.borderTopWidth),
+      gap: ulStyle.rowGap,
+      bg: askStyle.backgroundColor,
+      radius: askStyle.borderTopLeftRadius,
+      leftW: askStyle.borderLeftWidth,
+      bottomW: askStyle.borderBottomWidth,
+      topW: askStyle.borderTopWidth,
+      rightW: askStyle.borderRightWidth,
+      titleWeight: getComputedStyle(ask.querySelector('.ui-need__title')).fontWeight,
+      hasDetails: !!det,
+      open: det?.open,
+      summary: det?.querySelector('summary')?.textContent,
+      moreText: det?.querySelector('.ui-need__more')?.textContent,
+      moreHtml: det?.querySelectorAll('b').length,
+      insideLink: !!det?.closest('a'),
+      huDetails: !!hu.querySelector('details'),
+      huKind: hu.dataset.kind,
+      huTone: hu.dataset.tone,
+      huBar: huStyle.borderLeftColor,
+      muted: colour('--ui-muted'),
+      huAction: hu.querySelector('.ui-need__action'),
+      huMeta: hu.querySelector('.ui-need__meta')?.textContent,
+      huHref: hu.querySelector('a.ui-need__link')?.getAttribute('href'),
+    };
+  }, here);
+  assert.equal(r.ulTop, 1);
+  assert.equal(r.gap, '0px');
+  assert.equal(r.bg, 'rgba(0, 0, 0, 0)');
+  assert.equal(r.radius, '0px');
+  assert.equal(r.leftW, '3px');
+  assert.equal(r.bottomW, '1px');
+  assert.equal(r.topW, '0px');
+  assert.equal(r.rightW, '0px');
+  assert.equal(r.titleWeight, '700');
+  assert.equal(r.hasDetails, true);
+  assert.equal(r.open, false);
+  assert.equal(r.summary, 'Details');
+  assert.equal(r.moreText, 'geometry mesh differs (E-026-A vs E-028-ANCHOR) <b>raw</b>');
+  assert.equal(r.moreHtml, 0, 'more is inserted as text, never HTML');
+  assert.equal(r.insideLink, false, 'details disclosure sits outside the anchor');
+  assert.equal(r.huDetails, false, 'an item without more draws no disclosure');
+  assert.equal(r.huKind, 'heads_up');
+  assert.equal(r.huTone, 'info');
+  assert.equal(r.huBar, r.muted, 'heads-up row draws a muted stripe');
+  assert.equal(r.huAction, null, 'heads-up row draws no action button phrase');
+  assert.equal(r.huMeta, 'since 1:14 AM · until 10:00 AM · Weather');
+  assert.equal(r.huHref, 'http://10.0.0.80/weather');
+  await page.close();
 });
