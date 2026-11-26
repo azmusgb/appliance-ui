@@ -127,3 +127,46 @@ test('PHRASES is frozen and every sentence template ends in a full stop', () => 
   assert.ok(Object.isFrozen(PHRASES));
   for (const [k, v] of Object.entries(PHRASES)) if (!['job_generic', 'age_unknown'].includes(k)) assert.ok(v.endsWith('.'), k);
 });
+
+// ---- Home (spec S2; Pi Hub A36 D7, A33) ----
+const H = (i, o = {}) => compose({ page: 'home', label: 'Home', ...i }, { now, clock, ago, ...o }).sentences;
+const printing = { state: 'live', status: 'printing', percent: 45, job: 'Rift10', done_at: now + 684 * 60000 };
+
+test('home: asks and the printer', () => assert.deepEqual(H({ asks: 1, printer: printing }),
+  ['One thing needs you.', 'The X2D is 45% through its print, done about 15:30.']));
+test('home: calm', () => assert.deepEqual(H({ asks: 0 }), ['Nothing needs you.']));
+test('home: thirteen', () => assert.equal(H({ asks: 13 })[0], '13 things need you.'));
+test('home: unreadable list says so and nothing else', () => assert.deepEqual(
+  H({ asks: null, printer: printing, unread: ['Local AI'] }), ["Couldn't read what needs you."]));
+test('home: a count that is not a whole number of asks is unreadable, never "nothing"', () => {
+  for (const asks of [undefined, NaN, -1, 1.5, '3', {}]) assert.deepEqual(H({ asks }), ["Couldn't read what needs you."]);
+});
+test('home: part unread', () => {
+  assert.deepEqual(H({ asks: 0, unread: ['Local AI'], printer: printing }), ['Nothing needs you here.', "Local AI wasn't read."]);
+  assert.deepEqual(H({ asks: 2, unread: ['Local AI'], printer: printing }), ['Two things need you.', "Local AI wasn't read."]);
+  assert.deepEqual(H({ asks: 0, unread: ['', null, 7] }), ['Nothing needs you.']);
+});
+test('home: decisions when there are no asks', () => {
+  assert.equal(H({ asks: 0, decisions: 2 })[0], 'Two decisions are waiting.');
+  assert.equal(H({ asks: 0, decisions: 1 })[0], 'One decision is waiting.');
+  assert.equal(H({ asks: 3, decisions: 2 })[0], 'Three things need you.');
+  assert.equal(H({ asks: 0, decisions: NaN })[0], 'Nothing needs you.');
+});
+test('home: bad beats running, running beats warn, a stale printer is not "running"', () => {
+  const c = [{ tone: 'warn', title: 'The Pi ran hot' }, { tone: 'bad', title: 'The internet is down.' }];
+  assert.equal(H({ asks: 0, conditions: c, printer: printing })[1], 'The internet is down.');
+  assert.equal(H({ asks: 0, conditions: [c[0]], printer: printing })[1], 'The X2D is 45% through its print, done about 15:30.');
+  assert.equal(H({ asks: 0, conditions: [c[0]], printer: { ...printing, state: 'stale' } })[1], 'The Pi ran hot.');
+  assert.equal(H({ asks: 0, conditions: [c[0]], printer: { ...printing, status: 'paused' } })[1], 'The Pi ran hot.');
+});
+test('home: the printer without a finish time, or without a usable percent', () => {
+  assert.equal(H({ asks: 0, printer: { ...printing, done_at: now - 1 } })[1], 'The X2D is 45% through its print.');
+  assert.deepEqual(H({ asks: 0, printer: { ...printing, percent: NaN } }), ['Nothing needs you.']);
+});
+test('home: an over-long condition is skipped, not cut', () => {
+  assert.deepEqual(H({ asks: 0, conditions: [{ tone: 'bad', title: 'x'.repeat(70) }] }), ['Nothing needs you.']);
+  assert.deepEqual(H({ asks: 0, conditions: [{ tone: 'bad', title: 'x'.repeat(70) }, { tone: 'warn', title: 'The Pi ran hot' }] }),
+    ['Nothing needs you.', 'The Pi ran hot.']);
+  assert.deepEqual(H({ asks: 0, conditions: [null, { tone: 'bad' }, { tone: 'bad', title: '  ' }, 'x'] }), ['Nothing needs you.']);
+});
+test('home: empty input', () => assert.deepEqual(H({}), ["Couldn't read what needs you."]));

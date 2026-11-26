@@ -3,6 +3,8 @@
 // The same input always gives the same strings: compose reads no clock (the caller passes opts.now) and nothing random.
 // compose(input, opts) → { label, sentences: string[] (at most two, each at most 60 characters), loading }
 //   input: { page: "printer", label, reading }
+//        | { page: "home", label, asks (a whole number; anything else means the list couldn't be read), unread?: string[],
+//            decisions?, conditions?: { tone: "bad"|"warn", title }[], printer?: reading }
 //   reading: { state: "live"|"stale"|"unavailable"|"unknown"|"loading", as_of? (ms), source?, name? ("X2D"),
 //     status?: "printing"|"paused"|"finished"|"failed"|"idle", percent?, job?, left_min?, done_at? (ms), finished_at? (ms),
 //     plate_ask? }
@@ -24,6 +26,12 @@
     stale_source: "{source} hasn't answered since {time}.",
     unavailable: "The {name} isn't answering.", unknown: "The {name} hasn't reported yet.",
     job_generic: 'its print', age_unknown: 'earlier',
+    // Home. The count is the rows Home drew under "Needs you" (after Pi Hub A36, the asks).
+    asks_none: 'Nothing needs you.', asks_none_here: 'Nothing needs you here.',
+    asks_one: 'One thing needs you.', asks_many: '{N} things need you.', asks_unreadable: "Couldn't read what needs you.",
+    decisions_one: 'One decision is waiting.', decisions_many: '{N} decisions are waiting.',
+    not_read: "{name} wasn't read.",
+    home_printing_eta: 'The {name} is {p}% through its print, done about {time}.', home_printing: 'The {name} is {p}% through its print.',
   });
   // What a status was, for a stale reading.
   const WAS = { printing: 'printing', paused: 'paused', finished: 'finished', failed: 'stopped', idle: 'idle' };
@@ -105,6 +113,35 @@
     return out.filter(fits).slice(0, 2);
   }
 
+  // A whole number of things, zero included, or null: a count that can't be read is never "nothing".
+  const whole = v => (typeof v === 'number' && Number.isInteger(v) && v >= 0 ? v : null);
+  const sentence = title => (/[.!?]$/.test(title) ? title : title + '.');
+
+  function home(i, o) {
+    const asks = whole(i.asks);
+    if (asks == null) return [PHRASES.asks_unreadable];
+    const unread = (Array.isArray(i.unread) ? i.unread : []).map(text).filter(Boolean);
+    const decisions = whole(i.decisions) || 0;
+    const first = asks === 1 ? PHRASES.asks_one : asks > 1 ? fill('asks_many', { N: count(asks) })
+      : decisions === 1 ? PHRASES.decisions_one : decisions > 1 ? fill('decisions_many', { N: count(decisions) })
+      : unread.length ? PHRASES.asks_none_here : PHRASES.asks_none;
+
+    // The second sentence: the first of these that exists and fits. One that is too long is skipped, never cut.
+    const conditions = (Array.isArray(i.conditions) ? i.conditions : []).filter(c => c && typeof c === 'object' && text(c.title));
+    const titled = tone => conditions.filter(c => c.tone === tone).map(c => sentence(text(c.title)));
+    const running = [];
+    const r = i.printer && typeof i.printer === 'object' ? i.printer : {};
+    const p = percentOf(r.percent);
+    if (r.state === 'live' && r.status === 'printing' && p != null) {
+      const name = text(r.name) || 'X2D', doneAt = time(r.done_at);
+      const t = doneAt != null && o.now != null && doneAt > o.now ? o.clock(doneAt) : '';
+      if (typeof t === 'string' && t) running.push(fill('home_printing_eta', { name, p, time: t }));
+      running.push(fill('home_printing', { name, p }));
+    }
+    const second = [...unread.slice(0, 1).map(name => fill('not_read', { name })), ...titled('bad'), ...running, ...titled('warn')].find(fits);
+    return second ? [first, second] : [first];
+  }
+
   function compose(input, opts) {
     const i = input && typeof input === 'object' ? input : {};
     const given = opts && typeof opts === 'object' ? opts : {};
@@ -118,6 +155,7 @@
       if (i.reading && i.reading.state === 'loading') return { label, sentences: [], loading: true };
       return { label, sentences: printer(i.reading, o), loading: false };
     }
+    if (i.page === 'home') return { label, sentences: home(i, o), loading: false };
     return { label, sentences: [], loading: false };
   }
 
