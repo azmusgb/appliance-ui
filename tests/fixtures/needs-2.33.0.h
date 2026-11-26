@@ -27,6 +27,19 @@
 #define UI_NEED_DECISION_NO_ANSWER "This decision can't be answered here"
 #define UI_NEED_DECISION_EMPTY "Write an answer first"
 #define UI_NEED_DECISIONS_STALE "Not current: couldn't refresh the decisions"
+#define UI_NEED_DECISION_YES "Yes"
+#define UI_NEED_DECISION_NO "No"
+#define UI_NEED_DECISION_CHOOSE_LABEL "Choose any that apply"
+#define UI_NEED_DECISION_CHOOSE_ONE "Choose at least one first"
+#define UI_NEED_DECISION_WHY_NEEDED "Why it is asked: {text}"
+#define UI_NEED_DECISION_RATIONALE "Why it is recommended: {text}"
+#define UI_NEED_PROV_LIVE "Live"
+#define UI_NEED_PROV_REPORTED "Reported {when}"
+#define UI_NEED_PROV_CHECKED "Checked {when}"
+#define UI_NEED_PROV_IMPORTED "Imported from {source}"
+#define UI_NEED_PROV_OWNER "Recorded by you"
+#define UI_NEED_PROV_UNAVAILABLE "No report since {when}"
+#define UI_NEED_PROV_NEVER "No report yet"
 #define UI_NEED_OUTSIDE_ALARM_QUIET "The outside alarm isn't hearing from the Pi"
 #define UI_NEED_JUDGE_IT "Judge it"
 #define UI_NEED_OPEN_PRINTER "Open printer"
@@ -63,6 +76,19 @@ static const UiNeedPhrase UI_NEED_PHRASES[] = {
   { "decision_no_answer", "This decision can't be answered here" },
   { "decision_empty", "Write an answer first" },
   { "decisions_stale", "Not current: couldn't refresh the decisions" },
+  { "decision_yes", "Yes" },
+  { "decision_no", "No" },
+  { "decision_choose_label", "Choose any that apply" },
+  { "decision_choose_one", "Choose at least one first" },
+  { "decision_why_needed", "Why it is asked: {text}" },
+  { "decision_rationale", "Why it is recommended: {text}" },
+  { "prov_live", "Live" },
+  { "prov_reported", "Reported {when}" },
+  { "prov_checked", "Checked {when}" },
+  { "prov_imported", "Imported from {source}" },
+  { "prov_owner", "Recorded by you" },
+  { "prov_unavailable", "No report since {when}" },
+  { "prov_never", "No report yet" },
   { "outside_alarm_quiet", "The outside alarm isn't hearing from the Pi" },
   { "judge_it", "Judge it" },
   { "open_printer", "Open printer" },
@@ -72,4 +98,4 @@ static const UiNeedPhrase UI_NEED_PHRASES[] = {
   { "ack_pending", "Acknowledging" },
   { "ack_failed", "Not acknowledged. Try again." },
 };
-#define UI_NEED_PHRASE_COUNT 34
+#define UI_NEED_PHRASE_COUNT 47
