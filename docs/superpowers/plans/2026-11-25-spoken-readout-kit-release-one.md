@@ -245,12 +245,12 @@ test('grid rows: one column of names from 36 rem, the figure at the right', asyn
 test('a row with no figure draws nothing in its place', async () => { /* the row has no .ui-row__figure and no text "—" or "0" */ });
 test('the plate has no big readout and its actions sit beside the readings from 38 rem', async () => {
   /* 0 × .ui-readout inside .ui-faceplate--plate; at 1440 the first action’s top is below the meter and its left is right of the last reading */ });
-test('axe: no serious or critical findings on demo/say.html', async () => { /* only if the repo already runs axe in a test; otherwise leave this out and say so in the PR */ });
+// The kit has no axe test or dependency today (checked 25 Nov). Don't add one here; say "axe not run" in the PR.
 ```
 
 - [ ] **Step 2: Run** `node --test tests/say-dom.test.mjs`. Expected: the new tests FAIL (no `demo/say.html`).
 - [ ] **Step 3: Implement** the CSS and `demo/say.html`; the demo's head is filled by `ApplianceSay.render(h1, ApplianceSay.compose(…))` from an inline script with a fixed `now`, so the page is the same on every run.
-- [ ] **Step 4: Run** `npm test && npm run literals && npm run screens`. Expected: all pass; six new files `demo/screens/say-{phone,desktop}-{dark,light}.png` (four) and no change to any existing screen. Look at the four new screens.
+- [ ] **Step 4: Run** `npm test && npm run literals && npm run screens`. Expected: all pass; four new files, `demo/screens/say-{phone,desktop}-{dark,light}.png`, and no change to any existing screen. Look at the four new screens.
 - [ ] **Step 5: Commit** `git add -A && git commit -m "Grid rows with a figure, and the plate: a faceplate without a readout"`
 
 ### Task 5: Release 2.32.0
