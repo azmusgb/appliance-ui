@@ -355,8 +355,8 @@ test('acknowledge: the last row leaves the empty line, focused; the button sits 
   await phone.close();
 });
 
-// ---- Spoken readout kit release two (2.32.2, Pi Hub A37 S4 & A36 D5): rows, more disclosure, heads_up ----
-test('2.32.2: ui-need is a row with a 3px left bar, no box fill or radius; more draws a closed mono Details disclosure; heads_up uses the muted bar and until', async () => {
+// ---- Spoken readout kit release two (2.34.0, Pi Hub A37 S4 & A36 D5): rows, more disclosure, heads_up ----
+test('2.34.0: ui-need is a row with a 3px left bar, no box fill or radius; more draws a closed mono Details disclosure; heads_up uses the muted bar and until', async () => {
   const page = await open(1280);
   const r = await page.evaluate(h => {
     const N = window.ApplianceNeeds, here = new URL(h), now = '2026-11-26T04:00:00';

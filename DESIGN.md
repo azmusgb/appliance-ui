@@ -53,15 +53,15 @@ literals check", says how to run it.
 | `surface2` | The well: behind default buttons, meters and inputs at rest. |
 | `line`, `line2` | Dividers and frames. Decoration only: measured at 1.2–2.1:1, so they must never be the only thing that shows a control or a state. |
 | `fieldLine` | A field's border (3:1). |
-| `text`, `muted` | Primary and secondary text, and `text` for a meter's fill (`ui-meter > i`, 2.32.2). Both pass 4.5:1 on every background. Hierarchy never comes from fainter text. |
+| `text`, `muted` | Primary and secondary text, and `text` for a meter's fill (`ui-meter > i`, 2.34.0). Both pass 4.5:1 on every background. Hierarchy never comes from fainter text. |
 | `accent` | The primary button's fill, selection and the focus ring. Nothing else (A37: meters use `text`, and rail/tab counts use `warn`). |
 | `accentText` | Accent-coloured text: a link, or the current strip item. |
 | `onAccent` | Text on an `accent` fill. |
 | `accentSoft` | The tint behind a selected chip or row. |
-| `ok`, `warn`, `bad` | Fine, needs a look, broken or blocking. Always shown with a word (a lamp: dot plus word), except the rail/tab ask count (`ui-rail-badge`, 2.32.2), which is a bare `warn` number named for assistive tech. |
+| `ok`, `warn`, `bad` | Fine, needs a look, broken or blocking. Always shown with a word (a lamp: dot plus word), except the rail/tab ask count (`ui-rail-badge`, 2.34.0), which is a bare `warn` number named for assistive tech. |
 | `unknown` | Not known: never answered, can't be read, or out of date. Never drawn as `ok`. |
 
-- A Needs-you item (`ui-need`, 2.32.2) is a top/bottom-ruled row with a 3 px tone bar on the left: `bad` is red, `attention` and `warn` are amber, and a heads-up condition (`kind: "heads_up"` or `tone: "info"`) is `muted`. Technical detail (`more`) sits behind a closed "Details" disclosure in `--ui-mono`. A problem is
+- A Needs-you item (`ui-need`, 2.34.0) is a top/bottom-ruled row with a 3 px tone bar on the left: `bad` is red, `attention` and `warn` are amber, and a heads-up condition (`kind: "heads_up"` or `tone: "info"`) is `muted`. Technical detail (`more`) sits behind a closed "Details" disclosure in `--ui-mono`. A problem is
   never grey (2.11.1: `warn` was drawn muted, so a real problem such as "Ad blocking is off" read as information). Only
   an item with no problem tone (heads up, info, ok, busy) keeps the muted bar (2.13: `NeedTone::Info` on the display). The web
   (`ui-need`) and the display (`NeedsRow`) agree.
@@ -256,7 +256,7 @@ is added to this kit, never to one app.
 | Comparing records | `ui-table`, `ui-table__num`, `ui-table--stack` (2.7) |
 | An icon-only control | `ui-btn--icon` (2.7) with `aria-label` |
 | What needs the owner | `ApplianceNeeds.renderList` (`ui-needs`), the only Needs-you list |
-| A question only the owner can answer | `ApplianceNeeds.renderDecisions` (`ui-decisions`, 2.27; Pi Hub A33): a "Decisions (n)" group after the condition items. Choice rows have two to four buttons with the recommended one marked in words; text rows have a box and one Send. A failed write keeps the row and says "Not recorded. Try again." An unreadable list is `state: "error"`, never an empty group |
+| A question only the owner can answer | `ApplianceNeeds.renderDecisions` (`ui-decisions`, 2.27; Pi Hub A33): a "Decisions (n)" group after the condition items. Choice rows have two to four buttons with the recommended one marked in words; text rows have a box and one Send; `multi` rows (2.33) a box per option and one Send, answered with the ticked options in order; `yesno` rows Yes and No. A kind it doesn't draw is shown disabled with its reason. A failed write keeps the row and says "Not recorded. Try again." An unreadable list is `state: "error"`, never an empty group |
 | Status | `ui-chip--ok/warn/bad/unknown`, with `--live` for something running now |
 | Progress | `ui-meter`, only with a real fraction |
 | Loading | `ui-skeleton` in the shape of what is coming |
@@ -293,6 +293,14 @@ is added to this kit, never to one app.
 | Unavailable | The source isn't answering now | The phrase table's words (`source_down`, `pc_off`, `pc_waking`, `assistant_down`). A sleeping PC is normal, so `pc_off` says "asleep", never "down". Never an empty list: a list from a down source says it couldn't be read |
 | Unknown | Never read, or unreadable | `unknown` lamp, "Not reported" (`unknown_release`) or "Unknown" |
 | Demonstration | Sample data, a prototype, a dry run | Labelled "Sample data" in the head, and never mixed with live data on one screen |
+| Imported | Historical, from a reviewed file (2.33; Pi Hub A35) | `ApplianceNeeds.provenance('imported', {source})`: "Imported from <repo>@<sha>". A hollow mark, never a lamp, and never a freshness state: an import is not "live" and never goes "stale" |
+| Reported | A source's own word, not checked by anything it doesn't control (2.33; A35) | `provenance('reported', {when})`: "Reported 09:40". A hollow mark; never shown as verified, healthy or done on its own word |
+
+Where a fact came from is one label, `ui-prov` (2.33), drawn only by `ApplianceNeeds.provenance(level, {when, source})`. Its
+levels are the integration levels of Pi Hub A35 §7.1: `live` ("Live", the only one with a lamp), `reported`, `checked`
+("Checked 09:40", read by the app itself), `imported`, `owner` ("Recorded by you") and `unavailable` ("No report since
+09:12", or "No report yet"). An app formats `when` itself; a level missing the words it needs draws nothing, so a
+label never claims more than the app gave it.
 
 - **Never invent a number.** A progress fraction, an estimate or a healthy state only comes from a source that gave it.
   An estimate says "about" and where it came from. A target of 0 is no target.

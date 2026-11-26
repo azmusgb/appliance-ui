@@ -343,3 +343,17 @@ test('A27 depth: a tool card of Developer tools is the one third click, the owne
   assert.equal(depth(dt) + 1, 3, 'Assistant page, Developer tools card, tool card');
   assert.ok(dt.cards.every(c => !row(list, c.id) && !list.pages.some(p => p.path === c.path)), 'a card is no page row');
 });
+
+test('Missions (A35): a detail of Versions, and one mission at /missions/<initiative>, a detail its list opens', () => {
+  assert.deepEqual([row(list, 'missions').path, row(list, 'missions').role, row(list, 'missions').parent, row(list, 'missions').area], ['/missions', 'detail', 'versions', 'system']);
+  assert.deepEqual(row(list, 'missions').reach, ['card:versions', 'palette', 'map']);
+  assert.deepEqual([row(list, 'mission').path, row(list, 'mission').role, row(list, 'mission').reach], ['/missions/<initiative>', 'detail', ['card:missions']]);
+  assert.deepEqual(problems(() => {}), []);
+});
+
+test('a hub address may end in one <value> only on a detail, and only as its last segment', () => {
+  assert.match(problems(l => { row(l, 'versions').path = '/versions/<id>'; }).join('\n'), /path must be a Pi Hub address/);
+  assert.match(problems(l => { row(l, 'mission').path = '/missions/<initiative>/x'; }).join('\n'), /path must be a Pi Hub address/);
+  assert.match(problems(l => { row(l, 'mission').path = '/<initiative>'; }).join('\n'), /path must be a Pi Hub address/);
+  assert.match(problems(l => { row(l, 'mission').path = '/missions/<Initiative>'; }).join('\n'), /path must be a Pi Hub address/);
+});

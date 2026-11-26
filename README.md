@@ -297,6 +297,16 @@ labels are sentence case, and none is a retired word.
 - `pages.json`: the list without its comment, for a server or a test to read.
 - `pages.js` (ES module): `AREAS`, `PAGES`, `REDIRECTS`, `page(id)` and `redirect(id)`.
 
+## Decisions and provenance (2.33)
+
+Pi Hub amendment A35. `ApplianceNeeds.renderDecisions` draws `choice`, `text`, `multi` (boxes and one Send; the answer
+is a list) and `yesno`; any other kind is drawn disabled with its reason. `ApplianceNeeds.provenance(level, {when,
+source})` returns one `ui-prov` label saying where a fact came from: `live`, `reported`, `checked`, `imported`, `owner`
+or `unavailable` (A35 §7.1; DESIGN.md "Honest states"). Only `live` draws a lamp.
+
+A hub `detail` row's address may end in one `<value>` (`/missions/<initiative>`), as an Assistant run's does. It has no
+⌘K or Site map entry of its own; a consumer matches it as a pattern.
+
 ## Palette (2.1)
 
 `palette.js` and `palette.css` are the one ⌘K palette (platform spec section 8.1, step 7 Decision 7). Each app registers
@@ -398,7 +408,7 @@ given); a newer call replaces one still counting.
 
 The "Needs you" list is drawn by `needs.js` and `needs.css` (load them after `tokens.css`):
 `ApplianceNeeds.renderList(items, {resolve, here, self, max, more, empty})` returns a `<ul class="ui-needs">` and
-`ApplianceNeeds.render(item, opts)` one `<li class="ui-need">`. Since 2.32.2 (Pi Hub A37, kit release two), items are top/bottom-ruled rows with a 3 px left tone bar (no box fill or outer border), `.ui-meter > i` fills with `var(--ui-text)`, and `.ui-rail-badge` is a bare weight-700 number in `var(--ui-warn)`. An item is `{id, source, kind?: "ask"|"heads_up", tone: "bad"|"attention"|"warn"|"info",
+`ApplianceNeeds.render(item, opts)` one `<li class="ui-need">`. Since 2.34.0 (Pi Hub A37, kit release two), items are top/bottom-ruled rows with a 3 px left tone bar (no box fill or outer border), `.ui-meter > i` fills with `var(--ui-text)`, and `.ui-rail-badge` is a bare weight-700 number in `var(--ui-warn)`. An item is `{id, source, kind?: "ask"|"heads_up", tone: "bad"|"attention"|"warn"|"info",
 title, detail, more?, until?, link?, action?: {key, link}}` (the bar is red for `bad`, amber for `attention` and `warn`, and `muted` for `info` or `kind: "heads_up"`, as the display's `NeedsRow` draws it); an item with `more` (a non-empty string) draws a closed `<details class="ui-need__details"><summary class="ui-need__summary">Details</summary><p class="ui-need__more">…</p></details>` in `--ui-mono`; a `heads_up` item draws no action phrase and includes optional `until` in its meta line; `action.key` is a phrase key and the renderer supplies the words
 (`ApplianceNeeds.PHRASES`). Since 2.0 the table also holds the platform's terms (spec section 9): `pc_off` "The PC is
 asleep", `assistant_down` "The Assistant isn't answering", `source_down` "{name} isn't answering" and
