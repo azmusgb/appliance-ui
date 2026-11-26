@@ -6,6 +6,9 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.34.2 — needs consumer change (pi-hub): Pi Hub draws `/missions` and `/missions/<initiative>` before it syncs this release (or keeps 2.34.1)
+`pages.json` drops `built: false` from `missions` (`/missions`) and `mission` (`/missions/<initiative>`): Pi Hub's A35 M1b step H7 draws both pages, so its route-coverage test now requires them. 2.34.1 had marked them not built so a consumer that did not draw them could sync; that stays true of 2.34.1. Local AI, print-lab and the display draw no hub page and need no change. Nothing else differs from 2.34.1.
+
 ## 2.34.1 — skippable
 Critique fixes and A36/A37 polish: `pages.json` marks `missions` (`/missions`) and `mission` (`/missions/<initiative>`) as `built: false` until Pi Hub ships the A35 M1b Missions UI, so consumers can sync 2.34.x now without breaking their route-coverage tests; `src/words.json` adds `age.until` (`"until {when}"`, emitted as `UI_AGE_UNTIL_FMT` in `words.h`) and `src/needs.js` reads `WORDS.age.until` and adds `open_backups` (`"Open Backups"`) and `see_running` (`"See what's running"`) to `PHRASES` for A36 D4 escalations; `.ui-need__summary` ("Details" disclosure for `item.more`) has a 44 px minimum touch target height; `.ui-faceplate--plate .ui-faceplate__main` is its own inline-size container so the 38 rem two-column switch measures `__main` rather than the outer faceplate when a camera `--aside` sits beside it; `ApplianceShell.setBadge` accepts `{count, text, dot, say}` objects and styles `.ui-rail-badge[data-dot]`; `AppliancePalette`'s `safeHref` strips leading/trailing ASCII control bytes (`\x00-\x20`), matching `needs.js`.
 
