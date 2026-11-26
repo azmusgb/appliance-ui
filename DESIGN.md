@@ -53,17 +53,17 @@ literals check", says how to run it.
 | `surface2` | The well: behind default buttons, meters and inputs at rest. |
 | `line`, `line2` | Dividers and frames. Decoration only: measured at 1.2–2.1:1, so they must never be the only thing that shows a control or a state. |
 | `fieldLine` | A field's border (3:1). |
-| `text`, `muted` | Primary and secondary text. Both pass 4.5:1 on every background. Hierarchy never comes from fainter text. |
-| `accent` | The primary button's fill, selection and the focus ring. Nothing else. |
+| `text`, `muted` | Primary and secondary text, and `text` for a meter's fill (`ui-meter > i`, 2.32.2). Both pass 4.5:1 on every background. Hierarchy never comes from fainter text. |
+| `accent` | The primary button's fill, selection and the focus ring. Nothing else (A37: meters use `text`, and rail/tab counts use `warn`). |
 | `accentText` | Accent-coloured text: a link, or the current strip item. |
 | `onAccent` | Text on an `accent` fill. |
 | `accentSoft` | The tint behind a selected chip or row. |
-| `ok`, `warn`, `bad` | Fine, needs a look, broken or blocking. Always shown with a word (a lamp: dot plus word). |
+| `ok`, `warn`, `bad` | Fine, needs a look, broken or blocking. Always shown with a word (a lamp: dot plus word), except the rail/tab ask count (`ui-rail-badge`, 2.32.2), which is a bare `warn` number named for assistive tech. |
 | `unknown` | Not known: never answered, can't be read, or out of date. Never drawn as `ok`. |
 
-- A Needs-you item's bar is the lamp colour of its tone: `bad` is red, `attention` and `warn` are amber. A problem is
+- A Needs-you item (`ui-need`, 2.32.2) is a top/bottom-ruled row with a 3 px tone bar on the left: `bad` is red, `attention` and `warn` are amber, and a heads-up condition (`kind: "heads_up"` or `tone: "info"`) is `muted`. Technical detail (`more`) sits behind a closed "Details" disclosure in `--ui-mono`. A problem is
   never grey (2.11.1: `warn` was drawn muted, so a real problem such as "Ad blocking is off" read as information). Only
-  an item with no problem tone (info, ok, busy) keeps the muted bar (2.13: `NeedTone::Info` on the display). The web
+  an item with no problem tone (heads up, info, ok, busy) keeps the muted bar (2.13: `NeedTone::Info` on the display). The web
   (`ui-need`) and the display (`NeedsRow`) agree.
 - The kit has no "information" colour. Neutral facts use `text` and `muted`. A notice that isn't a warning is plain text.
 - Decorative gradients and glows stay out of anything operational. The one exception is `ui-beam` (2.5): one item that
@@ -128,18 +128,21 @@ literals check", says how to run it.
 
 ## Layout
 
-### The page (A7 P1)
+### The page (A7 P1, A37)
 
 Every page in Pi Hub and the Assistant except Home (next section) is drawn in this order, and nothing else
-(`ui-page`, `demo/page.html`):
+(`ui-page`, `demo/page.html`, `demo/say.html`):
+
+- **With a spoken readout (`ui-say`, A37):** the tools row (`ui-page__tools`), `<h1 class="ui-say">` (one or two sentences in the readout face from `ApplianceSay.compose`, with the page name in `.ui-vh`), the strip (`ui-strip`), an optional notice, the plate (`ui-faceplate--plate`, without a duplicate readout), Needs you here (rows, `ui-needs`), sections (`ui-rows--grid`, where the lamp follows the name and an optional `ui-row__figure` sits at the right), Open in, and Sources.
+- **With no reading (Settings, Site map, Privacy, form pages):** `ui-page__title` as today.
 
 ```
- Title                                   Search ⌘K
- One-line purpose
+ Title (or .ui-say spoken readout)       Search ⌘K
+ One-line purpose (omitted with .ui-say)
  ─ strip: the area's pages (underlined) ─────────
  [notice: only when a source is stale or down]
- ┌ Faceplate: nameplate · lamp ───────────────────┐
- │ readout, caption, readings, actions  (aside)   │
+ ┌ Faceplate / Plate: nameplate · lamp ───────────┐
+ │ [readout, caption,] meter, readings, actions   │
  └────────────────────────────────────────────────┘
  Needs you here      (this area's items; hidden when none)
  Sections            (heading + rows, no card; at most six, the rest in More)
@@ -147,21 +150,21 @@ Every page in Pi Hub and the Assistant except Home (next section) is drawn in th
  Sources: name: state …                Site map
 ```
 
-- **One panel per page:** the faceplate. It holds the page's one reading and its primary action.
+- **One panel per page:** the faceplate (or plate). It holds the page's one reading and its primary action.
 - **Sections** are headings and rows on the page.
 - **A form page** (Print, Make an automation) keeps its form as a section.
 
-### Home (A8, A9)
+### Home (A8, A9, A37)
 
 Home is the one page that leaves the A7 anatomy. It is drawn by Pi Hub's `home-dashboard.js` and `home-dashboard.css`
 with the kit's tokens, not by a new kit component.
 
+- **Spoken readout and plate (A37):** Home opens with `<h1 class="ui-say">` (counting the asks drawn under Needs you, then the first notable state), and shows the plate (`ui-faceplate--plate`) only while something runs or is held.
 - **Today band (the hero):** the house's day as one lane per system, marks for what happened, a Now line, and the
   hours still to come hatched. Four counts sit above it in the readout face. It shows the whole day when an hour gets
   at least 24 px, and otherwise midnight to an hour after Now, at least six hours (A9's rule as a measure, A10 D4).
-- **Needs you beside Systems:** the kit's Needs-you list on the left (first on narrow screens), and a rack on the right
-  with one row per system. A rack row's lamp is on the left (A8 D3 amends P3 for Home only), with a faint wash on a row
-  that needs a look.
+- **Needs you beside Systems:** the kit's Needs-you list on the left (first on narrow screens, with Heads up collapsed under it per A36 D6), and Systems on the right
+  drawn with `ui-rows--grid` (lamp following the name, figure at the right; while the plate shows the printer, the printer row drops its figure so no reading is shown twice).
 - **No camera on Home.** Workshop keeps it.
 - **Sizes (A10 D4):** Needs you and Systems sit side by side where Needs you gets about 22 rem and Systems about
   36 rem, and stack where they don't. Rack rows arrange by their own width. The band's rows, bars and name column scale

@@ -398,8 +398,8 @@ given); a newer call replaces one still counting.
 
 The "Needs you" list is drawn by `needs.js` and `needs.css` (load them after `tokens.css`):
 `ApplianceNeeds.renderList(items, {resolve, here, self, max, more, empty})` returns a `<ul class="ui-needs">` and
-`ApplianceNeeds.render(item, opts)` one `<li class="ui-need">`. An item is `{id, source, tone: "bad"|"attention"|"warn",
-title, detail, link?, action?: {key, link}}` (the bar is red for `bad`, amber for `attention` and `warn`, as the display's `NeedsRow` draws it); `action.key` is a phrase key and the renderer supplies the words
+`ApplianceNeeds.render(item, opts)` one `<li class="ui-need">`. Since 2.32.2 (Pi Hub A37, kit release two), items are top/bottom-ruled rows with a 3 px left tone bar (no box fill or outer border), `.ui-meter > i` fills with `var(--ui-text)`, and `.ui-rail-badge` is a bare weight-700 number in `var(--ui-warn)`. An item is `{id, source, kind?: "ask"|"heads_up", tone: "bad"|"attention"|"warn"|"info",
+title, detail, more?, until?, link?, action?: {key, link}}` (the bar is red for `bad`, amber for `attention` and `warn`, and `muted` for `info` or `kind: "heads_up"`, as the display's `NeedsRow` draws it); an item with `more` (a non-empty string) draws a closed `<details class="ui-need__details"><summary class="ui-need__summary">Details</summary><p class="ui-need__more">…</p></details>` in `--ui-mono`; a `heads_up` item draws no action phrase and includes optional `until` in its meta line; `action.key` is a phrase key and the renderer supplies the words
 (`ApplianceNeeds.PHRASES`). Since 2.0 the table also holds the platform's terms (spec section 9): `pc_off` "The PC is
 asleep", `assistant_down` "The Assistant isn't answering", `source_down` "{name} isn't answering" and
 `unknown_release` "Not reported"; 2.8 adds `outside_alarm_quiet` "The outside alarm isn't hearing from the Pi"

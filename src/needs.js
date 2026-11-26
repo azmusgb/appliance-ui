@@ -42,7 +42,7 @@
     acknowledge: 'Acknowledge', ack_pending: 'Acknowledging', ack_failed: 'Not acknowledged. Try again.',
   };
   const EMPTY = 'Nothing needs you right now.';
-  const TONES = { bad: 1, attention: 1, warn: 1 };
+  const TONES = { bad: 1, attention: 1, warn: 1, info: 1 };
   const TEXT_MAX = 500;
 
   // Trust is decided from the input, after stripping tab/newline (browsers ignore them inside URLs) and trimming.
@@ -81,14 +81,22 @@
   const sinceText = when => WORDS.age.since.replace('{when}', () => when);
 
   // "since 4:29 AM" today, "since 3 Nov" before; nothing for a missing or unreadable time.
-  function since(asOf, o) {
-    if (asOf == null || asOf === '') return '';
-    const d = new Date(asOf), now = o.now ? new Date(o.now) : new Date();
+  function formatWhen(val, o) {
+    if (val == null || val === '') return '';
+    const d = new Date(val), now = o.now ? new Date(o.now) : new Date();
     if (Number.isNaN(d.getTime())) return '';
-    if (typeof o.when === 'function') { const t = o.when(d, now); return typeof t === 'string' && t ? sinceText(t) : ''; }
+    if (typeof o.when === 'function') { const t = o.when(d, now); return typeof t === 'string' && t ? t : ''; }
     const today = d.toDateString() === now.toDateString();
-    return sinceText(today ? d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-      : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+    return today ? d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+      : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  }
+  function since(asOf, o) {
+    const t = formatWhen(asOf, o);
+    return t ? sinceText(t) : '';
+  }
+  function until(untilVal, o) {
+    const t = formatWhen(untilVal, o);
+    return t ? `until ${t}` : '';
   }
 
   const hereOf = (o, doc) => o.here || new URL(doc.defaultView.location.href);
@@ -108,7 +116,9 @@
     const doc = o.doc || document;
     const here = hereOf(o, doc);
     const li = el(doc, 'li', 'ui-need');
-    li.dataset.tone = Object.hasOwn(TONES, item.tone) ? item.tone : 'warn';
+    const headsUp = item.kind === 'heads_up';
+    if (headsUp) li.dataset.kind = 'heads_up';
+    li.dataset.tone = headsUp ? 'info' : (Object.hasOwn(TONES, item.tone) ? item.tone : 'warn');
     const act = item.action;
     const link = safeLink(item.link || (act && act.link), { resolve: o.resolve, here });
     const box = link ? el(doc, 'a', 'ui-need__link') : el(doc, 'div', 'ui-need__link');
@@ -117,13 +127,19 @@
       if (link.external) { box.target = '_blank'; box.rel = 'noopener noreferrer'; }
     }
     box.append(el(doc, 'strong', 'ui-need__title', item.title), el(doc, 'span', 'ui-need__detail', item.detail));
-    const meta = [since(item.as_of, o), item.area || (item.source !== o.self ? item.source : '')].filter(Boolean).join(' · ');
+    const meta = [since(item.as_of, o), until(item.until, o), item.area || (item.source !== o.self ? item.source : '')].filter(Boolean).join(' · ');
     if (meta) box.append(el(doc, 'span', 'ui-need__meta', meta));
-    const words = act && phrase(act.key, item);  // empty for an unknown key or a missing {name}
+    const words = !headsUp && act && phrase(act.key, item);  // empty for a heads-up row, an unknown key or a missing {name}
     if (words) box.append(el(doc, 'span', 'ui-need__action', words + (link && link.external ? ' ↗' : '')));
     else if (link && link.external) box.append(el(doc, 'span', 'ui-need__action', '↗'));
     li.append(box);
-    if (item.ack === true && !o.dense && typeof o.onAck === 'function' && typeof item.id === 'string' && item.id) ackControl(doc, li, item, o);
+    const moreText = typeof item.more === 'string' ? item.more.trim() : '';
+    if (moreText && !o.dense) {
+      const details = el(doc, 'details', 'ui-need__details');
+      details.append(el(doc, 'summary', 'ui-need__summary', 'Details'), el(doc, 'p', 'ui-need__more', moreText));
+      li.append(details);
+    }
+    if (item.ack === true && !headsUp && !o.dense && typeof o.onAck === 'function' && typeof item.id === 'string' && item.id) ackControl(doc, li, item, o);
     return li;
   }
 
