@@ -135,3 +135,105 @@ test('the tools row sits above the sentence, at the right', async () => {
   assert.deepEqual(g, { above: true, right: true });
   await page.close();
 });
+
+// ---- demo/say.html: the grid rows with a figure, and the plate (spec S3 and S5, as opt-in modifiers) ----
+const demo = pathToFileURL(path.join(root, 'demo/say.html')).href;
+async function openDemo(width, height = 900, colorScheme = 'dark') {
+  const page = await browser.newPage({ viewport: { width, height }, colorScheme, reducedMotion: 'reduce' });
+  await page.goto(demo);
+  await page.evaluate(() => document.fonts.ready);
+  return page;
+}
+
+test('demo/say.html has no overflow from 320 to 1440 px, dark and light', async () => {
+  for (const scheme of ['dark', 'light']) for (const width of [320, 390, 820, 1024, 1366, 1440]) {
+    const page = await openDemo(width, 900, scheme);
+    const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    assert.ok(over <= 0, `${width} ${scheme}: ${over}px over`);
+    await page.close();
+  }
+});
+
+test("demo: the head is the Printer's composed sentences", async () => {
+  const page = await openDemo(1440);
+  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('#say .ui-say__s')].map(s => s.textContent)),
+    ['The X2D is 45% through Rift10 pair70.', 'About 11 h 24 min left, done around 10:30 AM.']);
+  await page.close();
+});
+
+test("first screen at 390 × 844 holds the sentence and the plate's first action", async () => {
+  const page = await openDemo(390, 844);
+  const b = await page.evaluate(() => [document.querySelector('.ui-say').getBoundingClientRect().bottom,
+    document.querySelector('.ui-faceplate__actions .ui-btn').getBoundingClientRect().bottom]);
+  assert.ok(b[0] <= 844 && b[1] <= 844, JSON.stringify(b));
+  await page.close();
+});
+
+test('grid rows: one column of names from 36 rem, the figure at the right', async () => {
+  const wide = await openDemo(1440);
+  const w = await wide.evaluate(() => {
+    const list = document.querySelector('.ui-rows--grid'), R = e => e.getBoundingClientRect();  // the first list has a row with no figure
+    return { names: [...list.querySelectorAll('.ui-row__name')].map(e => [Math.round(R(e).left), Math.round(R(e).width)].join()),
+      details: [...list.querySelectorAll('.ui-row__detail')].map(e => Math.round(R(e).left)),
+      figures: [...list.querySelectorAll('.ui-row__figure')].map(e => Math.round(R(list).right - R(e).right)),
+      sameLine: [...list.querySelectorAll('.ui-row')].every(r => { const n = r.querySelector('.ui-row__title'), d = r.querySelector('.ui-row__detail');
+        return R(d).left > R(n).right; }) };
+  });
+  assert.equal(new Set(w.names).size, 1, JSON.stringify(w.names));
+  assert.equal(new Set(w.details).size, 1, JSON.stringify(w.details));
+  assert.ok(w.figures.length >= 2 && w.figures.every(d => d === 0), JSON.stringify(w.figures));
+  assert.equal(w.sameLine, true);
+  await wide.close();
+  const phone = await openDemo(390);
+  const p = await phone.evaluate(() => [...document.querySelectorAll('.ui-rows--grid .ui-row')].filter(r => r.querySelector('.ui-row__figure')).map(r => {
+    const R = e => e.getBoundingClientRect(), t = r.querySelector('.ui-row__title'), d = r.querySelector('.ui-row__detail'), f = r.querySelector('.ui-row__figure');
+    return { under: R(d).top >= R(t).bottom - 1, right: R(f).left >= R(t).right, inRow: R(f).top >= R(r).top && R(f).bottom <= R(r).bottom };
+  }));
+  assert.ok(p.length >= 2 && p.every(x => x.under && x.right && x.inRow), JSON.stringify(p));
+  await phone.close();
+});
+
+test('a row with no figure draws nothing in its place', async () => {
+  const page = await openDemo(1440);
+  const bare = await page.evaluate(() => [...document.querySelectorAll('.ui-rows--grid .ui-row')].filter(r => !r.querySelector('.ui-row__figure'))
+    .map(r => r.textContent));
+  assert.ok(bare.length >= 1);
+  for (const t of bare) assert.ok(!/—|\b0\b/.test(t), t);
+  await page.close();
+});
+
+test('the lamp follows the name, and an unknown reading is a hollow lamp with a word', async () => {
+  const page = await openDemo(1440);
+  const got = await page.evaluate(() => ({ every: [...document.querySelectorAll('.ui-rows--grid .ui-row__name')].every(n => n.querySelector('.ui-row__title + .ui-chip')),
+    unknown: [...document.querySelectorAll('.ui-rows--grid .ui-chip--unknown')].map(c => c.textContent) }));
+  assert.deepEqual(got, { every: true, unknown: ['Not reported', 'Asleep'] });
+  await page.close();
+});
+
+test('the plate has no big readout and its actions sit beside the readings from 38 rem', async () => {
+  const wide = await openDemo(1440);
+  const w = await wide.evaluate(() => { const R = s => document.querySelector(s).getBoundingClientRect();
+    const dd = [...document.querySelectorAll('.ui-faceplate--plate .ui-faceplate__readings > div')].at(-1).getBoundingClientRect();
+    return { readouts: document.querySelectorAll('.ui-faceplate--plate .ui-readout, .ui-faceplate--plate .ui-faceplate__caption').length,
+      below: R('.ui-faceplate__actions .ui-btn').top >= R('.ui-faceplate--plate .ui-meter').bottom, beside: R('.ui-faceplate__actions .ui-btn').left >= dd.right,
+      jobRight: R('.ui-faceplate__job').left > R('.ui-faceplate--plate .ui-chip').right && Math.abs(R('.ui-faceplate__job').top - R('.ui-faceplate--plate .ui-chip').top) < 8,
+      dd: getComputedStyle(document.querySelector('.ui-faceplate--plate dd')).fontStretch };
+  });
+  assert.deepEqual(w, { readouts: 0, below: true, beside: true, jobRight: true, dd: '75%' });
+  await wide.close();
+  const phone = await openDemo(390);
+  const p = await phone.evaluate(() => { const R = s => document.querySelector(s).getBoundingClientRect();
+    return { jobBelow: R('.ui-faceplate__job').top >= R('.ui-faceplate--plate .ui-chip').bottom - 1,
+      actsBelow: R('.ui-faceplate__actions').top >= R('.ui-faceplate--plate .ui-faceplate__readings').bottom - 1,
+      target: R('.ui-faceplate__actions .ui-btn').height >= 40 }; });
+  assert.deepEqual(p, { jobBelow: true, actsBelow: true, target: true });
+  await phone.close();
+});
+
+test('a linked row is one link with a visible focus ring', async () => {
+  const page = await openDemo(1440);
+  await page.focus('.ui-rows--grid a.ui-row');
+  const o = await page.evaluate(() => { const c = getComputedStyle(document.activeElement); return [c.outlineStyle, parseFloat(c.outlineWidth) >= 2, document.activeElement.querySelectorAll('a').length]; });
+  assert.deepEqual(o, ['solid', true, 0]);
+  await page.close();
+});

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Printer · appliance-ui spoken readout</title>
+<link rel="stylesheet" href="../dist/tokens.css">
+<link rel="stylesheet" href="../dist/components.css">
+<script src="../dist/say.js"></script>
+<style>
+  @font-face{font-family:Archivo;src:url(../fonts/archivo-latin-ui.woff2) format("woff2");font-weight:400 750;font-stretch:75% 100%;font-display:swap}
+  /* Demo layout only: the spoken readout's parts (2.32.0) carry the look. */
+  body{margin:0;background:var(--ui-bg);color:var(--ui-text);font:400 var(--ui-fs-3)/1.5 var(--ui-font)}
+  main{max-width:67.5rem;margin:0 auto;padding:var(--ui-s-4) var(--ui-s-4) var(--ui-s-8)}
+  .sample{margin-right:auto;color:var(--ui-muted);font-size:var(--ui-fs-2)}
+  .sw{display:inline-block;width:.8em;height:.8em;margin-right:var(--ui-s-2);border-radius:50%;border:1px solid var(--ui-field-line)}
+</style>
+</head>
+<body>
+<main class="ui-page">
+  <header class="ui-page__head ui-page__head--say">
+    <div class="ui-page__tools"><span class="sample">Sample data</span><button class="ui-btn ui-btn--ghost" type="button">Search</button><button class="ui-btn" type="button">Assistant</button></div>
+    <h1 class="ui-say" id="say">Printer</h1>
+  </header>
+  <nav class="ui-strip" aria-label="Workshop">
+    <a href="#" aria-current="page">Printer</a><a href="#">Print lab</a><a href="#">Quick Print</a>
+  </nav>
+
+  <!-- The plate: a faceplate with no readout, because the head already says the number. -->
+  <section class="ui-faceplate ui-faceplate--plate" aria-label="Printer">
+    <div class="ui-faceplate__main">
+      <div class="ui-faceplate__nameplate"><span>Bambu X2D</span><span class="ui-chip ui-chip--ok ui-chip--live">Printing</span><span class="ui-faceplate__job">Rift10 pair70 clean x2d with hbs, checked 20 s ago</span></div>
+      <span class="ui-meter" role="progressbar" aria-label="Print progress" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"><i style="width:45%"></i></span>
+      <dl class="ui-faceplate__readings">
+        <div><dt>Layer</dt><dd>506 / 1306</dd></div>
+        <div><dt>Nozzle</dt><dd>216° / 215°</dd></div>
+        <div><dt>Bed</dt><dd>55° / 55°</dd></div>
+        <div><dt>AMS</dt><dd>38% RH</dd></div>
+      </dl>
+      <div class="ui-faceplate__actions"><button class="ui-btn" type="button">Pause the print</button><button class="ui-btn ui-btn--danger" type="button">Stop the print</button></div>
+    </div>
+  </section>
+
+  <!-- Rows on one grid: plain rows, with and without a figure. -->
+  <section class="ui-section" aria-labelledby="fil">
+    <h2 id="fil">Filament loaded</h2>
+    <ul class="ui-rows ui-rows--grid">
+      <li class="ui-row"><span class="ui-row__name"><span class="ui-row__title"><i class="sw" style="background:#9a9c9a"></i>AMS 1</span><span class="ui-chip ui-chip--ok ui-chip--live">In use</span></span><span class="ui-row__detail">PLA, grey</span><span class="ui-row__figure">612<small>g left</small></span></li>
+      <li class="ui-row"><span class="ui-row__name"><span class="ui-row__title"><i class="sw" style="background:#f08a3c"></i>AMS 2</span><span class="ui-chip ui-chip--ok">Loaded</span></span><span class="ui-row__detail">PLA, orange</span><span class="ui-row__figure">840<small>g left</small></span></li>
+      <li class="ui-row"><span class="ui-row__name"><span class="ui-row__title"><i class="sw" style="background:#cdb4e6"></i>AMS 3</span><span class="ui-chip ui-chip--warn">Low</span></span><span class="ui-row__detail">PLA, lilac</span><span class="ui-row__figure">164<small>g left</small></span></li>
+      <li class="ui-row"><span class="ui-row__name"><span class="ui-row__title"><i class="sw"></i>AMS 4</span><span class="ui-chip ui-chip--unknown">Not reported</span></span><span class="ui-row__detail">The spool has no tag</span></li>
+    </ul>
+  </section>
+
+  <!-- The same rows as links: Home's systems. A row that goes somewhere is one link. -->
+  <section class="ui-section" aria-labelledby="sys">
+    <h2 id="sys">Systems</h2>
+    <ul class="ui-rows ui-rows--grid">
+      <li><a class="ui-row" href="#"><span class="ui-row__name"><span class="ui-row__title">Raspberry Pi</span><span class="ui-chip ui-chip--warn">Ran hot</span></span><span class="ui-row__detail">Memory 2 of 3.7 GB, up 11 days, up to date</span><span class="ui-row__figure">71°<small>slows at 80°</small></span></a></li>
+      <li><a class="ui-row" href="#"><span class="ui-row__name"><span class="ui-row__title">Network</span><span class="ui-chip ui-chip--ok">Fine</span></span><span class="ui-row__detail">Internet fine, ad blocking on</span></a></li>
+      <li><a class="ui-row" href="#"><span class="ui-row__name"><span class="ui-row__title">Storage</span><span class="ui-chip ui-chip--ok">Fine</span></span><span class="ui-row__detail">SD card</span><span class="ui-row__figure">7.2<small>GB free</small></span></a></li>
+      <li><a class="ui-row" href="#"><span class="ui-row__name"><span class="ui-row__title">Mac</span><span class="ui-chip ui-chip--unknown">Asleep</span></span><span class="ui-row__detail">Lab mirror last read 12 h ago</span></a></li>
+    </ul>
+  </section>
+</main>
+<script>
+  // A fixed clock, so the page reads the same on every run: 25 Nov 2026, 11:06 PM in New York.
+  const now = Date.UTC(2026, 10, 26, 4, 6);
+  const clock = ms => new Date(ms).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
+  const reading = { state: 'live', status: 'printing', percent: 45, job: 'Rift10 pair70', left_min: 684, done_at: now + 684 * 60000 };
+  ApplianceSay.render(document.getElementById('say'), ApplianceSay.compose({ page: 'printer', label: 'Printer', reading }, { now, clock }));
+</script>
+</body>
+</html>
