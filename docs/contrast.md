@@ -1,4 +1,4 @@
-# Measured contrast (appliance-ui 2.32.0)
+# Measured contrast (appliance-ui 2.32.1)
 
 Generated from `tokens.json` by `npm run contrast`; do not edit. Ratios are WCAG 2 contrast. Tints are measured as the
 components lay them. A pair is legible only as far as its number here says.
@@ -40,6 +40,7 @@ components lay them. A pair is legible only as far as its number here says.
 | Text | text on bar (header) | 4.5:1 | 13.71 | 16.97 | 14.41 |
 | Text | muted on bar (header) | 4.5:1 | 7.24 | 7.11 | 7.69 |
 | Text | accentText on bar (header) | 4.5:1 | 8.81 | 6.48 | 9.33 |
+| Text | warn on bar (header) | 4.5:1 | 8.56 | 6.92 | 9.24 |
 | Text | unknown on bar (header) | 4.5:1 | 7.83 | 7.22 | 8.41 |
 | Text | onAccent on accent (primary button label) | 4.5:1 | 7.03 | 5.09 | 7.39 |
 | Text | onAccent on hovered primary (20% text into accent) | 4.5:1 | 7.90 | 6.60 | 8.48 |

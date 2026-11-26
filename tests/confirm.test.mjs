@@ -103,7 +103,8 @@ test('askTyped requires matching exact typed challenge before confirming (A30 Ph
       confirm: 'Reboot now'
     });
     const box = document.querySelector('.ui-confirm');
-    const input = box.querySelector('input.ui-field');
+    const input = box.querySelector('input.ui-field.ui-confirm__input');
+    const inlineWidth = input?.style.width;
     const yes = box.querySelector('button.ui-btn--danger');
     const initialDisabled = yes.disabled;
 
@@ -117,10 +118,11 @@ test('askTyped requires matching exact typed challenge before confirming (A30 Ph
 
     yes.click();
     const resolved = await window.typedAnswer;
-    return { hasInput: !!input, initialDisabled, partialDisabled, matchedDisabled, resolved };
+    return { hasInput: !!input, inlineWidth, initialDisabled, partialDisabled, matchedDisabled, resolved };
   });
 
   assert.equal(r.hasInput, true);
+  assert.equal(r.inlineWidth, '');
   assert.equal(r.initialDisabled, true);
   assert.equal(r.partialDisabled, true);
   assert.equal(r.matchedDisabled, false);
