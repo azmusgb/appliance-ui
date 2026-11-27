@@ -33,3 +33,11 @@ test('the Decisions group is set off from the Needs list above it', () => {
   const css = read('dist/needs.css');
   assert.match(css, /\.ui-decisions\{[^}]*margin-block-start:calc\(var\(--ui-space\)\*6\)/);
 });
+
+// 2.35.2: disabled primary, medium readout unit, empty state in a card.
+test('2.35.2 state rules use measured pairs', () => {
+  const css = fs.readFileSync(path.join(root, 'dist/components.css'), 'utf8');
+  assert.match(css, /\.ui-btn--primary:is\(:disabled,\[aria-disabled="true"\]\)\{background:var\(--ui-surface-2\);color:var\(--ui-muted\);opacity:1\}/);
+  assert.match(css, /\.ui-readout--md \.ui-readout__unit\{font-size:var\(--ui-fs-3\)\}/);
+  assert.match(css, /\.ui-card \.ui-empty\{padding-block:calc\(var\(--ui-space\)\*4\)\}/);
+});
