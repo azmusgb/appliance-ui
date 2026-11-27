@@ -243,3 +243,32 @@ test('review: a time that is not a date is no time, and a print under way is nev
   assert.equal(P({ state: 'live', status: 'printing', percent: 99.6, job: 'Clip' })[0], 'The X2D is 99% through Clip.');
   assert.equal(P({ state: 'live', status: 'printing', percent: 100, job: 'Clip' })[0], 'The X2D is 100% through Clip.');
 });
+
+// 2.37.0 (kit-owed K2, Decision 3): an unavailable reading may name what didn't answer. The printer was never asked
+// when the hub itself failed, so the head names the hub and says the printer wasn't read.
+test('unavailable with unanswered names who failed and says the printer was not read', () => {
+  assert.deepEqual(P({ state: 'unavailable', unanswered: 'Pi Hub' }), ["Pi Hub isn't answering.", "The X2D wasn't read."]);
+  assert.deepEqual(P({ state: 'unavailable', unanswered: '  Bambuddy ', name: 'H2S' }), ["Bambuddy isn't answering.", "The H2S wasn't read."]);
+});
+
+test('unavailable without a usable unanswered keeps the unnamed words', () => {
+  for (const unanswered of [undefined, null, '', '   ', 42, {}, ['Pi Hub'], 'x'.repeat(17), 'A source with a very long name indeed, far too long to fit']) {
+    assert.deepEqual(P({ state: 'unavailable', unanswered }), ["The X2D isn't answering."], JSON.stringify(unanswered));
+  }
+});
+
+test('unanswered is said only for unavailable: a stale, live or unknown reading keeps its own words', () => {
+  const stale = { state: 'stale', status: 'paused', percent: 45, as_of: now - 720000, source: 'Bambuddy' };
+  assert.deepEqual(P({ ...stale, unanswered: 'Pi Hub' }), P(stale));
+  const live = { state: 'live', status: 'idle' };
+  assert.deepEqual(P({ ...live, unanswered: 'Pi Hub' }), P(live));
+  assert.deepEqual(P({ state: 'unknown', unanswered: 'Pi Hub' }), ["The X2D hasn't reported yet."]);
+});
+
+test('named or not, every unavailable sentence fits and the same input gives the same words', () => {
+  for (const unanswered of ['Pi Hub', 'x'.repeat(16), 'x'.repeat(17)]) for (const name of [undefined, 'x'.repeat(16), 'x'.repeat(40)]) {
+    const a = P({ state: 'unavailable', unanswered, name }), b = P({ state: 'unavailable', unanswered, name });
+    assert.deepEqual(a, b);
+    assert.ok(a.length >= 1 && a.length <= 2 && a.every(s => s.length > 0 && s.length <= 60), JSON.stringify(a));
+  }
+});

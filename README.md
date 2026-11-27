@@ -364,7 +364,9 @@ ApplianceSay.render(document.querySelector('h1.ui-say'), composed);   // true wh
 ```
 
 - `reading`: `{ state: "live" | "stale" | "unavailable" | "unknown" | "loading", as_of, source, name, status, percent,
-  job, left_min, done_at, finished_at, plate_ask }`. `status` is `printing`, `paused`, `finished`, `failed` or `idle`.
+  job, left_min, done_at, finished_at, plate_ask, unanswered }`. `status` is `printing`, `paused`, `finished`, `failed` or `idle`.
+  `unanswered` (2.37) is read on an `unavailable` reading only: the short name of what didn't answer when that isn't the
+  printer ("Pi Hub"), so the head says "Pi Hub isn't answering. The X2D wasn't read."
   Times are milliseconds. A fact that is missing or unusable drops its clause; nothing is drawn as zero or `NaN`.
 - Stale is past tense with its age ("The X2D was 45% through Clip 12 min ago."): under a minute is "a moment ago",
   and an age `ago` can't say is "earlier", never "now". Unavailable, unknown and loading have their own output.
