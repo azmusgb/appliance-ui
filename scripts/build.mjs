@@ -88,6 +88,8 @@ const fixed = [
   ...Object.entries(t.size).map(([k, v]) => `--ui-fs-${k.slice(2)}:${rem(v)};`),
   ...Object.entries(t.radius).map(([k, v]) => `--ui-r-${k.slice(1)}:${v}px;`),
   `--ui-space:${rem(t.space.unit)};`, `--ui-header-h:${rem(t.headerHeight)};`,
+  // 2.36: the smallest side of anything pressed on a touch screen. In px on purpose: a finger does not grow with the type.
+  `--ui-target:${t.target}px;`,
   '--ui-header-total:calc(var(--ui-header-h) + env(safe-area-inset-top, 0px));',
   // 2.19 (Pi Hub A22 1.3): the steps of space, the pill, the backdrop, motion and the layers. Web only: tokens.h
   // keeps its px sizes and colours, because the display draws no sheet, shadow or animation from the kit.

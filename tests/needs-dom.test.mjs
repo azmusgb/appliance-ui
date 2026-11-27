@@ -136,7 +136,7 @@ test('needs.css has no literal colours and only gated --ui-* colour tokens', () 
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
   assert.doesNotMatch(css, /\brgba?\(|\bhsla?\(/i);
   const allowed = new Set(['--ui-bad', '--ui-warn', '--ui-muted', '--ui-text', '--ui-surface', '--ui-line', '--ui-fs-1', '--ui-fs-2', '--ui-fs-3', '--ui-fs-5', '--ui-stretch-heading', '--ui-accent', '--ui-accent-text', '--ui-field-line']);
-  const nonColour = /^--ui-(space|r-\d+|font|mono)$/;
+  const nonColour = /^--ui-(space|r-\d+|font|mono|target)$/;
   for (const [, v] of css.matchAll(/var\((--ui-[a-z0-9-]+)/g)) {
     if (nonColour.test(v)) continue;
     assert.ok(allowed.has(v), v);

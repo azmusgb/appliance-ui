@@ -39,7 +39,7 @@ test('components.css defines conversation-first chat components (Amendment A30 P
   }
 
   // Verify touch target compliance (44px)
-  assert.match(css, /@media \(pointer:coarse\)\{\.ui-chat-composer__action\{min-height:44px/,
+  assert.match(css, /@media \(pointer:coarse\)\{\.ui-chat-composer__action\{min-height:var\(--ui-target\)/,
     'composer action button is at least 44px on touch screens');
 
   // Verify no literal colours in components.css

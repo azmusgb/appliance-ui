@@ -50,6 +50,9 @@
 .ui-check:disabled{cursor:not-allowed;border-color:var(--ui-line-2);background:var(--ui-surface-2)}
 .ui-check:disabled:checked{background:var(--ui-line-2)}
 .ui-check:focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}
+/* On a touch screen the box takes presses for a full target around it (2.36), with or without a label: the box is five
+   spaces, and three more on every side make eleven. The mark is ::after, so the reach is ::before. */
+@media (pointer:coarse){.ui-check{position:relative}.ui-check::before{content:"";position:absolute;inset:calc(var(--ui-space)*-3)}}
 /* Provenance (2.33, Pi Hub A35 §7.1): where a fact came from. Only live draws a filled mark, in text colour: it says
    fresh, never fine (the reading's own lamp carries ok, warn or bad). The rest draw a hollow mark. */
 .ui-prov{display:inline-flex;align-items:center;gap:calc(var(--ui-space)*1.5);font:400 var(--ui-fs-2)/1.3 var(--ui-font);color:var(--ui-muted);overflow-wrap:anywhere}
@@ -65,7 +68,7 @@
 .ui-field[aria-invalid="true"]{border-color:var(--ui-bad)}
 .ui-meter{display:block;height:8px;border-radius:var(--ui-r-1);background:var(--ui-surface-2);overflow:hidden}
 .ui-meter>i{display:block;height:100%;border-radius:inherit;background:var(--ui-text)}
-.ui-row{display:flex;align-items:center;gap:calc(var(--ui-space)*3);min-height:44px;box-sizing:border-box;padding:calc(var(--ui-space)*2) 0;border-bottom:1px solid var(--ui-line)}
+.ui-row{display:flex;align-items:center;gap:calc(var(--ui-space)*3);min-height:var(--ui-target);box-sizing:border-box;padding:calc(var(--ui-space)*2) 0;border-bottom:1px solid var(--ui-line)}
 .ui-row>:first-child{min-width:0;overflow-wrap:anywhere}
 .ui-row>:last-child:not(:first-child){margin-left:auto}
 /* Something went wrong or needs a look, said where it happened: a lamp-coloured edge and plain words. */
@@ -94,14 +97,14 @@
 .ui-page__tool{grid-column:2;grid-row:1/span 2;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:var(--ui-s-2)}
 /* The "← Pi Hub" bar (2.21, Pi Hub A22 6.4): on the platform's own pages outside the frame. One link, first in the
    document, 44 px high, never sticky, so it can't cover content or a focus ring. */
-.ui-backbar{display:flex;align-items:center;min-height:44px;padding:env(safe-area-inset-top,0px) max(var(--ui-s-4),env(safe-area-inset-right,0px)) 0 max(var(--ui-s-4),env(safe-area-inset-left,0px));background:var(--ui-bar);border-bottom:1px solid var(--ui-line);font:600 var(--ui-fs-3)/1.2 var(--ui-font)}
-.ui-backbar a{display:inline-flex;align-items:center;gap:var(--ui-s-2);min-height:44px;color:var(--ui-accent-text);text-decoration:none}
+.ui-backbar{display:flex;align-items:center;min-height:var(--ui-target);padding:env(safe-area-inset-top,0px) max(var(--ui-s-4),env(safe-area-inset-right,0px)) 0 max(var(--ui-s-4),env(safe-area-inset-left,0px));background:var(--ui-bar);border-bottom:1px solid var(--ui-line);font:600 var(--ui-fs-3)/1.2 var(--ui-font)}
+.ui-backbar a{display:inline-flex;align-items:center;gap:var(--ui-s-2);min-height:var(--ui-target);color:var(--ui-accent-text);text-decoration:none}
 .ui-backbar a:hover{text-decoration:underline}
 .ui-backbar a:focus-visible{outline-offset:-2px}
 /* Level 2: one underlined strip in every app (P4). */
 .ui-strip{display:flex;gap:calc(var(--ui-space)*5);margin:calc(var(--ui-space)*-2) 0 0;padding:0;border-bottom:1px solid var(--ui-line);overflow-x:auto;scrollbar-width:none}
 .ui-strip::-webkit-scrollbar{display:none}
-.ui-strip a{flex:none;display:flex;align-items:center;min-height:44px;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--ui-muted);font:600 var(--ui-fs-3)/1.2 var(--ui-font);text-decoration:none}
+.ui-strip a{flex:none;display:flex;align-items:center;min-height:var(--ui-target);margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--ui-muted);font:600 var(--ui-fs-3)/1.2 var(--ui-font);text-decoration:none}
 .ui-strip a:hover{color:var(--ui-text)}
 .ui-strip a[aria-current="page"],.ui-strip a[aria-current="true"]{color:var(--ui-accent-text);border-bottom-color:var(--ui-accent)}
 .ui-strip a:focus-visible{outline-offset:-2px}
@@ -176,7 +179,7 @@
    an accessible name (aria-label); its icon is 20 px. */
 .ui-btn--icon{width:40px;padding:0;background:transparent;border-color:var(--ui-field-line)}
 .ui-btn--icon svg{width:20px;height:20px;flex:none}
-@media (pointer:coarse){.ui-btn--icon{width:44px}}
+@media (pointer:coarse){.ui-btn--icon{width:var(--ui-target)}}
 /* A table for comparison (2.7.0): many records with the same columns. Numbers right-aligned and tabular; with
    ui-table--stack, a phone shows each row on its own with its column names (the markup keeps role="table" and its
    row/cell roles, since display:block drops native table semantics in some browsers). */
@@ -191,13 +194,13 @@
    in a ui-cq (or any element with container-type). */
 .ui-cq{container-type:inline-size}
 @container (max-width:37.4375rem){.ui-table--stack,.ui-table--stack caption,.ui-table--stack tbody,.ui-table--stack tr,.ui-table--stack td{display:block}.ui-table--stack thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.ui-table--stack tr{padding:calc(var(--ui-space)*2.5) 0;border-bottom:1px solid var(--ui-line)}.ui-table--stack td{display:flex;justify-content:space-between;gap:calc(var(--ui-space)*3);padding:calc(var(--ui-space)*0.5) 0;border:0;text-align:right}.ui-table--stack td[data-label]::before{content:attr(data-label);flex:none;white-space:nowrap;color:var(--ui-muted);font-size:var(--ui-fs-2);text-align:left}.ui-table--stack .ui-table__num{white-space:normal}}
-@media (pointer:coarse){.ui-chips :is(a,button){min-height:44px;min-width:44px;justify-content:center}.ui-strip a{min-width:44px;justify-content:center}.ui-tools a,.ui-sources a{display:inline-flex;align-items:center;min-height:44px}}
+@media (pointer:coarse){.ui-chips :is(a,button){min-height:var(--ui-target);min-width:var(--ui-target);justify-content:center}.ui-strip a{min-width:var(--ui-target);justify-content:center}.ui-tools a,.ui-sources a{display:inline-flex;align-items:center;min-height:var(--ui-target)}}
 /* A10 D1: the page's gap, title, faceplate padding and readout grow from their phone size at a 360 px window to their
    full size by about 600 px, instead of switching there. */
 .ui-page{gap:clamp(calc(var(--ui-space)*6),0.75rem + 3.33vw,calc(var(--ui-space)*7))}.ui-page__title{font-size:clamp(var(--ui-fs-6),0.875rem + 3.33vw,var(--ui-fs-7))}.ui-faceplate{padding:clamp(calc(var(--ui-space)*4),0.25rem + 3.33vw,calc(var(--ui-space)*5))}.ui-faceplate .ui-readout{font-size:clamp(var(--ui-fs-7),0.53rem + 7.08vw,calc(var(--ui-fs-7)*1.5))}
 :where(.ui-btn,.ui-field,a,button,summary):focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}
 /* A touch screen gets 44 px targets (2.5.0). */
-@media (pointer:coarse){.ui-btn,.ui-field{min-height:44px}}
+@media (pointer:coarse){.ui-btn,.ui-field{min-height:var(--ui-target)}}
 
 /* Amendment A30 Phase 2: Conversation-first UI components for the Operational Assistant.
    Chat thread, messages (user, assistant, streaming pulse), composer with 44px touch compliance,
@@ -208,9 +211,9 @@
 .ui-chat-msg--assistant{align-self:flex-start;background:var(--ui-surface);color:var(--ui-text);border:1px solid var(--ui-line)}
 .ui-chat-msg--streaming{border-color:var(--ui-accent);outline:1px solid var(--ui-accent)}
 .ui-chat-composer{display:flex;align-items:flex-end;gap:calc(var(--ui-space)*2);width:100%;box-sizing:border-box;padding:calc(var(--ui-space)*2) 0}
-.ui-chat-composer__input{flex:1 1 auto;min-height:44px;resize:vertical}
-.ui-chat-composer__action{flex:none;min-height:44px}
-@media (pointer:coarse){.ui-chat-composer__action{min-height:44px;min-width:44px}}
+.ui-chat-composer__input{flex:1 1 auto;min-height:var(--ui-target);resize:vertical}
+.ui-chat-composer__action{flex:none;min-height:var(--ui-target)}
+@media (pointer:coarse){.ui-chat-composer__action{min-height:var(--ui-target);min-width:var(--ui-target)}}
 .ui-disclosure{display:block;border:1px solid var(--ui-line);border-radius:var(--ui-r-2);background:var(--ui-surface-2);color:var(--ui-text);overflow:hidden}
 .ui-disclosure__summary{display:flex;align-items:center;gap:calc(var(--ui-space)*2);min-height:36px;padding:calc(var(--ui-space)*1.5) calc(var(--ui-space)*3);cursor:pointer;font:600 var(--ui-fs-2)/1.3 var(--ui-font);color:var(--ui-muted);list-style:none}
 .ui-disclosure__summary::-webkit-details-marker{display:none}
