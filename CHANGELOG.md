@@ -6,6 +6,8 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.35.2 — skippable
+States (design critique, 26 Nov): a disabled `ui-btn--primary` is the well with muted text (`--ui-surface-2`, `--ui-muted`, already measured) instead of a half-faded accent; `.ui-readout--md` units are `--ui-fs-3`, so "left" is readable beside "1 h 05"; a `ui-empty` inside a `ui-card` has four spaces of padding, not eight. The demo's camera placeholder says when it last had a picture. No markup changes.
 ## 2.35.1 — skippable
 Selection, provenance and Decisions spacing (design critique, 26 Nov): a pressed or current `ui-chips` button takes the accent wash (`--ui-accent-soft`, `--ui-accent-text`, an `--ui-accent` edge) instead of the inverted text-colour fill, so chips and tabs mark selection the same way and the contract's `accentSoft` rule is true; new opt-in `.ui-provs` group keeps each `ui-prov` mark beside its own words and the labels apart (the demo had drawn them under `ui-section__note`'s negative margin, so the hollow marks read as dividers); `.ui-decisions` has six spaces (the `--ui-s-5` step) above it so it is not run into the Needs list. No markup changes.
 ## 2.35.0 — skippable
