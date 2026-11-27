@@ -98,6 +98,9 @@
     input.setAttribute('aria-expanded', 'false');
     input.setAttribute('aria-controls', id('list'));
     const list = el('ul', 'ui-palette__list');
+    // The list scrolls, and a browser makes a scrolling box a tab stop of its own. The arrow keys in the input move through
+    // it (and bring the active option into view), so it is never one (2.35.4).
+    list.tabIndex = -1;
     list.id = id('list');
     list.setAttribute('role', 'listbox');
     list.setAttribute('aria-label', 'Results');

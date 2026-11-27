@@ -88,7 +88,9 @@ for (const file of demos) {
         assert.deepEqual(axe, [], `${tag}: axe finds nothing serious or critical`);
         if (hash === 'palette') assert.equal(await page.evaluate(() => !!document.querySelector('dialog[open]')), true, `${tag}: the palette is open`);
 
-        await page.keyboard.press('Tab');
+        // The open palette already has focus in its box, and its list is not a tab stop: check the ring where focus is.
+        if (hash === 'palette') assert.equal(await page.evaluate(() => document.querySelector('.ui-palette__list').tabIndex), -1, `${tag}: the scrolling list is not a tab stop`);
+        else await page.keyboard.press('Tab');
         const ring = await page.evaluate(() => {
           const el = document.activeElement;
           if (!el || el === document.body) return null;

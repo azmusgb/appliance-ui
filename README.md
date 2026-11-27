@@ -436,4 +436,4 @@ Change a colour, a tool or a page's name here, never in an app's copy: `tokens.j
 `version` in `tokens.json` and `package.json` (patch: a value; minor: a new component; major: a renamed variable, a removed file or a registry contract
 change), and sync each app. Each app's copy fails its tests if edited by hand.
 
-`demo/index.html` shows every component and the palette (⌘K, with a provider that is down); `demo/screens/` has it at phone and desktop width in both themes.
+`demo/index.html` shows every component and the palette (⌘K, with a provider that is down), `demo/shell.html` the shell (add `#palette` to open the palette) and `demo/chat.html` the conversation parts, the checkbox and the provenance label; `demo/screens/` has it at phone and desktop width in both themes.

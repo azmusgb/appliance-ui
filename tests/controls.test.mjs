@@ -70,3 +70,27 @@ test('in the demo page: tools share a centre line, and every answer is an outlin
     assert.equal(r.overflow, false, `${width}: no horizontal overflow`);
   }
 });
+
+// 2.35.4: found by demo/chat.html and demo/shell.html#palette.
+test('a summary takes the kit ring, a disabled checkbox is told from a live one, and the palette list is not a tab stop', async () => {
+  const css = read('dist/components.css');
+  assert.match(css, /:where\(\.ui-btn,\.ui-field,a,button,summary\):focus-visible\{outline:2px solid var\(--ui-accent\)/);
+  assert.match(css, /\.ui-disclosure__summary:focus-visible\{outline-offset:-2px\}/, 'inside the clipped disclosure');
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.goto(pathToFileURL(path.join(root, 'demo/chat.html')).href);
+  const r = await page.evaluate(() => {
+    const [live, , off] = [...document.querySelectorAll('.ui-check')].map(e => { const s = getComputedStyle(e); return s.borderTopColor + s.backgroundColor; });
+    document.querySelector('.ui-disclosure__summary').focus();
+    return { live, off, disabled: document.querySelectorAll('.ui-check:disabled').length };
+  });
+  await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
+  const ring = await page.evaluate(() => { const s = getComputedStyle(document.activeElement); return [document.activeElement.tagName, s.outlineStyle, s.outlineWidth].join(' '); });
+  await page.goto(pathToFileURL(path.join(root, 'demo/shell.html')).href + '#palette');
+  await page.keyboard.press('Tab');
+  const after = await page.evaluate(() => document.activeElement.className);
+  await page.close();
+  assert.equal(r.disabled, 1);
+  assert.notEqual(r.off, r.live, 'a disabled box is drawn differently');
+  assert.equal(ring, 'SUMMARY solid 2px');
+  assert.doesNotMatch(after, /ui-palette__list/, 'Tab from the box does not stop on the list');
+});

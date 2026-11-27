@@ -323,7 +323,7 @@ label never claims more than the app gave it.
   answer, so every part that reads them follows without a rule of its own: `muted` is drawn as `text`, `line` as `line2`
   and `line2` as `fieldLine`, in both themes (2.22; `contrastMore` in `tokens.json`). Each is a colour the kit already
   measures. An app never writes its own more-contrast colours; a part that needs more than this is a kit change.
-- **Focus:** a visible ring (`2px` accent, offset `2px`) that is never clipped or covered. Check it in strips, inside
+- **Focus:** a visible ring (`2px` accent, offset `2px`) that is never clipped or covered, on a `<summary>` as on a button or link (2.35.4). Check it in strips, inside
   overflow containers and under sticky headers. A page that refreshes itself puts focus back where it was. A redraw
   never drops a keyboard user to the top.
 - **Keyboard:**

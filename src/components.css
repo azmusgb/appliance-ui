@@ -46,7 +46,9 @@
 .ui-check{appearance:none;flex:none;display:inline-grid;place-content:center;box-sizing:border-box;width:calc(var(--ui-space)*5);height:calc(var(--ui-space)*5);margin:0;border:calc(var(--ui-space)*.5) solid var(--ui-field-line);border-radius:var(--ui-r-1);background:var(--ui-surface);cursor:pointer}
 .ui-check:checked{border-color:var(--ui-accent);background:var(--ui-accent)}
 .ui-check:checked::after{content:"";width:calc(var(--ui-space)*2.5);height:calc(var(--ui-space)*1.25);margin-block-start:calc(var(--ui-space)*-.5);border:solid var(--ui-on-accent);border-width:0 0 calc(var(--ui-space)*.5) calc(var(--ui-space)*.5);transform:rotate(-45deg)}
-.ui-check:disabled{cursor:not-allowed}
+/* Disabled (2.35.4): the well and the decorative line, so it is told from a box that can be ticked. */
+.ui-check:disabled{cursor:not-allowed;border-color:var(--ui-line-2);background:var(--ui-surface-2)}
+.ui-check:disabled:checked{background:var(--ui-line-2)}
 .ui-check:focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}
 /* Provenance (2.33, Pi Hub A35 §7.1): where a fact came from. Only live draws a filled mark, in text colour: it says
    fresh, never fine (the reading's own lamp carries ok, warn or bad). The rest draw a hollow mark. */
@@ -193,7 +195,7 @@
 /* A10 D1: the page's gap, title, faceplate padding and readout grow from their phone size at a 360 px window to their
    full size by about 600 px, instead of switching there. */
 .ui-page{gap:clamp(calc(var(--ui-space)*6),0.75rem + 3.33vw,calc(var(--ui-space)*7))}.ui-page__title{font-size:clamp(var(--ui-fs-6),0.875rem + 3.33vw,var(--ui-fs-7))}.ui-faceplate{padding:clamp(calc(var(--ui-space)*4),0.25rem + 3.33vw,calc(var(--ui-space)*5))}.ui-faceplate .ui-readout{font-size:clamp(var(--ui-fs-7),0.53rem + 7.08vw,calc(var(--ui-fs-7)*1.5))}
-:where(.ui-btn,.ui-field,a,button):focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}
+:where(.ui-btn,.ui-field,a,button,summary):focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}
 /* A touch screen gets 44 px targets (2.5.0). */
 @media (pointer:coarse){.ui-btn,.ui-field{min-height:44px}}
 
@@ -213,6 +215,8 @@
 .ui-disclosure__summary{display:flex;align-items:center;gap:calc(var(--ui-space)*2);min-height:36px;padding:calc(var(--ui-space)*1.5) calc(var(--ui-space)*3);cursor:pointer;font:600 var(--ui-fs-2)/1.3 var(--ui-font);color:var(--ui-muted);list-style:none}
 .ui-disclosure__summary::-webkit-details-marker{display:none}
 .ui-disclosure__summary:hover{color:var(--ui-text)}
+/* The disclosure clips to its corners, so the summary's ring is drawn inside it (2.35.4). */
+.ui-disclosure__summary:focus-visible{outline-offset:-2px}
 .ui-disclosure[open] .ui-disclosure__summary{border-bottom:1px solid var(--ui-line);color:var(--ui-text)}
 .ui-disclosure__body{padding:calc(var(--ui-space)*3);font:400 var(--ui-fs-2)/1.4 var(--ui-font)}
 .ui-result-card{display:flex;flex-direction:column;gap:calc(var(--ui-space)*2.5);padding:calc(var(--ui-space)*3.5);border-radius:var(--ui-r-2);background:var(--ui-surface);border:1px solid var(--ui-line);color:var(--ui-text)}
