@@ -90,9 +90,9 @@
     { id: 'a35-ship', kind: 'yesno', question: 'Freeze the summary view now?', options: [], recommended: 'Yes', rationale: 'Local AI reads it for the world view, so its shape should not move later.' },
   ], { here: location.href, onAnswer: (id, answer) => new Promise(r => setTimeout(() => r(answer), 600)) }));
   const prov = document.getElementById('decisions').appendChild(document.createElement('p'));
-  prov.className = 'ui-section__note';
+  prov.className = 'ui-provs';
   for (const [lvl, v] of [['live', {}], ['reported', { when: '09:40' }], ['checked', { when: '09:40' }], ['imported', { source: 'pi-hub@4ef3c14' }], ['owner', {}], ['unavailable', { when: '09:12' }]]) {
-    prov.append(ApplianceNeeds.provenance(lvl, v), ' ');
+    prov.append(ApplianceNeeds.provenance(lvl, v));
   }
   const done = document.getElementById('done');
   for (const b of document.querySelectorAll('[data-what]')) {
