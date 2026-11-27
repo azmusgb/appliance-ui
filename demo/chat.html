@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>appliance-ui: conversation parts</title>
+<link rel="stylesheet" href="../dist/tokens.css">
+<link rel="stylesheet" href="../dist/components.css">
+<script src="../dist/needs.js"></script>
+<style>
+  @font-face{font-family:Archivo;src:url(../fonts/archivo-latin-ui.woff2) format("woff2");font-weight:400 750;font-stretch:75% 100%;font-display:swap}
+  body{margin:0;background:var(--ui-bg);color:var(--ui-text);font:400 var(--ui-fs-3)/1.5 var(--ui-font)}
+  main{max-width:56rem;margin:0 auto;padding:var(--ui-s-5) var(--ui-s-4)}
+  .stack{display:grid;gap:var(--ui-s-3)}
+  .checks{display:grid;margin:0;padding:0;border:0}
+  .checks label{display:flex;align-items:center;gap:var(--ui-s-2);min-height:calc(var(--ui-space)*11)}
+</style>
+</head>
+<body>
+<!-- The Assistant's conversation parts (A30 Phase 2), the checkbox (2.33) and the provenance label (2.33), each in
+     every state it has, with a long unbroken word. Sample data. -->
+<main class="ui-page">
+  <header class="ui-page__head">
+    <h1 class="ui-page__title">Assistant</h1>
+    <p class="ui-page__purpose">Sample data: the conversation parts, the checkbox and where a fact came from.</p>
+  </header>
+  <section class="ui-section" aria-label="Conversation">
+    <h2>Conversation</h2>
+    <div class="ui-chat-thread">
+      <div class="ui-chat-msg ui-chat-msg--user">How is the printer doing? Averyveryveryveryveryveryveryveryveryveryveryveryverylongunbrokenwordthatshouldwrapwithoutoverflowingthecontaineratanywidth</div>
+      <div class="ui-chat-msg ui-chat-msg--assistant">The X2D is printing, 42 percent.
+        <details class="ui-disclosure"><summary class="ui-disclosure__summary">Details</summary><div class="ui-disclosure__body">Run 123, four tool calls.</div></details>
+      </div>
+      <div class="ui-chat-msg ui-chat-msg--assistant ui-chat-msg--streaming" aria-busy="true">Checking the lab mirror</div>
+    </div>
+    <form class="ui-chat-composer" id="composer"><textarea class="ui-field ui-chat-composer__input" aria-label="Message to the Assistant" rows="1"></textarea><button class="ui-btn ui-btn--primary ui-chat-composer__action" type="submit">Send</button></form>
+  </section>
+  <section class="ui-section">
+    <h2>Results</h2>
+    <div class="stack">
+      <div class="ui-result-card"><strong>Ready</strong><span>Spool holder v3 sliced: 2 h 14 min, 86.4 g.</span></div>
+      <div class="ui-result-card ui-result-card--loading" aria-busy="true"><strong>Slicing</strong><span>Waiting for the Mac…</span></div>
+      <div class="ui-result-card ui-result-card--error" role="alert"><strong>Not sliced</strong><span>The Mac didn't answer. Try again.</span></div>
+      <div class="ui-result-card ui-result-card--disabled"><strong>Unavailable</strong><span>Not available while the PC sleeps.</span></div>
+    </div>
+  </section>
+  <section class="ui-section">
+    <h2>Checkboxes</h2>
+    <fieldset class="checks"><legend class="ui-section__note">Choose any that apply</legend>
+      <label><input type="checkbox" class="ui-check"> Overview</label>
+      <label><input type="checkbox" class="ui-check" checked> Decisions</label>
+      <label><input type="checkbox" class="ui-check" disabled> Evidence (not ready yet)</label>
+    </fieldset>
+  </section>
+  <section class="ui-section">
+    <h2>Where a fact came from</h2>
+    <ul class="ui-provs" id="provs"></ul>
+  </section>
+</main>
+<script>
+  document.getElementById('composer').addEventListener('submit', e => e.preventDefault());
+  const provs = document.getElementById('provs');
+  for (const [level, o] of [['live', {}], ['reported', { when: '09:40' }], ['checked', { when: '09:40' }], ['imported', { source: 'pi-hub@4ef3c14' }], ['owner', {}], ['unavailable', { when: '09:12' }], ['unavailable', {}]]) {
+    const el = ApplianceNeeds.provenance(level, o);
+    if (el) { const li = document.createElement('li'); li.append(el); provs.append(li); }
+  }
+</script>
+</body>
+</html>

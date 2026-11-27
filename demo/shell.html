@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>appliance-ui: the shell</title>
+<link rel="stylesheet" href="../dist/tokens.css">
+<link rel="stylesheet" href="../dist/components.css">
+<link rel="stylesheet" href="../dist/palette.css">
+<link rel="stylesheet" href="../dist/shell.css">
+<script src="../dist/shell.js"></script>
+<script src="../dist/palette.js"></script>
+<style>
+  @font-face{font-family:Archivo;src:url(../fonts/archivo-latin-ui.woff2) format("woff2");font-weight:400 750;font-stretch:75% 100%;font-display:swap}
+  body{margin:0}
+  .sample{margin-left:auto;color:var(--ui-muted);font-size:var(--ui-fs-2)}
+</style>
+</head>
+<body>
+<!-- The shell every web app shares (2.29): the rail (a tab bar on a phone), the page head, and the page. The rail is
+     drawn by ApplianceShell.build from the page list; this demo carries the rows it needs, checked against pages.json
+     by tests/demo-a11y.test.mjs. Search opens the palette; add #palette to the address to open it on load. -->
+<script type="application/json" id="list">{"areas":[{"id":"home","label":"Home","order":1,"landing":"home"},{"id":"workshop","label":"Workshop","order":2,"landing":"printer"},{"id":"household","label":"Household","order":3,"landing":"movies"},{"id":"network","label":"Network","order":4,"landing":"lights"},{"id":"system","label":"System","order":5,"landing":"health"}],"pages":[{"id":"home","area":"home","label":"Home","purpose":"Your home at a glance","path":"/","role":"page","reach":["rail","palette","map"]},{"id":"printer","area":"workshop","label":"Printer","purpose":"The X2D: what it's doing and what it needs","path":"/workshop","role":"page","reach":["rail","strip","palette","map"]},{"id":"lab","area":"workshop","label":"Print lab","purpose":"Experiments, test coupons and operator verdicts","path":"/lab","role":"page","reach":["strip","palette","map"]},{"id":"quick","area":"workshop","label":"Quick Print","purpose":"Slice an STL or 3MF on the Mac and look at the result","path":"/quick","role":"page","reach":["strip","palette","map"]},{"id":"movies","area":"household","label":"Movies","purpose":"What's playing and what to watch","path":"/media","role":"page","reach":["rail","strip","palette","map"]},{"id":"lights","area":"network","label":"Lights","purpose":"Lights, plugs and the other things in the house","path":"/devices","role":"page","reach":["rail","strip","palette","map"]},{"id":"health","area":"system","label":"Health","purpose":"How the hub and the Pi are doing, and what to try","path":"/system","role":"page","reach":["rail","strip","palette","map"]}]}</script>
+<div class="ui-shell">
+  <div class="ui-shell-stage">
+    <header class="ui-shell-head" data-ui-shell-head><strong>Workshop</strong><span class="sample">Sample data</span><button class="ui-btn ui-btn--ghost" type="button" id="search">Search</button></header>
+    <main class="ui-shell-main">
+      <div class="ui-page">
+        <header class="ui-page__head">
+          <h1 class="ui-page__title">Printer</h1>
+          <p class="ui-page__purpose">The X2D: what it's doing and what it needs</p>
+        </header>
+        <nav class="ui-strip" aria-label="Workshop" id="strip"></nav>
+        <section class="ui-section">
+          <h2>Around the house</h2>
+          <ul class="ui-rows">
+            <li class="ui-row ui-row--lamp"><span><span class="ui-row__title">Pi Hub</span></span><span class="ui-chip ui-chip--ok">Healthy</span></li>
+            <li class="ui-row ui-row--lamp"><span><span class="ui-row__title">Windows PC</span></span><span class="ui-chip ui-chip--unknown">Asleep</span></li>
+          </ul>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  const list = JSON.parse(document.getElementById('list').textContent);
+  const shapes = { home: 'M4 11l8-7 8 7v9h-5v-6H9v6H4z', workshop: 'M5 9h14v7H5zM8 9V5h8v4M8 20h8', household: 'M4 20V8l8-4 8 4v12M9 20v-6h6v6', network: 'M4 10a12 12 0 0 1 16 0M7 14a7 7 0 0 1 10 0M12 18h.01', system: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v3M12 19v3M2 12h3M19 12h3' };
+  const icon = id => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 24 24'); const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', shapes[id] || ''); s.append(p); return s; };
+  const stay = e => e.preventDefault();
+  const nav = ApplianceShell.build(document, { areas: list.areas, pages: list.pages, current: 'workshop', badges: { home: { count: 3, say: '3 things need you' } }, icon, onNavigate: () => {} });
+  nav.addEventListener('click', stay);
+  document.querySelector('.ui-shell').prepend(nav);
+  ApplianceShell.watch?.(window);
+  const strip = document.getElementById('strip');
+  for (const p of list.pages.filter(p => p.area === 'workshop')) { const a = document.createElement('a'); a.href = p.path; a.textContent = p.label; if (p.id === 'printer') a.setAttribute('aria-current', 'page'); a.addEventListener('click', stay); strip.append(a); }
+  const palette = AppliancePalette.create({
+    providers: [
+      { id: 'pages', name: 'Pages', find: async q => list.pages.filter(p => p.label.toLowerCase().includes((q || '').toLowerCase())).map(p => ({ kind: 'go', label: p.label, hint: p.purpose || '', area: p.area, href: p.path })) },
+      { id: 'assistant', name: 'Assistant', find: async () => { throw new Error('asleep'); } },
+    ],
+    navigate: () => {},
+  });
+  document.getElementById('search').addEventListener('click', () => palette.open());
+  if (location.hash === '#palette') palette.open('');
+</script>
+</body>
+</html>

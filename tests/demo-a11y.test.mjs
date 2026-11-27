@@ -2,12 +2,18 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const demos = ['index.html', 'page.html', 'outside.html', 'say.html'];
+// shell.html#palette is the shell with the palette open: the one state of a demo that a load alone does not show.
+const demos = ['index.html', 'page.html', 'outside.html', 'say.html', 'shell.html', 'shell.html#palette', 'chat.html'];
+// axe-core (dev only, kit audit row 13): what the checks below cannot see, such as contrast as drawn and ARIA misuse.
+const axeSource = fs.readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
+const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 let browser;
 
 before(async () => {
@@ -19,8 +25,9 @@ after(() => browser?.close());
 
 for (const file of demos) {
   test(`demo/${file}: accessible names, unique ids, landmarks, focus rings, and zero horizontal overflow across viewports and themes`, async () => {
-    const url = pathToFileURL(path.join(root, 'demo', file)).href;
-    for (const width of [320, 390, 1024, 1440]) {
+    const [name, hash] = file.split('#');
+    const url = pathToFileURL(path.join(root, 'demo', name)).href + (hash ? '#' + hash : '');
+    for (const width of [320, 390, 820, 1024, 1366, 1440, 1920]) {
       for (const scheme of ['light', 'dark']) {
         const ctx = await browser.newContext({ viewport: { width, height: 844 }, colorScheme: scheme, reducedMotion: 'reduce' });
         const page = await ctx.newPage();
@@ -74,6 +81,13 @@ for (const file of demos) {
         assert.deepEqual(audit.unnamed, [], `${tag}: every control and meter/dialog has an accessible name`);
         assert.equal(audit.overflow, false, `${tag}: no horizontal overflow`);
 
+        await page.addScriptTag({ content: axeSource });
+        const axe = await page.evaluate(async tags => (await window.axe.run(document, { runOnly: tags })).violations
+          .filter(v => v.impact === 'serious' || v.impact === 'critical')
+          .map(v => `${v.id} (${v.impact}) x${v.nodes.length}: ${v.nodes[0].target.join(' ')}`), AXE_TAGS);
+        assert.deepEqual(axe, [], `${tag}: axe finds nothing serious or critical`);
+        if (hash === 'palette') assert.equal(await page.evaluate(() => !!document.querySelector('dialog[open]')), true, `${tag}: the palette is open`);
+
         await page.keyboard.press('Tab');
         const ring = await page.evaluate(() => {
           const el = document.activeElement;
@@ -106,4 +120,26 @@ test('demo/page.html on a touch screen: tools, sources, strip links and chips ar
   assert.deepEqual(r.high, [], 'links are 44 px high');
   assert.deepEqual(r.wide, [], 'short links and buttons are 44 px wide');
   await ctx.close();
+});
+
+test('axe is really looking: it reports a button with no name', async () => {
+  const page = await browser.newPage();
+  await page.setContent('<!doctype html><html lang="en"><title>t</title><main><h1>t</h1><button></button></main></html>');
+  await page.addScriptTag({ content: axeSource });
+  const ids = await page.evaluate(async tags => (await window.axe.run(document, { runOnly: tags })).violations.map(v => v.id), AXE_TAGS);
+  assert.ok(ids.includes('button-name'), ids.join(','));
+  await page.close();
+});
+
+test('demo/shell.html carries page rows that are the page list\'s own', () => {
+  const html = fs.readFileSync(path.join(root, 'demo/shell.html'), 'utf8');
+  const demo = JSON.parse(html.match(/<script type="application\/json" id="list">(.*?)<\/script>/s)[1]);
+  const list = JSON.parse(fs.readFileSync(path.join(root, 'pages.json'), 'utf8'));
+  assert.deepEqual(demo.areas, list.areas);
+  assert.ok(demo.pages.length >= list.areas.length, 'a landing page for every area');
+  for (const p of demo.pages) {
+    const real = list.pages.find(x => x.id === p.id);
+    assert.ok(real, p.id);
+    for (const k of ['area', 'label', 'purpose', 'path', 'role']) assert.equal(p[k], real[k], `${p.id}.${k}`);
+  }
 });
