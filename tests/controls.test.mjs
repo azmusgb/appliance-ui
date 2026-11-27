@@ -94,3 +94,42 @@ test('a summary takes the kit ring, a disabled checkbox is told from a live one,
   assert.equal(ring, 'SUMMARY solid 2px');
   assert.doesNotMatch(after, /ui-palette__list/, 'Tab from the box does not stop on the list');
 });
+
+// 2.36.0: one token for a touch target, a checkbox that can be pressed, and one phone width.
+test('the 44 px target is one token: built into tokens.css, and no kit stylesheet writes the number', () => {
+  assert.match(read('dist/tokens.css'), /--ui-target:44px;/);
+  assert.equal(JSON.parse(read('tokens.json')).target, 44);
+  for (const f of ['components.css', 'needs.css', 'shell.css', 'palette.css']) {
+    const css = read('dist/' + f).replace(/\/\*[\s\S]*?\*\//g, '');
+    assert.doesNotMatch(css, /[:\s]44px/, f);
+  }
+  assert.match(read('dist/components.css'), /@media \(pointer:coarse\)\{\.ui-btn,\.ui-field\{min-height:var\(--ui-target\)\}\}/);
+  assert.doesNotMatch(read('dist/tokens.h'), /TARGET/, 'the display keeps its own 48 px');
+});
+
+test('on a touch screen a checkbox takes a press 10 px outside its box, labelled or bare; with a mouse it does not', async () => {
+  for (const hasTouch of [true, false]) {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch });
+    const page = await ctx.newPage();
+    await page.goto(pathToFileURL(path.join(root, 'demo/chat.html')).href);
+    const r = await page.evaluate(() => {
+      const bare = document.createElement('input'); bare.type = 'checkbox'; bare.className = 'ui-check'; bare.setAttribute('aria-label', 'Bare'); bare.style.margin = '40px';
+      document.querySelector('main').append(bare);
+      bare.scrollIntoView({ block: 'center' });
+      const b = bare.getBoundingClientRect();
+      const at = (x, y) => document.elementFromPoint(x, y) === bare;
+      return { size: b.width, left: at(b.left - 10, b.top + b.height / 2), above: at(b.left + b.width / 2, b.top - 10), far: at(b.left - 16, b.top + b.height / 2) };
+    });
+    await ctx.close();
+    assert.equal(Math.round(r.size), 20, 'the box itself stays 20 px');
+    assert.equal(r.left && r.above, hasTouch, `hasTouch ${hasTouch}: a press beside the box`);
+    assert.equal(r.far, false, 'and not past 44 px');
+  }
+});
+
+test('the palette and the shell agree on the width of a phone', () => {
+  const shell = read('src/shell.css').match(/A10 D2: shell switch[^*]*\*\/\s*@media \(max-width:(\d+)px\)/);
+  const palette = read('src/palette.js').match(/function phone\(\) \{[^}]*max-width: (\d+)px/);
+  assert.ok(shell && palette);
+  assert.equal(palette[1], shell[1]);
+});

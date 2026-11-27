@@ -49,17 +49,17 @@ test('components.css defines the shared classes using only --ui-* colours', () =
   assert.match(css, /@media \(prefers-reduced-motion:no-preference\)\{[^@]*\.ui-beam::after\{animation:ui-beam [6-9]s linear infinite\}/, 'the beam turns slowly, and only when motion is welcome');
   assert.match(css, /\.ui-beam--bad\{--ui-beam:var\(--ui-bad\)\}/);
   // 2.5.0: on a touch screen buttons and fields are 44 px, like the rest of the kit's targets (CSS review, 4 Nov).
-  assert.match(css, /@media \(pointer:coarse\)\{\.ui-btn,\.ui-field\{min-height:44px\}\}/);
+  assert.match(css, /@media \(pointer:coarse\)\{\.ui-btn,\.ui-field\{min-height:var\(--ui-target\)\}\}/);
   // 2.6.0: the strip is underlined (one style in every app); the current page is marked by aria-current, not colour alone.
   assert.match(css, /\.ui-strip a\[aria-current="page"\],\.ui-strip a\[aria-current="true"\]\{[^}]*border-bottom-color:var\(--ui-accent\)/);
-  assert.match(css, /\.ui-strip a\{[^}]*min-height:44px/, 'strip links are 44 px targets');
-  assert.match(css, /@media \(pointer:coarse\)\{\.ui-chips :is\(a,button\)\{min-height:44px;min-width:44px;/, 'chips are 44 px on touch');
+  assert.match(css, /\.ui-strip a\{[^}]*min-height:var\(--ui-target\)/, 'strip links are 44 px targets');
+  assert.match(css, /@media \(pointer:coarse\)\{\.ui-chips :is\(a,button\)\{min-height:var\(--ui-target\);min-width:var\(--ui-target\);/, 'chips are 44 px on touch');
   assert.match(css, /\.ui-faceplate\{[^}]*border-radius:var\(--ui-r-2\)/, 'the faceplate is a panel: the low radius');
   assert.match(css, /\.ui-row--lamp>:first-child\{flex:1 1 220px\}/, 'the text takes the room, so lamps line up on the right');
   // 2.7.0: an icon-only button's outline is the 3:1 field line (the ghost border is decoration), and it is square.
   assert.match(css, /\.ui-btn--icon\{[^}]*border-color:var\(--ui-field-line\)/, 'icon-only buttons have a 3:1 boundary');
   assert.match(css, /\.ui-btn--icon\{[^}]*width:40px/);
-  assert.match(css, /@media \(pointer:coarse\)\{\.ui-btn--icon\{width:44px\}\}/, 'and 44 px square on touch');
+  assert.match(css, /@media \(pointer:coarse\)\{\.ui-btn--icon\{width:var\(--ui-target\)\}\}/, 'and 44 px square on touch');
   // 2.7.0: a table for comparison: numbers right-aligned and tabular; on a phone each row stands alone with its labels.
   assert.match(css, /\.ui-table__num\{[^}]*text-align:right;font-variant-numeric:tabular-nums/);
   assert.match(css, /\.ui-table caption\{[^}]*text-align:left/);

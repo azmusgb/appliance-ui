@@ -114,7 +114,8 @@ literals check", says how to run it.
   - `r4` (14) for sheets
 
   Controls are rounder than the panels they sit in.
-- **Control heights:** 40 px, and 44 px on a coarse pointer (`ui-btn` and `ui-field` do this). Icons are 16 or 20 px.
+- **Control heights:** 40 px, and 44 px on a coarse pointer (`ui-btn` and `ui-field` do this). The 44 is one token,
+  `--ui-target` (2.36); a screen that sizes its own touch control uses it, never a number. Icons are 16 or 20 px.
 - **The pill** (`--ui-r-pill`) is for a fully rounded end: a chip, a toggle's track. It is not a fifth step of the
   radius scale.
 - **Shadows** only for things above the page: `--ui-shadow-1` for a toast or a popover, `--ui-shadow-2` for a sheet, a
@@ -333,7 +334,8 @@ label never claims more than the app gave it.
 - **Markup:**
   - Semantic HTML first: buttons for actions, links for places, `<label>`s and accessible names.
   - ARIA only where native semantics fall short.
-- **Targets:** 44 × 44 px on touch; 48 px on the workshop display.
+- **Targets:** 44 × 44 px on touch (`--ui-target`); 48 px on the workshop display. A `ui-check` reaches 44 px around
+  its box on a coarse pointer by itself (2.36).
 - **Motion:** `prefers-reduced-motion` turns animations into instant changes.
 - **Dialogs:** they trap focus and return it to the control that opened them.
 

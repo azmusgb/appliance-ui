@@ -161,7 +161,8 @@
       select(results.length ? 0 : -1);
     }
 
-    function phone() { return !!(win.matchMedia && win.matchMedia('(max-width: 760px)').matches); }
+    // The same width at which the shell goes from the rail to the tab bar (shell.css; tests/controls.test.mjs holds them equal).
+    function phone() { return !!(win.matchMedia && win.matchMedia('(max-width: 860px)').matches); }
 
     async function search() {
       const q = input.value.trim();
