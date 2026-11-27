@@ -8,8 +8,9 @@ import { chromium } from 'playwright';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const browser = await chromium.launch();
 try {
-  for (const [demo, file] of [['demo', 'index.html'], ['page', 'page.html'], ['outside', 'outside.html'], ['say', 'say.html']]) {
-  const url = pathToFileURL(path.join(root, 'demo', file)).href;
+  for (const [demo, file] of [['demo', 'index.html'], ['page', 'page.html'], ['outside', 'outside.html'], ['say', 'say.html'], ['shell', 'shell.html'], ['palette', 'shell.html#palette'], ['chat', 'chat.html']]) {
+  const [name, hash] = file.split('#');
+  const url = pathToFileURL(path.join(root, 'demo', name)).href + (hash ? '#' + hash : '');
   for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['desktop', { width: 1440, height: 900 }]]) {
     for (const scheme of ['dark', 'light']) {
       const page = await browser.newPage({ viewport, colorScheme: scheme, reducedMotion: 'reduce', deviceScaleFactor: name === 'phone' ? 2 : 1 });

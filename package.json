@@ -1,6 +1,6 @@
 {
   "name": "appliance-ui",
-  "version": "2.35.3",
+  "version": "2.35.4",
   "private": true,
   "description": "The home appliance's shared look: tokens, components, the Needs-you renderer and the tool registry, copied into each app.",
   "type": "module",
@@ -19,6 +19,7 @@
     "literals": "node check/literals.mjs src"
   },
   "devDependencies": {
+    "axe-core": "4.14.1",
     "playwright": "1.63.0"
   }
 }
