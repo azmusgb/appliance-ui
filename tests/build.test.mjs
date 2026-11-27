@@ -292,3 +292,35 @@ test("the palette's backdrop and motion are the kit's values, not literals", () 
   assert.doesNotMatch(css, /animation:[^;}]*[\d.]+m?s\b/);
   assert.match(css, /animation:ui-palette-in var\(--ui-dur-1\) var\(--ui-ease\)/);
 });
+
+// Thirteen test files rebuild dist/ while others read it (a browser loading demo/page.html), and node --test runs the
+// files side by side. A file overwritten in place is empty or cut short for a moment; the table test once loaded a
+// page with no kit styles that way. A build must only ever show a reader a whole file.
+test('a file being rebuilt is never read empty or cut short', async () => {
+  const { spawn } = await import('node:child_process');
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'kit-build-race-'));
+  try {
+    assert.equal(build(['--out', out]).status, 0);
+    const file = path.join(out, 'components.css');
+    const whole = fs.readFileSync(file, 'utf8');
+    let left = 45, running = 0;
+    const done = new Promise((resolve) => {
+      const next = () => {
+        if (left === 0) { if (running === 0) resolve(); return; }
+        left--; running++;
+        spawn(process.execPath, [path.join(root, 'scripts/build.mjs'), '--out', out], { stdio: 'ignore' }).on('exit', () => { running--; next(); });
+      };
+      next(); next(); next();
+    });
+    let finished = false, reads = 0;
+    const partial = new Set();
+    done.then(() => { finished = true; });
+    while (!finished) {
+      for (let i = 0; i < 200; i++) { const now = fs.readFileSync(file, 'utf8'); reads++; if (now !== whole) partial.add(now.length); }
+      await new Promise((r) => setImmediate(r));
+    }
+    assert.ok(reads > 1000, `only ${reads} reads`);
+    assert.deepEqual([...partial], [], `read ${whole.length} bytes as ${[...partial].join(', ')} bytes while a build ran`);
+    assert.deepEqual(fs.readdirSync(out).filter((f) => f.includes('.tmp-')), [], 'a build left a temporary file behind');
+  } finally { fs.rmSync(out, { recursive: true, force: true }); }
+});
