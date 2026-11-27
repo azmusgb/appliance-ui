@@ -26,7 +26,6 @@
   .muted{color:var(--ui-muted)}
   .actions{display:flex;gap:calc(var(--ui-space)*2);flex-wrap:wrap}
   .slots{display:grid;gap:0;margin:0;padding:0;list-style:none}
-  .swatch{flex:none;width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ui-text) 25%,transparent)}
   .slot-name{display:flex;align-items:center;gap:calc(var(--ui-space)*2);min-width:0}
   .slot-right{display:grid;justify-items:end;gap:2px}
   section>h2.ui-title{margin-bottom:calc(var(--ui-space)*2)}
@@ -62,10 +61,10 @@
     <section class="ui-card" aria-labelledby="materials-h">
       <h2 class="ui-title" id="materials-h">Filament loaded</h2>
       <ul class="slots">
-        <li class="ui-row"><span class="slot-name"><span class="swatch" style="background:#3b3d3c"></span>PLA Matte Charcoal</span><span class="slot-right"><span class="ui-readout ui-readout--sm">812<span class="ui-readout__unit">g</span></span></span></li>
-        <li class="ui-row"><span class="slot-name"><span class="swatch" style="background:#e9e4d8"></span>PLA Bone White</span><span class="slot-right"><span class="ui-readout ui-readout--sm">540<span class="ui-readout__unit">g</span></span></span></li>
-        <li class="ui-row"><span class="slot-name"><span class="swatch" style="background:#2e8f86"></span>PETG Translucent Teal</span><span class="slot-right"><span class="ui-readout ui-readout--sm">164<span class="ui-readout__unit">g</span></span><span class="ui-chip ui-chip--warn">Running low</span></span></li>
-        <li class="ui-row"><span class="slot-name"><span class="swatch" style="background:transparent"></span><span class="muted">Slot 4 is empty</span></span><span class="slot-right"><span class="ui-chip ui-chip--unknown">No spool</span></span></li>
+        <li class="ui-row"><span class="slot-name"><span class="ui-swatch" style="--ui-swatch:#3b3d3c"></span>PLA Matte Charcoal</span><span class="slot-right"><span class="ui-readout ui-readout--sm">812<span class="ui-readout__unit">g</span></span></span></li>
+        <li class="ui-row"><span class="slot-name"><span class="ui-swatch" style="--ui-swatch:#e9e4d8"></span>PLA Bone White</span><span class="slot-right"><span class="ui-readout ui-readout--sm">540<span class="ui-readout__unit">g</span></span></span></li>
+        <li class="ui-row"><span class="slot-name"><span class="ui-swatch" style="--ui-swatch:#2e8f86"></span>PETG Translucent Teal</span><span class="slot-right"><span class="ui-readout ui-readout--sm">164<span class="ui-readout__unit">g</span></span><span class="ui-chip ui-chip--warn">Running low</span></span></li>
+        <li class="ui-row"><span class="slot-name"><span class="ui-swatch"></span><span class="muted">Slot 4 is empty</span></span><span class="slot-right"><span class="ui-chip ui-chip--unknown">No spool</span></span></li>
       </ul>
     </section>
   </div>

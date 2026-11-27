@@ -55,7 +55,7 @@ literals check", says how to run it.
 | `fieldLine` | A field's border (3:1). |
 | `text`, `muted` | Primary and secondary text, and `text` for a meter's fill (`ui-meter > i`, 2.34.0). Both pass 4.5:1 on every background. Hierarchy never comes from fainter text. |
 | `accent` | The primary button's fill, selection and the focus ring. Nothing else (A37: meters use `text`, and rail/tab counts use `warn`). |
-| `accentText` | Accent-coloured text: a link, or the current strip item. |
+| `accentText` | Accent-coloured text: a link, the current strip item, or a Needs-you row's action (2.35.3). |
 | `onAccent` | Text on an `accent` fill. |
 | `accentSoft` | The tint behind a selected chip, tab or row. A chip and a tab are selected the same way: the tint, `accentText` and an `accent` edge, plus `aria-pressed`, `aria-selected` or `aria-current`. Never an inverted fill (2.35.1). |
 | `ok`, `warn`, `bad` | Fine, needs a look, broken or blocking. Always shown with a word (a lamp: dot plus word), except the rail/tab ask count (`ui-rail-badge`, 2.34.0), which is a bare `warn` number named for assistive tech. |
@@ -75,6 +75,7 @@ literals check", says how to run it.
 
 ### Type
 
+- **Weights:** three, and no others: 400 for text, 600 for labels and controls, 700 for headings, readouts, lamps and titles (2.35.3).
 - **Typefaces:** Archivo for everything, and the system monospace (`--ui-mono`) for code, commands, hashes and paths in
   technical detail only.
 - **Narrow widths** (`--ui-stretch-heading` 87.5%, `--ui-stretch-readout` 75%) are for headings and readouts. They carry
@@ -256,8 +257,9 @@ is added to this kit, never to one app.
 | Comparing records | `ui-table`, `ui-table__num`, `ui-table--stack` (2.7) |
 | An icon-only control | `ui-btn--icon` (2.7) with `aria-label` |
 | What needs the owner | `ApplianceNeeds.renderList` (`ui-needs`), the only Needs-you list |
-| A question only the owner can answer | `ApplianceNeeds.renderDecisions` (`ui-decisions`, 2.27; Pi Hub A33): a "Decisions (n)" group after the condition items, set off from them by six spaces, the `--ui-s-5` step (2.35.1). Choice rows have two to four buttons with the recommended one marked in words ("(Recommended)" on a neutral button, never the accent: Send is the group's only primary); text rows have a box and one Send; `multi` rows (2.33) a box per option and one Send, answered with the ticked options in order; `yesno` rows Yes and No. A kind it doesn't draw is shown disabled with its reason. A failed write keeps the row and says "Not recorded. Try again." An unreadable list is `state: "error"`, never an empty group |
+| A question only the owner can answer | `ApplianceNeeds.renderDecisions` (`ui-decisions`, 2.27; Pi Hub A33): a "Decisions (n)" group after the condition items, set off from them by six spaces, the `--ui-s-5` step (2.35.1). Choice rows have two to four buttons with every answer the same outlined button with a centred label, the recommended one marked in words and by a heavier `fieldLine` border ("(Recommended)", never the accent: Send is the group's only primary; 2.35.3); text rows have a box and one Send; `multi` rows (2.33) a box per option and one Send, answered with the ticked options in order; `yesno` rows Yes and No. A kind it doesn't draw is shown disabled with its reason. A failed write keeps the row and says "Not recorded. Try again." An unreadable list is `state: "error"`, never an empty group |
 | Status | `ui-chip--ok/warn/bad/unknown`, with `--live` for something running now |
+| A thing's own colour (a filament spool) | `ui-swatch` (2.35.3): a small square filled from `--ui-swatch`, which the app sets from its data; an empty outline when there is none. Square so it is never read as a lamp, and always beside the thing's name |
 | Progress | `ui-meter`, only with a real fraction |
 | Loading | `ui-skeleton` in the shape of what is coming |
 | Empty | `ui-empty`: what's missing, and what to do next |
@@ -277,7 +279,8 @@ is added to this kit, never to one app.
 - **Status:** colour always comes with a word or an icon that means it. Unknown is never shown as Off, Healthy, Idle or
   Complete.
 - **Risky actions** (a restart, sign-out, deleting, dropping an experiment) ask inline with `confirm.js`. The ask says
-  what will happen to which thing, and repeats the verb on a danger button. Routine and reversible actions don't ask. A
+  what will happen to which thing, and repeats the verb on a danger button. A danger button at rest is the well with
+  its word in `bad`; it is tinted on hover and inside the ask (2.35.3), so it is never the loudest control beside it. Routine and reversible actions don't ask. A
   modal dialog or sheet is for a focused task (record a verdict, add a movie): it traps focus, closes with Escape, and
   returns focus to the control that opened it.
 - **Feedback:**
