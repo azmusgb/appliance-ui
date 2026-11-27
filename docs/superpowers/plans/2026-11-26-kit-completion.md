@@ -1,5 +1,7 @@
 # appliance-ui: work the kit through to completion (fixed, improved, evolved)
 
+> **Superseded 27 Nov 2026** by `2026-11-27-kit-owed.md`, which carries what was left of Phases 2 to 5. Kept for its record of Phases 0 and 1.
+
 > **For agentic workers:** use superpowers:executing-plans or superpowers:subagent-driven-development to run this plan task by task. Steps use checkbox (`- [ ]`) syntax.
 
 **Goal (owner, 26 Nov 2026):** "have appliance ui worked thru to completion: fixed, improved, evolved."
