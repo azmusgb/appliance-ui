@@ -304,6 +304,10 @@ is a list) and `yesno`; any other kind is drawn disabled with its reason. `Appli
 source})` returns one `ui-prov` label saying where a fact came from: `live`, `reported`, `checked`, `imported`, `owner`
 or `unavailable` (A35 §7.1; DESIGN.md "Honest states"). Only `live` draws a lamp.
 
+Since 2.35 the recommended answer of a `choice` or `yesno` row is a neutral button with "(Recommended)" in words, not an
+accent-filled one; only a `text` or `multi` row's Send is `ui-btn--primary`. A button doing work takes
+`aria-busy="true"`: dimmed, `not-allowed` cursor, no hover change (no motion; set `disabled` too if it must not be pressed).
+
 A hub `detail` row's address may end in one `<value>` (`/missions/<initiative>`), as an Assistant run's does. It has no
 ⌘K or Site map entry of its own; a consumer matches it as a pattern.
 

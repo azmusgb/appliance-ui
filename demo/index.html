@@ -105,8 +105,9 @@
         <label for="code">Door code</label>
         <input id="code" class="ui-field" value="12a4" aria-invalid="true" aria-describedby="code-hint">
         <p class="hint" id="code-hint">Use digits only, 4 to 8 of them.</p>
-        <div class="actions"><button class="ui-btn ui-btn--primary" type="button" disabled>Save code</button><button class="ui-btn ui-btn--danger" type="button">Restart the Pi</button></div>
+        <div class="actions"><button class="ui-btn ui-btn--primary" type="button" disabled>Save code</button><button class="ui-btn" type="button" aria-busy="true">Recording…</button><button class="ui-btn ui-btn--danger" type="button">Restart the Pi</button></div>
       </div>
+      <div class="ui-result-card ui-result-card--disabled" aria-disabled="true"><strong>Unavailable</strong><span>Not available while the PC sleeps.</span></div>
     </div>
   </section>
   <button class="ui-btn ui-btn--ghost toggle" type="button" onclick="const r=document.documentElement;r.dataset.theme=(r.dataset.theme||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'))==='light'?'dark':'light'">Switch theme</button>

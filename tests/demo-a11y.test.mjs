@@ -90,3 +90,20 @@ for (const file of demos) {
     }
   });
 }
+
+// Audit ranks 5 and 10 (kit 2.35.0): on a coarse pointer the area's tools and the sources links are 44 px high, and
+// short strip links and chips buttons are 44 px wide (DESIGN.md: 44 x 44 px on touch).
+test('demo/page.html on a touch screen: tools, sources, strip links and chips are at least 44 px', async () => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  const page = await ctx.newPage();
+  await page.goto(pathToFileURL(path.join(root, 'demo', 'page.html')).href);
+  await page.evaluate(() => document.fonts.ready);
+  const r = await page.evaluate(() => {
+    const size = sel => [...document.querySelectorAll(sel)].map(e => { const b = e.getBoundingClientRect(); return { el: sel + ' ' + e.textContent.trim().slice(0, 20), w: Math.round(b.width), h: Math.round(b.height) }; });
+    return { high: [...size('.ui-tools a'), ...size('.ui-sources a')].filter(x => x.h < 44), wide: [...size('.ui-strip a'), ...size('.ui-chips button')].filter(x => x.w < 44), n: document.querySelectorAll('.ui-tools a,.ui-sources a,.ui-strip a,.ui-chips button').length };
+  });
+  assert.ok(r.n >= 4, 'the demo draws these parts');
+  assert.deepEqual(r.high, [], 'links are 44 px high');
+  assert.deepEqual(r.wide, [], 'short links and buttons are 44 px wide');
+  await ctx.close();
+});

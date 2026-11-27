@@ -64,7 +64,7 @@ test('renders the heading with a count, option buttons, the recommended mark in 
   assert.ok(r.labelled && r.group);
   assert.equal(r.n, 2);
   assert.equal(r.q, 'Which Activity shape?');
-  assert.deepEqual(r.btns, [{ text: 'Feed', primary: false }, { text: 'TableRecommended', primary: true }, { text: 'Cards', primary: false }]);
+  assert.deepEqual(r.btns, [{ text: 'Feed', primary: false }, { text: 'TableRecommended', primary: false }, { text: 'Cards', primary: false }]);
   assert.equal(r.link, 'http://10.0.0.80/spec');
   assert.equal(r.textarea, 500);
   assert.equal(r.send, 'Send');
@@ -375,7 +375,7 @@ test('a yes/no row draws Yes and No in the kit\'s words, whatever options it car
   const page = await open();
   await page.evaluate(([y]) => window.mount([{ ...y, options: ['<b>Sure</b>'] }]), [yesno]);
   const btns = await page.evaluate(() => [...document.querySelectorAll('.ui-decision button')].map(b => [b.textContent, b.classList.contains('ui-btn--primary')]));
-  assert.deepEqual(btns, [['YesRecommended', true], ['No', false]]);
+  assert.deepEqual(btns, [['YesRecommended', false], ['No', false]]);
   await page.locator('button', { hasText: 'No' }).click();
   assert.deepEqual(await page.evaluate(() => window.calls), [['a35-yes', 'No']]);
   await page.close();
@@ -426,5 +426,56 @@ test('after a row is recorded, focus lands on the next multi row\'s first box, n
   await page.evaluate(() => window.pending[0].res(true));
   await page.waitForFunction(() => document.querySelectorAll('.ui-decision').length === 1);
   assert.deepEqual(await page.evaluate(() => [document.activeElement.type, document.activeElement.value]), ['checkbox', 'Overview']);
+  await page.close();
+});
+
+// Audit rank 1 (kit 2.35.0): "One primary per area" and the recommended answer is "marked in words", not in the accent.
+// Only a Send (text, multi) is the group's primary action; a choice or yes/no answer is never accent-filled.
+test('2.35.0: the recommended answer and yes/no are neutral buttons marked in words; only Send is primary', async () => {
+  const page = await open();
+  const r = await page.evaluate(([c, t, m, y]) => {
+    window.mount([c, t, m, y]);
+    const accent = (() => { const d = document.createElement('i'); d.style.color = getComputedStyle(document.documentElement).getPropertyValue('--ui-accent'); document.body.append(d); const v = getComputedStyle(d).color; d.remove(); return v; })();
+    const filled = [...document.querySelectorAll('.ui-decisions button')].filter(b => getComputedStyle(b).backgroundColor === accent).map(b => b.textContent);
+    const rec = [...document.querySelectorAll('.ui-decisions .ui-decision__options button')].find(b => b.textContent.startsWith('Table'));
+    return { filled, recText: rec.textContent, recClass: rec.className };
+  }, [choice, text, multi, yesno]);
+  assert.deepEqual(r.filled, ['Send', 'Send'], 'the two Send buttons are the only accent-filled ones');
+  assert.equal(r.recText, 'TableRecommended');
+  assert.doesNotMatch(r.recClass, /primary/);
+  await page.close();
+});
+
+// Audit rank 3: the group title is a section heading (same size, weight and stretch as ui-section h2).
+test('2.35.0: the Decisions title takes the ui-section heading style', async () => {
+  const page = await open();
+  const r = await page.evaluate(([c]) => {
+    window.mount([c]);
+    const sec = document.createElement('section'); sec.className = 'ui-section'; sec.innerHTML = '<h2>Answered</h2>';
+    document.getElementById('host').append(sec);
+    const f = e => { const s = getComputedStyle(e); return [s.fontSize, s.fontWeight, s.fontStretch]; };
+    return { title: f(document.querySelector('.ui-decisions__title')), h2: f(sec.querySelector('h2')) };
+  }, [choice]);
+  assert.deepEqual(r.title, r.h2);
+  await page.close();
+});
+
+// Audit rank 9: a busy button looks waiting (dimmed, not-allowed, no hover change).
+test('2.35.0: .ui-btn[aria-busy="true"] is dimmed, not-allowed and ignores hover', async () => {
+  const page = await open();
+  await page.evaluate(() => {
+    const b = document.createElement('button'); b.className = 'ui-btn'; b.id = 'busy'; b.type = 'button'; b.textContent = 'Recording'; b.setAttribute('aria-busy', 'true');
+    const n = document.createElement('button'); n.className = 'ui-btn'; n.id = 'idle'; n.type = 'button'; n.textContent = 'Record';
+    document.getElementById('host').append(b, n);
+  });
+  const st = () => page.evaluate(() => { const s = getComputedStyle(document.getElementById('busy')); return { opacity: s.opacity, cursor: s.cursor, bg: s.backgroundColor }; });
+  const before = await st();
+  await page.hover('#busy');
+  const after = await st();
+  assert.equal(before.cursor, 'not-allowed');
+  assert.ok(Number(before.opacity) < 1, 'dimmed');
+  assert.equal(after.bg, before.bg, 'no hover change');
+  await page.hover('#idle');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.getElementById('idle')).opacity), '1');
   await page.close();
 });

@@ -6,6 +6,8 @@ One heading per kit release, newest first: `## X.Y.Z — skippable` or `## X.Y.Z
 look at the diff). Releases at or below 2.7.0 were never classified. The drift check treats them, and any release
 missing here, as unclassified, so list every release, even a trivial one. When unsure, write "needs consumer change".
 
+## 2.35.0 — skippable
+Decisions, touch and states (kit audit A1 rows 1, 3, 5, 7, 9, 10): the recommended answer of a `choice` and `yesno` decision is a neutral `ui-btn` with "(Recommended)" in words, no longer `ui-btn--primary` (Send stays primary); `.ui-decisions__title` takes the `ui-section` h2 heading style (`--ui-fs-5`, 650, heading stretch); on a coarse pointer `ui-tools` and `ui-sources` links are 44 px high and `ui-strip` links and `ui-chips` buttons 44 px wide; `ui-result-card--disabled` uses `--ui-muted` on `--ui-surface-2` instead of opacity .5 (text was 3.46:1 light, 4.32:1 dark); new `.ui-btn[aria-busy="true"]` state (dimmed, not-allowed, no hover change).
 ## 2.34.2 — needs consumer change (pi-hub): Pi Hub draws `/missions` and `/missions/<initiative>` before it syncs this release (or keeps 2.34.1)
 `pages.json` drops `built: false` from `missions` (`/missions`) and `mission` (`/missions/<initiative>`): Pi Hub's A35 M1b step H7 draws both pages, so its route-coverage test now requires them. 2.34.1 had marked them not built so a consumer that did not draw them could sync; that stays true of 2.34.1. Local AI, print-lab and the display draw no hub page and need no change. Nothing else differs from 2.34.1.
 
