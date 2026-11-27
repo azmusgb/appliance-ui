@@ -360,7 +360,7 @@
       const row = el(doc, 'div', 'ui-decision__options');
       for (const opt of options) {
         const rec = opt === d.recommended;
-        const b = el(doc, 'button', rec ? 'ui-btn' : 'ui-btn ui-btn--ghost', opt);
+        const b = el(doc, 'button', 'ui-btn ui-btn--ghost', opt);
         b.type = 'button';
         if (rec) b.append(el(doc, 'span', 'ui-decision__rec', text('decision_recommended')));
         b.addEventListener('click', () => run(opt, b));
