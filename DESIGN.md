@@ -57,7 +57,7 @@ literals check", says how to run it.
 | `accent` | The primary button's fill, selection and the focus ring. Nothing else (A37: meters use `text`, and rail/tab counts use `warn`). |
 | `accentText` | Accent-coloured text: a link, or the current strip item. |
 | `onAccent` | Text on an `accent` fill. |
-| `accentSoft` | The tint behind a selected chip or row. |
+| `accentSoft` | The tint behind a selected chip, tab or row. A chip and a tab are selected the same way: the tint, `accentText` and an `accent` edge, plus `aria-pressed`, `aria-selected` or `aria-current`. Never an inverted fill (2.35.1). |
 | `ok`, `warn`, `bad` | Fine, needs a look, broken or blocking. Always shown with a word (a lamp: dot plus word), except the rail/tab ask count (`ui-rail-badge`, 2.34.0), which is a bare `warn` number named for assistive tech. |
 | `unknown` | Not known: never answered, can't be read, or out of date. Never drawn as `ok`. |
 
@@ -256,7 +256,7 @@ is added to this kit, never to one app.
 | Comparing records | `ui-table`, `ui-table__num`, `ui-table--stack` (2.7) |
 | An icon-only control | `ui-btn--icon` (2.7) with `aria-label` |
 | What needs the owner | `ApplianceNeeds.renderList` (`ui-needs`), the only Needs-you list |
-| A question only the owner can answer | `ApplianceNeeds.renderDecisions` (`ui-decisions`, 2.27; Pi Hub A33): a "Decisions (n)" group after the condition items. Choice rows have two to four buttons with the recommended one marked in words ("(Recommended)" on a neutral button, never the accent: Send is the group's only primary); text rows have a box and one Send; `multi` rows (2.33) a box per option and one Send, answered with the ticked options in order; `yesno` rows Yes and No. A kind it doesn't draw is shown disabled with its reason. A failed write keeps the row and says "Not recorded. Try again." An unreadable list is `state: "error"`, never an empty group |
+| A question only the owner can answer | `ApplianceNeeds.renderDecisions` (`ui-decisions`, 2.27; Pi Hub A33): a "Decisions (n)" group after the condition items, set off from them by six spaces, the `--ui-s-5` step (2.35.1). Choice rows have two to four buttons with the recommended one marked in words ("(Recommended)" on a neutral button, never the accent: Send is the group's only primary); text rows have a box and one Send; `multi` rows (2.33) a box per option and one Send, answered with the ticked options in order; `yesno` rows Yes and No. A kind it doesn't draw is shown disabled with its reason. A failed write keeps the row and says "Not recorded. Try again." An unreadable list is `state: "error"`, never an empty group |
 | Status | `ui-chip--ok/warn/bad/unknown`, with `--live` for something running now |
 | Progress | `ui-meter`, only with a real fraction |
 | Loading | `ui-skeleton` in the shape of what is coming |
@@ -296,7 +296,7 @@ is added to this kit, never to one app.
 | Imported | Historical, from a reviewed file (2.33; Pi Hub A35) | `ApplianceNeeds.provenance('imported', {source})`: "Imported from <repo>@<sha>". A hollow mark, never a lamp, and never a freshness state: an import is not "live" and never goes "stale" |
 | Reported | A source's own word, not checked by anything it doesn't control (2.33; A35) | `provenance('reported', {when})`: "Reported 09:40". A hollow mark; never shown as verified, healthy or done on its own word |
 
-Where a fact came from is one label, `ui-prov` (2.33), drawn only by `ApplianceNeeds.provenance(level, {when, source})`. Its
+Where a fact came from is one label, `ui-prov` (2.33). Two or more in a row go in `ui-provs` (2.35.1), which keeps each mark close to its own words and the labels apart, so a hollow mark is never read as a divider. The label is drawn only by `ApplianceNeeds.provenance(level, {when, source})`. Its
 levels are the integration levels of Pi Hub A35 §7.1: `live` ("Live", the only one with a lamp), `reported`, `checked`
 ("Checked 09:40", read by the app itself), `imported`, `owner` ("Recorded by you") and `unavailable` ("No report since
 09:12", or "No report yet"). An app formats `when` itself; a level missing the words it needs draws nothing, so a
