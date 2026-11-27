@@ -229,6 +229,12 @@ pushes that branch and opens a PR against `main`. The PR body lists each release
 as skippable, "needs consumer change: ...", or "unclassified: read the diff". It never merges: you do, after reading the
 list. If the consumer's `main` already has this version it stops without opening a PR.
 
+A sync can fail the consumer's own CI for a reason the kit's check can't see. Local AI is the known case: when a sync grows
+`components.css` or `needs.css`, its shell total in `tests/budgets.test.cjs` and its visual baselines can fail (the 2.31.3 to
+2.35.1 sync did: 382.7 KB against 380 KB, and 13 pages). Local AI has no CI on GitHub, so run `npm run ci -- <PR>` there before
+shipping, and put any budget raise or baseline refresh (`LOCALAI_VISUAL_UPDATE=1 node tests/visual-ui.mjs`, then look at the
+PNGs) in the same PR. Ship it with `npm run ship -- <PR>`; a plain merge on GitHub leaves `main` untested.
+
 `CHANGELOG.md` is where a release is classified. A release author adds one entry per new kit version, newest first:
 `## X.Y.Z — skippable` (a consumer can move past it without touching its own code) or
 `## X.Y.Z — needs consumer change (web): <what to do>` / `(display): <what to do>`. The audience names the kit whose
