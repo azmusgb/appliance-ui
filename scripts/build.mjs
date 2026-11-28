@@ -93,6 +93,8 @@ const fixed = [
   `--ui-space:${rem(t.space.unit)};`, `--ui-header-h:${rem(t.headerHeight)};`,
   // 2.36: the smallest side of anything pressed on a touch screen. In px on purpose: a finger does not grow with the type.
   `--ui-target:${t.target}px;`,
+  // 2.38: a control's height with a mouse. In px like the target it grows to on a touch screen.
+  `--ui-control:${t.control}px;`,
   '--ui-header-total:calc(var(--ui-header-h) + env(safe-area-inset-top, 0px));',
   // 2.19 (Pi Hub A22 1.3): the steps of space, the pill, the backdrop, motion and the layers. Web only: tokens.h
   // keeps its px sizes and colours, because the display draws no sheet, shadow or animation from the kit.
