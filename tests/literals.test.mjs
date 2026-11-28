@@ -64,6 +64,11 @@ test('motion: a literal duration or easing in transition or animation is rejecte
     'transition-property:opacity', 'animation-name:ease-wipe', 'transition-delay:0s']) assert.deepEqual(css(`.a{${ok}}`), [], ok);
 });
 
+test('target (2.38): a control or touch-target size written as 40px or 44px is rejected; the kit values and other sizes pass', () => {
+  for (const bad of ['min-height:44px', 'height:40px', 'width:44px', 'min-width:44px', 'flex:0 0 44px', 'flex-basis:40px', 'block-size:44px', 'min-height:calc(44px + 1rem)']) assert.deepEqual(css(`.a{${bad}}`), ['target'], bad);
+  for (const ok of ['min-height:var(--ui-target)', 'width:var(--ui-control)', 'height:48px', 'width:440px', 'width:144px', 'max-width:60rem', 'height:4.4px', 'line-height:44px', 'min-height:0']) assert.deepEqual(css(`.a{${ok}}`), [], ok);
+});
+
 test('layer: a z-index other than 0, 1 and -1 is rejected; the kit layers pass', () => {
   for (const bad of ['z-index:2', 'z-index:10', 'z-index:-2', 'z-index:calc(var(--ui-z-bar) + 5)']) assert.deepEqual(css(`.a{${bad}}`), ['layer'], bad);
   for (const ok of ['z-index:0', 'z-index:1', 'z-index:-1', 'z-index:auto', 'z-index:var(--ui-z-sheet)', 'z-index:calc(var(--ui-z-bar) + 1)']) assert.deepEqual(css(`.a{${ok}}`), [], ok);
@@ -114,7 +119,7 @@ test('compare: a rise, a new file, a fall and a file that is gone, by file then 
   assert.deepEqual(d.map(x => `${x.file} ${x.category} ${x.kind} ${x.have}/${x.want}`),
     ['a.css type new 1/0', 'b.css colour rise 3/2', 'b.css space fall 1/4', 'z.css layer gone 0/2']);
   assert.deepEqual(compare({ 'a.css': { colour: 1 } }, { 'a.css': { colour: 1 } }), []);
-  assert.deepEqual(CATEGORIES, ['colour', 'type', 'space', 'radius', 'shadow', 'motion', 'layer', 'name']);
+  assert.deepEqual(CATEGORIES, ['colour', 'type', 'space', 'radius', 'shadow', 'motion', 'layer', 'name', 'target']);
 });
 
 test('the first baseline is written on request, and a clean run then passes', () => {

@@ -181,6 +181,7 @@ node <folder>/literals.mjs <…> --remeasure                  # after a sync tha
 | `motion` | a literal duration or easing in `transition*` or `animation*` | `var(--ui-dur-N)`, `var(--ui-ease)` |
 | `layer` | a `z-index` other than `0`, `1`, `-1` | `var(--ui-z-*)` |
 | `name` | a custom property that is not `--ui-*` | a kit value, or a per-instance name in the allow list |
+| `target` (2.38) | a width, height or flex basis of `40px` or `44px` | `var(--ui-control)`, `var(--ui-target)` |
 
 - **The baseline** (`.kit-literals-baseline.json`, in the app's root) holds the kit version that measured it and a
   count per file and category. A count that rises fails. A count that falls fails until the baseline is lowered in the

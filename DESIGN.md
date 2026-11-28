@@ -40,7 +40,8 @@ shadow on a single screen. If a token is missing, propose a small addition to `t
 for, and sync it into each app. Never edit an app's copy.
 
 A check holds each app to this (2.20): `literals.mjs`, copied with the kit, counts the colours, sizes, spacings, radii,
-shadows, durations, layers and private names an app wrote by hand, and fails a change that adds one. README, "The
+shadows, durations, layers, private names and (2.38) control or touch-target sizes an app wrote by hand, and fails a
+change that adds one. README, "The
 literals check", says how to run it.
 
 ### Colour
@@ -114,8 +115,8 @@ literals check", says how to run it.
   - `r4` (14) for sheets
 
   Controls are rounder than the panels they sit in.
-- **Control heights:** 40 px, and 44 px on a coarse pointer (`ui-btn` and `ui-field` do this). The 44 is one token,
-  `--ui-target` (2.36); a screen that sizes its own touch control uses it, never a number. Icons are 16 or 20 px.
+- **Control heights:** 40 px, and 44 px on a coarse pointer (`ui-btn` and `ui-field` do this). Each is one token:
+  `--ui-control` (2.38) and `--ui-target` (2.36). A screen that sizes its own control uses them, never a number. Icons are 16 or 20 px.
 - **The pill** (`--ui-r-pill`) is for a fully rounded end: a chip, a toggle's track. It is not a fifth step of the
   radius scale.
 - **Shadows** only for things above the page: `--ui-shadow-1` for a toast or a popover, `--ui-shadow-2` for a sheet, a
@@ -259,6 +260,12 @@ is added to this kit, never to one app.
 | An icon-only control | `ui-btn--icon` (2.7) with `aria-label` |
 | What needs the owner | `ApplianceNeeds.renderList` (`ui-needs`), the only Needs-you list |
 | A question only the owner can answer | `ApplianceNeeds.renderDecisions` (`ui-decisions`, 2.27; Pi Hub A33): a "Decisions (n)" group after the condition items, set off from them by six spaces, the `--ui-s-5` step (2.35.1). Choice rows have two to four buttons with every answer the same outlined button with a centred label, the recommended one marked in words and by a heavier `fieldLine` border ("(Recommended)", never the accent: Send is the group's only primary; 2.35.3); text rows have a box and one Send; `multi` rows (2.33) a box per option and one Send, answered with the ticked options in order; `yesno` rows Yes and No. A kind it doesn't draw is shown disabled with its reason. A failed write keeps the row and says "Not recorded. Try again." An unreadable list is `state: "error"`, never an empty group |
+| A section of the page | `ui-section`: an `h2` and rows on the page, with an optional `ui-section__note`. No card |
+| A heading inside a panel | `ui-title` (narrow, `fs4`) |
+| A panel you work in, where the page has no faceplate (a form, a tool outside the A7 page) | `ui-card`. Never inside the faceplate or another card, and never around a list or a reading: "No panel inside a panel" and "One panel per page" still hold |
+| A conversation (the Assistant) | `ui-chat-thread` of `ui-chat-msg--user` and `ui-chat-msg--assistant` (`--streaming` while the answer arrives), and `ui-chat-composer` with its `__input` and `__action` |
+| Technical detail one click away | `ui-disclosure` on a `<details>`, with `ui-disclosure__summary` and `__body` |
+| A tool's result in a conversation | `ui-result-card`, with `--loading` (and `aria-busy`), `--error` and `--disabled` (and `aria-disabled`, with the reason in words) |
 | Status | `ui-chip--ok/warn/bad/unknown`, with `--live` for something running now |
 | A thing's own colour (a filament spool) | `ui-swatch` (2.35.3): a small square filled from `--ui-swatch`, which the app sets from its data; an empty outline when there is none. Square so it is never read as a lamp, and always beside the thing's name |
 | Progress | `ui-meter`, only with a real fraction |
@@ -331,6 +338,11 @@ label never claims more than the app gave it.
   - Tab order follows the reading order, and native controls keep their native keys.
   - A scrolling region either can take focus or doesn't scroll (prefer wrapping).
 - **Meaning:** never by colour, hover or motion alone.
+- **Forced colours** (a Windows contrast theme): the system replaces every colour, so the kit gives each state a
+  system colour of its own (2.38): a lamp's dot stays filled, the meter has an edge and a fill, the bar under a strip
+  link or a tab shows only on the current one, and a selected chip takes the system's selection colours. That is the
+  one place a selected control is a full fill. A swatch keeps the thing's own colour. An app's own part that shows a
+  state by a fill or a tint needs the same; `tests/forced-colours.test.mjs` shows how it is checked.
 - **Markup:**
   - Semantic HTML first: buttons for actions, links for places, `<label>`s and accessible names.
   - ARIA only where native semantics fall short.

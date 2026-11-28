@@ -107,6 +107,19 @@ test('the 44 px target is one token: built into tokens.css, and no kit styleshee
   assert.doesNotMatch(read('dist/tokens.h'), /TARGET/, 'the display keeps its own 48 px');
 });
 
+// 2.38.0: the 40 px control height is a token too, and a row's or a confirm's first column is sized in rem.
+test('the 40 px control height is one token, and no kit stylesheet writes 40px or a px flex basis', () => {
+  assert.match(read('dist/tokens.css'), /--ui-control:40px;/);
+  assert.equal(JSON.parse(read('tokens.json')).control, 40);
+  const css = read('dist/components.css').replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.doesNotMatch(css, /[:\s]40px/);
+  assert.match(css, /\.ui-btn\{[^}]*min-height:var\(--ui-control\)/);
+  assert.match(css, /\.ui-field\{[^}]*min-height:var\(--ui-control\)/);
+  assert.match(css, /\.ui-btn--icon\{width:var\(--ui-control\)/);
+  assert.doesNotMatch(css, /flex:[^;}]*\d+px/, 'no content width fixed in px (DESIGN.md, Navigation)');
+  assert.doesNotMatch(read('dist/tokens.h'), /CONTROL/, 'the display keeps its own sizes');
+});
+
 test('on a touch screen a checkbox takes a press 10 px outside its box, labelled or bare; with a mouse it does not', async () => {
   for (const hasTouch of [true, false]) {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch });
